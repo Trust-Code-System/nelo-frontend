@@ -1,4 +1,6 @@
 import { notFound } from 'next/navigation';
+import { SiteFooter } from '@/components/SiteFooter';
+import { SiteHeader } from '@/components/SiteHeader';
 import { isMarket } from '@/lib/vendure/channels';
 
 /**
@@ -19,7 +21,9 @@ export default async function HomePage({
   if (!isMarket(market)) notFound();
 
   return (
-    <main className="shell">
+    <>
+      <SiteHeader market={market} announcement="Statement femininity for the modern woman" />
+      <main className="shell">
       <section style={{ paddingBlock: 'var(--s9)' }}>
         <span className="lab">Phase 1 — foundation</span>
         <h1 style={{ fontSize: 'var(--t-2xl)', fontWeight: 600, letterSpacing: '-.022em' }}>
@@ -42,6 +46,8 @@ export default async function HomePage({
           </div>
         </dl>
       </section>
-    </main>
+        <SiteFooter market={market} />
+      </main>
+    </>
   );
 }

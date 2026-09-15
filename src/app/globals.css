@@ -334,3 +334,28 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--garnet); outline
     color:var(--smoke); flex:0 0 auto}
   .rows td.num{text-align:right}
 }
+
+/* ---------- mobile navigation ---------- */
+.menu-panel{
+  /* A full-width row inside the header grid. order:99 keeps it BELOW the wordmark and
+     utilities instead of being auto-placed between them. */
+  grid-column:1/-1; order:99;
+  border-top:var(--rule); margin-top:var(--s4);
+  padding-top:var(--s4); display:flex; flex-direction:column; gap:var(--s4);
+}
+.menu-panel-nav{display:flex; flex-direction:column; gap:var(--s3)}
+.menu-panel-nav a{
+  font-family:var(--mono); font-size:var(--t-label); letter-spacing:.16em;
+  text-transform:uppercase; padding:var(--s2) 0; border-bottom:var(--rule);
+}
+.menu-panel-nav a:last-child{border-bottom:0}
+.menu-panel-markets{display:flex; border:var(--rule-ink); width:fit-content}
+.menu-panel-markets a{
+  font-family:var(--mono); font-size:var(--t-micro); letter-spacing:.1em;
+  padding:var(--s2) var(--s3); border-right:var(--rule-ink);
+}
+.menu-panel-markets a:last-child{border-right:0}
+.menu-panel-markets a[aria-current="true"]{background:var(--ink); color:var(--paper)}
+
+/* the panel only exists below the breakpoint where the inline nav is hidden */
+@media (min-width:861px){ .menu-panel{display:none} }

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { MobileMenu } from './MobileMenu';
 import { MARKETS, type Market } from '@/lib/vendure/channels';
 
 /** Server component. The market switcher is a set of links, not client state — changing
@@ -11,9 +12,7 @@ export function SiteHeader({ market, announcement }: { market: Market; announcem
       </div>
       <header className="hdr">
         <div className="hdr-in">
-          <button className="menu lab" aria-label="Open menu" type="button">
-            Menu
-          </button>
+          <MobileMenu market={market} />
           <nav className="lab nav-links" aria-label="Primary">
             <Link href={`/${market}`}>Shop</Link>
             <Link href={`/${market}`}>Collections</Link>
