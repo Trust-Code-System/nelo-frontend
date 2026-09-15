@@ -122,3 +122,20 @@ export type BespokeProject = {
   permittedActions: ProjectAction[];
   createdAt: string;
 };
+
+/**
+ * A reusable measurement profile. One per customer is the active default.
+ *
+ * Editing or creating a profile must NOT retroactively change a commission already in
+ * production — a BespokeItem holds its own independently confirmed snapshot.
+ */
+export type MeasurementProfile = {
+  id: string;
+  name: string;
+  isDefault: boolean;
+  measurements: MeasurementValue[];
+  confirmedAt: string | null;
+  /** Customer-safe only — never a staff actor id or an override reason. */
+  confirmedLocation: string | null;
+  updatedAt: string;
+};

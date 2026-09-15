@@ -1,4 +1,4 @@
-import type { BespokeProject } from './types';
+import type { BespokeProject, MeasurementProfile } from './types';
 
 /**
  * FIXTURES. Not production data, and not a guess at production field names.
@@ -137,3 +137,41 @@ export function fixtureProject(reference: string): BespokeProject | null {
 export function fixtureProjectReferences(): string[] {
   return Object.keys(PROJECTS);
 }
+
+/** Reusable measurement profiles. Exactly one is the active default. */
+export const PROFILES: MeasurementProfile[] = [
+  {
+    id: 'prof_default',
+    name: 'My measurements',
+    isDefault: true,
+    confirmedAt: '2026-05-14T11:00:00+01:00',
+    confirmedLocation: 'Lagos atelier',
+    updatedAt: '2026-05-14T11:00:00+01:00',
+    measurements: [
+      { code: 'bust', millimetres: '863.60' },
+      { code: 'waist', millimetres: '711.20' },
+      { code: 'hip', millimetres: '965.20' },
+      { code: 'height', millimetres: '1676.40' },
+      { code: 'shoulderWidth', millimetres: '393.70' },
+      { code: 'sleeveLength', millimetres: '590.55' },
+      { code: 'inseam', millimetres: null },
+    ],
+  },
+  {
+    id: 'prof_self',
+    name: 'Self-measured, Aug 2026',
+    isDefault: false,
+    confirmedAt: null,
+    confirmedLocation: null,
+    updatedAt: '2026-08-02T18:40:00+01:00',
+    measurements: [
+      { code: 'bust', millimetres: '869.95' },
+      { code: 'waist', millimetres: '717.55' },
+      { code: 'hip', millimetres: '971.55' },
+      { code: 'height', millimetres: '1676.40' },
+      { code: 'shoulderWidth', millimetres: null },
+      { code: 'sleeveLength', millimetres: null },
+      { code: 'inseam', millimetres: null },
+    ],
+  },
+];

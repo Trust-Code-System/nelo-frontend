@@ -25,12 +25,13 @@ type Row = { value: string; unit: MeasurementUnit };
 
 const EMPTY: Row = { value: '', unit: 'inch' };
 
-export function MeasurementFields() {
+export type MeasurementInitial = Partial<Record<MeasurementCode, Row>>;
+
+export function MeasurementFields({ initial }: { initial?: MeasurementInitial }) {
   const [rows, setRows] = useState<Record<MeasurementCode, Row>>(() =>
-    Object.fromEntries(MEASUREMENT_CODES.map((code) => [code, { ...EMPTY }])) as Record<
-      MeasurementCode,
-      Row
-    >,
+    Object.fromEntries(
+      MEASUREMENT_CODES.map((code) => [code, { ...EMPTY, ...(initial?.[code] ?? {}) }]),
+    ) as Record<MeasurementCode, Row>,
   );
 
   function update(code: MeasurementCode, patch: Partial<Row>) {
