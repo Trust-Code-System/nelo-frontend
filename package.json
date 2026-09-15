@@ -9,7 +9,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "codegen": "graphql-codegen --config codegen.ts",
     "codegen:check": "graphql-codegen --config codegen.ts --check",
