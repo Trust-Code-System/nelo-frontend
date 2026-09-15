@@ -266,3 +266,71 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--garnet); outline
   .aside{position:static}
 }
 @media (max-width:560px){ .steps{grid-template-columns:repeat(2,1fr)} }
+
+/* ---------- garment tracker ---------- */
+.sr{position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden;
+  clip:rect(0 0 0 0); white-space:nowrap; border:0}
+
+.track-steps{display:grid; gap:var(--s2); list-style:none; padding:0; margin:var(--s3) 0 0}
+.track-steps li{border-top:2px solid var(--hair); padding-top:var(--s2); position:relative}
+.track-steps li.done{border-top-color:var(--ink)}
+.track-steps li.now{border-top-color:var(--garnet)}
+.track-steps .n{display:block; font-family:var(--mono); font-size:var(--t-micro);
+  letter-spacing:.14em; color:var(--smoke)}
+.track-steps .t{display:block; font-size:var(--t-fine); margin-top:2px; color:var(--smoke)}
+.track-steps li.done .t{color:var(--ink)}
+.track-steps li.now .t{color:var(--garnet); font-weight:600}
+
+.proj-head{display:flex; justify-content:space-between; align-items:flex-end; gap:var(--s5);
+  padding-block:var(--s7) var(--s4); border-bottom:var(--rule-ink); flex-wrap:wrap}
+.proj-head h1{font-size:var(--t-xl); margin:var(--s2) 0 0; font-weight:600; letter-spacing:-.018em}
+.proj-meta{font-family:var(--mono); font-size:var(--t-fine); color:var(--smoke);
+  display:flex; gap:var(--s5); flex-wrap:wrap}
+
+.garment{border:var(--rule); padding:var(--s6); margin-top:var(--s5)}
+.garment-head{display:flex; justify-content:space-between; align-items:baseline; gap:var(--s4);
+  flex-wrap:wrap; margin-bottom:var(--s4)}
+.garment-head h3{font-size:var(--t-md); margin:0; font-weight:600}
+.garment-head .eta{font-family:var(--mono); font-size:var(--t-fine); color:var(--smoke)}
+
+.snap{margin-top:var(--s5); border-top:var(--rule); padding-top:var(--s4)}
+.snap-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:0 var(--s5); margin:var(--s3) 0 0}
+.snap-grid div{display:flex; justify-content:space-between; gap:var(--s2); align-items:baseline;
+  padding:6px 0; border-bottom:1px dotted var(--hair); font-family:var(--mono); font-size:var(--t-fine)}
+.snap-grid dt{font-size:var(--t-micro); letter-spacing:.12em; text-transform:uppercase; color:var(--smoke)}
+.snap-grid dd{margin:0; font-variant-numeric:tabular-nums}
+.snap-grid .unset dd{color:var(--smoke)}
+
+.rows{width:100%; border-collapse:collapse; margin-top:var(--s3)}
+.rows th{text-align:left; font-family:var(--mono); font-size:var(--t-micro); letter-spacing:.14em;
+  text-transform:uppercase; color:var(--smoke); font-weight:500; padding:0 var(--s4) var(--s2) 0;
+  border-bottom:var(--rule-ink)}
+.rows td{padding:var(--s3) var(--s4) var(--s3) 0; border-bottom:var(--rule); font-size:var(--t-sm)}
+.rows td.num{font-family:var(--mono); font-variant-numeric:tabular-nums; text-align:right; padding-right:0}
+.rows th.num{text-align:right; padding-right:0}
+.pill{font-family:var(--mono); font-size:var(--t-micro); letter-spacing:.12em; text-transform:uppercase;
+  border:1px solid currentColor; padding:2px 7px; white-space:nowrap}
+.pill.settled{color:var(--smoke)}
+.pill.due{color:var(--garnet)}
+.pill.soon{color:var(--ink)}
+
+.acts-row{display:flex; gap:var(--s3); flex-wrap:wrap; margin-top:var(--s6)}
+.section-gap{margin-top:var(--s8)}
+
+@media (max-width:900px){
+  .snap-grid{grid-template-columns:repeat(2,1fr)}
+  .track-steps{grid-template-columns:repeat(4,minmax(0,1fr)) !important}
+}
+@media (max-width:560px){
+  .snap-grid{grid-template-columns:1fr}
+  .track-steps{grid-template-columns:repeat(2,minmax(0,1fr)) !important}
+  /* stacked rows keep their column name, so a value is never orphaned */
+  .rows thead{display:none}
+  .rows tr{display:block; border-bottom:var(--rule-ink); padding-block:var(--s3)}
+  .rows td{display:flex; justify-content:space-between; align-items:baseline;
+    gap:var(--s4); padding:4px 0; border-bottom:0}
+  .rows td::before{content:attr(data-label); font-family:var(--mono);
+    font-size:var(--t-micro); letter-spacing:.14em; text-transform:uppercase;
+    color:var(--smoke); flex:0 0 auto}
+  .rows td.num{text-align:right}
+}
