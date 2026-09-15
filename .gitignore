@@ -1,0 +1,19 @@
+# dependencies
+node_modules
+
+# build output
+.next
+out
+*.tsbuildinfo
+
+# environment — never commit real Channel tokens or API origins
+.env
+.env*.local
+
+# codegen output: regenerated from the Shop API schema, never hand-edited
+src/lib/vendure/generated
+
+# visual-gate renders: ~14MB of @2x PNGs, regenerable from design/mockups
+design/shots
+
+.DS_Store

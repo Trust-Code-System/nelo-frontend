@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Adele Set — NELO WOMAN</title>
+<link rel="stylesheet" href="tokens.css">
+<style>
+.crumb{padding-block:var(--s5) var(--s4); font-family:var(--mono); font-size:var(--t-micro); letter-spacing:.14em; text-transform:uppercase; color:var(--smoke)}
+.crumb a:hover{color:var(--garnet)}
+
+.pdp{display:grid; grid-template-columns:1.12fr 1fr; gap:var(--s8); align-items:start; padding-bottom:var(--s9)}
+.gallery{display:grid; gap:var(--s3)}
+.gallery .main{background:var(--ground); aspect-ratio:4/5; overflow:hidden}
+.gallery .main img{width:100%; height:100%; object-fit:cover}
+.thumbs{display:grid; grid-template-columns:repeat(4,1fr); gap:var(--s3)}
+.thumbs button{background:var(--ground); border:0; padding:0; aspect-ratio:1; overflow:hidden; cursor:pointer; opacity:.55; transition:opacity var(--snap)}
+.thumbs button[aria-pressed="true"],.thumbs button:hover{opacity:1}
+.thumbs img{width:100%; height:100%; object-fit:cover}
+
+.panel{position:sticky; top:104px}
+.panel h1{font-size:var(--t-xl); margin:var(--s2) 0 0; font-weight:600; letter-spacing:-.018em}
+.pricerow{display:flex; align-items:baseline; gap:var(--s3); margin-top:var(--s3); padding-bottom:var(--s5); border-bottom:var(--rule)}
+.pricerow .p{font-family:var(--mono); font-size:var(--t-lg); font-weight:500; font-variant-numeric:tabular-nums}
+.pricerow .t{font-family:var(--mono); font-size:var(--t-micro); color:var(--smoke); letter-spacing:.1em}
+
+.blk{padding-block:var(--s5); border-bottom:var(--rule)}
+.blk>.lab{display:flex; justify-content:space-between; gap:var(--s3); margin-bottom:var(--s3)}
+.blk>.lab b{color:var(--ink); font-weight:500; letter-spacing:.14em}
+
+.sw{display:flex; gap:var(--s2)}
+.sw button{width:36px; height:36px; border:var(--rule); padding:0; cursor:pointer; position:relative; transition:border-color var(--snap)}
+.sw button[aria-pressed="true"]{border:1px solid var(--ink); outline:1px solid var(--ink); outline-offset:2px}
+
+/* the measurement block — the differentiator */
+.fit{border:var(--rule-ink); padding:var(--s5); margin-block:var(--s5)}
+.fit-h{display:flex; justify-content:space-between; align-items:baseline; gap:var(--s3); margin-bottom:var(--s4)}
+.fit-h a{font-family:var(--mono); font-size:var(--t-micro); letter-spacing:.14em; text-transform:uppercase; color:var(--garnet)}
+.mgrid{display:grid; grid-template-columns:1fr 1fr; gap:0 var(--s5)}
+.mrow{display:flex; justify-content:space-between; gap:var(--s3); align-items:baseline; padding:var(--s2) 0; border-bottom:1px dotted var(--hair); font-size:var(--t-fine)}
+.mrow dt{font-family:var(--mono); font-size:var(--t-micro); letter-spacing:.12em; text-transform:uppercase; color:var(--smoke)}
+.mrow dd{margin:0; font-family:var(--mono); font-variant-numeric:tabular-nums; white-space:nowrap}
+.mrow dd i{font-style:normal; color:var(--smoke)}
+.mrow.unset dd{color:var(--smoke)}
+.fit-f{display:flex; justify-content:space-between; align-items:center; gap:var(--s3); margin-top:var(--s4); font-size:var(--t-fine); color:var(--smoke)}
+.unit{display:flex; border:var(--rule); font-family:var(--mono); font-size:var(--t-micro)}
+.unit button{background:none; border:0; padding:var(--s1) var(--s2); cursor:pointer}
+.unit button[aria-pressed="true"]{background:var(--ink); color:var(--paper)}
+
+.buy{margin-block:var(--s5)}
+.buy .btn{width:100%; text-align:center; padding:var(--s4)}
+.buy .note{font-family:var(--mono); font-size:var(--t-micro); color:var(--smoke); letter-spacing:.08em; text-align:center; margin-top:var(--s3); line-height:1.8}
+
+details{border-bottom:var(--rule)}
+details summary{
+  list-style:none; cursor:pointer; padding:var(--s4) 0;
+  font-family:var(--mono); font-size:var(--t-micro); letter-spacing:.16em; text-transform:uppercase;
+  display:flex; justify-content:space-between;
+}
+details summary::-webkit-details-marker{display:none}
+details summary::after{content:'+'; color:var(--smoke)}
+details[open] summary::after{content:'—'}
+details .body{padding-bottom:var(--s5); color:var(--smoke); font-size:var(--t-sm); max-width:46ch}
+
+@media (max-width:980px){
+  .pdp{grid-template-columns:1fr; gap:var(--s6)}
+  .panel{position:static}
+  .mgrid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="ann"><span class="lab">Complimentary shipping within Nigeria over ₦150,000</span></div>
+
+<header class="hdr">
+  <div class="hdr-in">
+    <button class="menu lab" aria-label="Open menu">Menu</button>
+    <nav class="lab nav-links">
+      <a href="collection.html">Shop</a><a href="collection.html">Collections</a>
+      <a href="bespoke.html">Atelier</a><a href="#">About</a>
+    </nav>
+    <a class="wordmark" href="home.html">NELO<small>Woman</small></a>
+    <div class="hdr-r">
+      <div class="mkt u-hide" role="group" aria-label="Market">
+        <button aria-pressed="true">NG ₦</button><button aria-pressed="false">INT $</button>
+      </div>
+      <span class="lab u-hide">Search</span><span class="lab u-hide">Account</span><span class="lab">Bag (0)</span>
+    </div>
+  </div>
+</header>
+
+<main class="shell">
+  <p class="crumb"><a href="home.html">Nelo</a> / <a href="collection.html">Ready to Wear</a> / Adele Set</p>
+
+  <div class="pdp">
+    <div class="gallery">
+      <div class="main framed">
+        <img src="https://www.nelowoman.com/cdn/shop/files/IMG_0660.jpg?width=1200" alt="Adele Set in teal, front view">
+      </div>
+      <div class="thumbs">
+        <button aria-pressed="true"><img src="https://www.nelowoman.com/cdn/shop/files/IMG_0660.jpg?width=300" alt="Front view"></button>
+        <button aria-pressed="false"><img src="https://www.nelowoman.com/cdn/shop/files/IMG_6893.jpg?width=300" alt="Adele top detail"></button>
+        <button aria-pressed="false"><img src="https://www.nelowoman.com/cdn/shop/files/IMG_0665.jpg?width=300" alt="Adele pant detail"></button>
+        <button aria-pressed="false"><img src="https://www.nelowoman.com/cdn/shop/files/IMG_0687.jpg?width=300" alt="Styled with Nova"></button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <span class="lab">Linear Summer 26 · Look 01</span>
+      <h1>Adele Set</h1>
+      <div class="pricerow">
+        <span class="p">₦185,620</span>
+        <span class="t">NGN · duties included</span>
+      </div>
+
+      <div class="blk">
+        <span class="lab"><b>Colour</b><span>White with black pant</span></span>
+        <div class="sw" role="group" aria-label="Colour">
+          <button aria-pressed="true" style="background:#F4F1EC" aria-label="White with black pant"></button>
+          <button aria-pressed="false" style="background:#0E7C86" aria-label="Teal"></button>
+        </div>
+      </div>
+
+      <div class="blk">
+        <span class="lab"><b>Size</b><span>UK · 6 to 30</span></span>
+        <div class="scale" role="group" aria-label="Size">
+          <button aria-pressed="false">6</button><button aria-pressed="false">8</button>
+          <button aria-pressed="true">10</button><button aria-pressed="false">12</button>
+          <button aria-pressed="false">14</button><button disabled>16</button>
+          <button aria-pressed="false">18</button><button aria-pressed="false">20</button>
+          <button aria-pressed="false">22</button><button aria-pressed="false">24</button>
+          <button disabled>26</button><button aria-pressed="false">28</button>
+          <button aria-pressed="false">30</button>
+        </div>
+        <p class="fnote" style="font-family:var(--mono); font-size:var(--t-micro); color:var(--smoke); letter-spacing:.08em; margin-top:var(--s3)">Struck sizes are not in stock to ship. Every size can still be cut to measure.</p>
+      </div>
+
+      <section class="fit">
+        <div class="fit-h">
+          <span class="lab" style="color:var(--ink)"><b>Cut to your measurements</b></span>
+          <a href="bespoke.html">Edit profile</a>
+        </div>
+        <dl class="mgrid">
+          <div class="mrow"><dt>Bust</dt><dd>863.60 <i>mm</i></dd></div>
+          <div class="mrow"><dt>Waist</dt><dd>711.20 <i>mm</i></dd></div>
+          <div class="mrow"><dt>Hip</dt><dd>965.20 <i>mm</i></dd></div>
+          <div class="mrow"><dt>Height</dt><dd>1676.40 <i>mm</i></dd></div>
+          <div class="mrow"><dt>Shoulder</dt><dd>393.70 <i>mm</i></dd></div>
+          <div class="mrow"><dt>Sleeve</dt><dd>590.55 <i>mm</i></dd></div>
+          <div class="mrow unset"><dt>Inseam</dt><dd>Not confirmed</dd></div>
+          <div class="mrow" style="border-bottom:0"><dt>Profile</dt><dd>Default</dd></div>
+        </dl>
+        <div class="fit-f">
+          <span>Confirmed 12 Aug 2026 · Lagos atelier</span>
+          <div class="unit" role="group" aria-label="Display unit">
+            <button aria-pressed="true">mm</button><button aria-pressed="false">in</button><button aria-pressed="false">cm</button>
+          </div>
+        </div>
+      </section>
+
+      <div class="buy">
+        <button class="btn">Add to bag — ₦185,620</button>
+        <p class="note">Cut to measure · dispatched in 10—14 days<br>Free alterations within 30 days of delivery</p>
+      </div>
+
+      <details open>
+        <summary>Details</summary>
+        <div class="body">A structured sleeveless top with a folded asymmetric collar, worn with a high-waisted fringed mini skirt. Bonded crepe with a clean-finished interior. The collar holds its shape without boning.</div>
+      </details>
+      <details>
+        <summary>Fabric &amp; care</summary>
+        <div class="body">Bonded crepe, 68% viscose / 28% polyamide / 4% elastane. Dry clean only. Store flat; do not hang the skirt by the fringe.</div>
+      </details>
+      <details>
+        <summary>Delivery &amp; returns</summary>
+        <div class="body">Lagos 2—3 days. Rest of Nigeria 4—6 days. International 7—12 days, duties included at checkout. Cut-to-measure pieces are returnable for alteration, not refund.</div>
+      </details>
+    </div>
+  </div>
+
+  <section>
+    <div class="shead">
+      <div><span class="lab">Styled with</span><h2>From Linear Summer 26</h2></div>
+      <a class="lab" href="collection.html" style="color:var(--garnet)">View collection →</a>
+    </div>
+    <div class="grid g4">
+      <a class="card" href="product.html"><figure>
+        <div class="ph framed"><img src="https://www.nelowoman.com/cdn/shop/files/IMG_6893.jpg?width=700" alt="Adele Top"></div>
+        <figcaption><div class="meta"><h3>Adele Top</h3><span class="price num">₦85,620</span></div>
+        <div class="strip"><span>UK 6—30</span></div></figcaption></figure></a>
+      <a class="card" href="product.html"><figure>
+        <div class="ph framed"><img src="https://www.nelowoman.com/cdn/shop/files/IMG_0665.jpg?width=700" alt="Adele Pant"></div>
+        <figcaption><div class="meta"><h3>Adele Pant</h3><span class="price num">₦100,820</span></div>
+        <div class="strip"><span>UK 6—30</span></div></figcaption></figure></a>
+      <a class="card" href="product.html"><figure>
+        <div class="ph framed"><img src="https://www.nelowoman.com/cdn/shop/files/IMG_0687.jpg?width=700" alt="Nova Set"></div>
+        <figcaption><div class="meta"><h3>Nova Set</h3><span class="price num">₦250,840</span></div>
+        <div class="strip"><span>UK 6—30</span></div></figcaption></figure></a>
+      <a class="card" href="product.html"><figure>
+        <div class="ph framed"><img src="https://www.nelowoman.com/cdn/shop/files/IMG_6904.jpg?width=700" alt="Nova Pant"></div>
+        <figcaption><div class="meta"><h3>Nova Pant</h3><span class="price num">₦155,000</span></div>
+        <div class="strip"><span>UK 6—30</span></div></figcaption></figure></a>
+    </div>
+  </section>
+
+  <footer>
+    <div class="fgrid">
+      <div>
+        <span class="wordmark" style="text-align:left; display:block">NELO<small>Woman</small></span>
+        <p style="color:var(--smoke); font-size:var(--t-sm); max-width:30ch; margin-top:var(--s4)">Cut in Lagos. Shipped worldwide. Sizes 6 to 30, always.</p>
+      </div>
+      <div><h4>Shop</h4><ul><li><a href="#">Ready to wear</a></li><li><a href="#">Gowns</a></li><li><a href="#">Two-piece sets</a></li><li><a href="#">The Nelo Classic</a></li></ul></div>
+      <div><h4>Atelier</h4><ul><li><a href="bespoke.html">Bespoke</a></li><li><a href="bespoke.html">Bridal</a></li><li><a href="bespoke.html">Book a fitting</a></li><li><a href="#">Measurement guide</a></li></ul></div>
+      <div><h4>Care</h4><ul><li><a href="#">Shipping</a></li><li><a href="#">Returns</a></li><li><a href="#">Track an order</a></li><li><a href="#">Contact</a></li></ul></div>
+    </div>
+    <p class="lab" style="margin-top:var(--s7)">© 2026 Nelo Woman · Lagos</p>
+  </footer>
+</main>
+
+</body>
+</html>

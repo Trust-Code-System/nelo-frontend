@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ready to Wear — NELO WOMAN</title>
+<link rel="stylesheet" href="tokens.css">
+<style>
+.phead{display:flex; justify-content:space-between; align-items:flex-end; gap:var(--s5); padding-block:var(--s7) var(--s5); border-bottom:var(--rule-ink)}
+.phead h1{font-size:var(--t-2xl); margin:var(--s3) 0 0; font-weight:600; letter-spacing:-.022em}
+.phead p{color:var(--smoke); max-width:42ch; margin:var(--s3) 0 0; font-size:var(--t-sm)}
+.count{font-family:var(--mono); font-size:var(--t-fine); color:var(--smoke); white-space:nowrap}
+
+.layout{display:grid; grid-template-columns:232px 1fr; gap:var(--s8); padding-top:var(--s6)}
+.rail{position:sticky; top:96px; align-self:start}
+.fset{border-bottom:var(--rule); padding-bottom:var(--s5); margin-bottom:var(--s5)}
+.fset:last-child{border-bottom:0}
+.fset h3{font-family:var(--mono); font-size:var(--t-micro); letter-spacing:.18em; text-transform:uppercase; color:var(--smoke); margin:0 0 var(--s3); font-weight:500}
+.fset ul{list-style:none; margin:0; padding:0; font-size:var(--t-sm)}
+.fset li{margin-bottom:var(--s2); display:flex; justify-content:space-between; gap:var(--s3)}
+.fset li a{transition:color var(--snap)}
+.fset li a:hover,.fset li[aria-current="true"] a{color:var(--garnet)}
+.fset li span{font-family:var(--mono); font-size:var(--t-micro); color:var(--smoke); font-variant-numeric:tabular-nums}
+.fset .scale button{min-width:32px; padding:var(--s2) 0; font-size:var(--t-micro)}
+.fnote{font-family:var(--mono); font-size:var(--t-micro); color:var(--smoke); letter-spacing:.08em; margin-top:var(--s3); line-height:1.7}
+
+.bar{display:flex; justify-content:space-between; align-items:center; gap:var(--s4); border-bottom:var(--rule); padding-bottom:var(--s3); margin-bottom:var(--s6)}
+.chips{display:flex; gap:var(--s2); flex-wrap:wrap}
+.chip{
+  font-family:var(--mono); font-size:var(--t-micro); letter-spacing:.12em; text-transform:uppercase;
+  border:var(--rule-ink); padding:var(--s1) var(--s2); display:inline-flex; gap:var(--s2); align-items:center;
+}
+.chip b{font-weight:500}
+.chip button{background:none; border:0; cursor:pointer; padding:0; color:var(--smoke); font-size:12px; line-height:1}
+
+.pgrid{grid-template-columns:repeat(3,1fr)}
+
+/* loading + empty states */
+.skel .ph{background:var(--ground)}
+.skel .ln{height:10px; background:var(--ground); margin-top:var(--s3)}
+.skel .ln.s{width:40%}
+.empty{border:var(--rule); padding:var(--s8); text-align:center; margin-top:var(--s6)}
+.empty h3{font-size:var(--t-md); margin:var(--s3) 0}
+.empty p{color:var(--smoke); font-size:var(--t-sm); max-width:40ch; margin:0 auto var(--s5)}
+
+@media (max-width:1000px){
+  .layout{grid-template-columns:1fr; gap:var(--s6)}
+  .rail{position:static; max-height:none}
+  .pgrid{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:560px){
+  .pgrid{grid-template-columns:repeat(2,1fr); gap:var(--s5) var(--s3)}
+  .rail{border-bottom:var(--rule-ink); padding-bottom:var(--s5)}
+}
+</style>
+</head>
+<body>
+
+<div class="ann"><span class="lab">Complimentary shipping within Nigeria over ₦150,000</span></div>
+
+<header class="hdr">
+  <div class="hdr-in">
+    <button class="menu lab" aria-label="Open menu">Menu</button>
+    <nav class="lab nav-links">
+      <a href="collection.html">Shop</a><a href="collection.html">Collections</a>
+      <a href="bespoke.html">Atelier</a><a href="#">About</a>
+    </nav>
+    <a class="wordmark" href="home.html">NELO<small>Woman</small></a>
+    <div class="hdr-r">
+      <div class="mkt u-hide" role="group" aria-label="Market">
+        <button aria-pressed="true">NG ₦</button><button aria-pressed="false">INT $</button>
+      </div>
+      <span class="lab u-hide">Search</span><span class="lab u-hide">Account</span><span class="lab">Bag (0)</span>
+    </div>
+  </div>
+</header>
+
+<main class="shell">
+  <div class="phead">
+    <div>
+      <span class="lab">Collection</span>
+      <h1>Ready to Wear</h1>
+      <p>Cut from the house blocks and finished to your recorded measurements before it ships.</p>
+    </div>
+    <span class="count">24 garments · UK 6—30</span>
+  </div>
+
+  <div class="layout">
+    <aside class="rail">
+      <div class="fset">
+        <h3>Size</h3>
+        <div class="scale" role="group" aria-label="Filter by size">
+          <button aria-pressed="false">6</button><button aria-pressed="false">8</button>
+          <button aria-pressed="true">10</button><button aria-pressed="false">12</button>
+          <button aria-pressed="false">14</button><button aria-pressed="false">16</button>
+          <button aria-pressed="false">18</button><button aria-pressed="false">20</button>
+          <button aria-pressed="false">22</button><button aria-pressed="false">24</button>
+          <button aria-pressed="false">26</button><button aria-pressed="false">28</button>
+          <button aria-pressed="false">30</button>
+        </div>
+        <p class="fnote">Every style is made in every size. Filtering by size narrows what is ready to ship, not what can be made.</p>
+      </div>
+
+      <div class="fset">
+        <h3>Category</h3>
+        <ul>
+          <li aria-current="true"><a href="#">Ready to wear</a><span>24</span></li>
+          <li><a href="#">Gowns</a><span>9</span></li>
+          <li><a href="#">Dinner wear</a><span>7</span></li>
+          <li><a href="#">Two-piece sets</a><span>6</span></li>
+          <li><a href="#">Short dresses</a><span>5</span></li>
+          <li><a href="#">Pants</a><span>4</span></li>
+          <li><a href="#">Jackets</a><span>3</span></li>
+          <li><a href="#">Beach wear</a><span>3</span></li>
+          <li><a href="#">The Nelo Classic</a><span>2</span></li>
+        </ul>
+      </div>
+
+      <div class="fset">
+        <h3>Make</h3>
+        <ul>
+          <li><a href="#">Ready to ship</a><span>11</span></li>
+          <li><a href="#">Cut to measure</a><span>24</span></li>
+          <li><a href="bespoke.html">Commission</a><span>—</span></li>
+        </ul>
+      </div>
+
+      <div class="fset">
+        <h3>Price</h3>
+        <ul>
+          <li><a href="#">Under ₦200,000</a><span>8</span></li>
+          <li><a href="#">₦200,000—₦300,000</a><span>11</span></li>
+          <li><a href="#">Over ₦300,000</a><span>5</span></li>
+        </ul>
+      </div>
+    </aside>
+
+    <div>
+      <div class="bar">
+        <div class="chips">
+          <span class="chip"><b>Size 10</b><button aria-label="Remove size 10 filter">✕</button></span>
+          <span class="chip"><b>Ready to wear</b><button aria-label="Remove category filter">✕</button></span>
+        </div>
+        <span class="lab">Sort — Newest</span>
+      </div>
+
+      <div class="grid pgrid">
+        <a class="card" href="product.html"><figure>
+          <div class="ph framed"><img src="https://www.nelowoman.com/cdn/shop/files/IMG_0660.jpg?width=760" alt="Adele Set, teal"></div>
+          <figcaption><div class="meta"><h3>Adele Set</h3><span class="price num">₦185,620</span></div>
+          <div class="strip"><span>UK 6—30</span><span>2 colours</span><span>Ready to ship</span></div></figcaption>
+        </figure></a>
+
+        <a class="card" href="product.html"><figure>
+          <div class="ph framed"><img src="https://www.nelowoman.com/cdn/shop/files/IMG_0733.jpg?width=760" alt="Bloom gown"></div>
+          <figcaption><div class="meta"><h3>Bloom</h3><span class="price num">₦250,870</span></div>
+          <div class="strip"><span>UK 6—30</span><span>Cut to measure</span></div></figcaption>
+        </figure></a>
+
+        <a class="card" href="product.html"><figure>
+          <div class="ph framed"><img src="https://www.nelowoman.com/cdn/shop/files/IMG_0702.jpg?width=760" alt="Reign gown"></div>
+          <figcaption><div class="meta"><h3>Reign</h3><span class="price num">₦220,680</span></div>
+          <div class="strip"><span>UK 6—30</span><span>Ready to ship</span></div></figcaption>
+        </figure></a>
+
+        <a class="card" href="product.html"><figure>
+          <div class="ph framed"><img src="https://www.nelowoman.com/cdn/shop/files/IMG_0687.jpg?width=760" alt="Nova Set"></div>
+          <figcaption><div class="meta"><h3>Nova Set</h3><span class="price num">₦250,840</span></div>
+          <div class="strip"><span>UK 6—30</span><span>2 colours</span></div></figcaption>
+        </figure></a>
+
+        <a class="card" href="product.html"><figure>
+          <div class="ph framed"><img src="https://www.nelowoman.com/cdn/shop/files/siren-web-black-01.jpg?width=760" alt="Siren gown in black"></div>
+          <figcaption><div class="meta"><h3>Siren</h3><span class="price num">₦385,000</span></div>
+          <div class="strip"><span>UK 6—30</span><span>Cut to measure</span></div></figcaption>
+        </figure></a>
+
+        <a class="card" href="product.html"><figure>
+          <div class="ph framed"><img src="https://www.nelowoman.com/cdn/shop/files/Paris2.0-01.jpg?width=760" alt="Paris 2.0 gown"></div>
+          <figcaption><div class="meta"><h3>Paris 2.0</h3><span class="price num">₦350,000</span></div>
+          <div class="strip"><span>UK 6—30</span><span>Cut to measure</span></div></figcaption>
+        </figure></a>
+
+        <a class="card" href="product.html"><figure>
+          <div class="ph framed"><img src="https://www.nelowoman.com/cdn/shop/files/Valentia-01.jpg?width=760" alt="Valentia gown"></div>
+          <figcaption><div class="meta"><h3>Valentia</h3><span class="price num">₦385,000</span></div>
+          <div class="strip"><span>UK 6—30</span><span>Ready to ship</span></div></figcaption>
+        </figure></a>
+
+        <a class="card" href="product.html"><figure>
+          <div class="ph framed"><img src="https://www.nelowoman.com/cdn/shop/files/HAVANA-01.jpg?width=760" alt="Havana dress"></div>
+          <figcaption><div class="meta"><h3>Havana</h3><span class="price num">₦250,000</span></div>
+          <div class="strip"><span>UK 6—30</span><span>Cut to measure</span></div></figcaption>
+        </figure></a>
+
+        <a class="card" href="product.html"><figure>
+          <div class="ph framed"><img src="https://www.nelowoman.com/cdn/shop/files/Monaco-05.jpg?width=760" alt="Monaco dress"></div>
+          <figcaption><div class="meta"><h3>Monaco</h3><span class="price num">₦200,000</span></div>
+          <div class="strip"><span>UK 6—30</span><span>Ready to ship</span></div></figcaption>
+        </figure></a>
+
+        <!-- loading state, next page -->
+        <div class="card skel" aria-hidden="true"><figure>
+          <div class="ph"></div>
+          <figcaption><div class="ln"></div><div class="ln s"></div></figcaption>
+        </figure></div>
+        <div class="card skel" aria-hidden="true"><figure>
+          <div class="ph"></div>
+          <figcaption><div class="ln"></div><div class="ln s"></div></figcaption>
+        </figure></div>
+        <div class="card skel" aria-hidden="true"><figure>
+          <div class="ph"></div>
+          <figcaption><div class="ln"></div><div class="ln s"></div></figcaption>
+        </figure></div>
+      </div>
+
+      <p class="lab" style="text-align:center; margin-top:var(--s7)" aria-live="polite">Loading 12 more —</p>
+    </div>
+  </div>
+
+  <footer>
+    <div class="fgrid">
+      <div>
+        <span class="wordmark" style="text-align:left; display:block">NELO<small>Woman</small></span>
+        <p style="color:var(--smoke); font-size:var(--t-sm); max-width:30ch; margin-top:var(--s4)">Cut in Lagos. Shipped worldwide. Sizes 6 to 30, always.</p>
+      </div>
+      <div><h4>Shop</h4><ul><li><a href="#">Ready to wear</a></li><li><a href="#">Gowns</a></li><li><a href="#">Two-piece sets</a></li><li><a href="#">The Nelo Classic</a></li></ul></div>
+      <div><h4>Atelier</h4><ul><li><a href="bespoke.html">Bespoke</a></li><li><a href="bespoke.html">Bridal</a></li><li><a href="bespoke.html">Book a fitting</a></li><li><a href="#">Measurement guide</a></li></ul></div>
+      <div><h4>Care</h4><ul><li><a href="#">Shipping</a></li><li><a href="#">Returns</a></li><li><a href="#">Track an order</a></li><li><a href="#">Contact</a></li></ul></div>
+    </div>
+    <p class="lab" style="margin-top:var(--s7)">© 2026 Nelo Woman · Lagos</p>
+  </footer>
+</main>
+
+</body>
+</html>

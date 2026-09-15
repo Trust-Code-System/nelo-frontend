@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Atelier — NELO WOMAN</title>
+<link rel="stylesheet" href="tokens.css">
+<style>
+.fixture{
+  background:var(--garnet); color:var(--on-garnet); padding:var(--s3) var(--gutter); text-align:center;
+}
+.fixture .lab{color:var(--on-garnet)}
+
+.ahero{display:grid; grid-template-columns:1fr 1fr; gap:var(--s8); padding-block:var(--s7) var(--s8); align-items:end}
+.ahero h1{font-size:var(--t-2xl); line-height:1.02; margin:var(--s4) 0 0; font-weight:600; letter-spacing:-.022em; max-width:14ch}
+.ahero p{color:var(--smoke); margin:var(--s4) 0 0; max-width:44ch; font-size:var(--t-md)}
+.ahero .ph{background:var(--ground); aspect-ratio:16/10; overflow:hidden}
+.ahero .ph img{width:100%; height:100%; object-fit:cover}
+
+/* lifecycle */
+.life{border-block:var(--rule-ink); padding-block:var(--s6); margin-bottom:var(--s8)}
+.steps{display:grid; grid-template-columns:repeat(6,1fr); gap:var(--s4); margin-top:var(--s4)}
+.steps li{list-style:none; border-top:2px solid var(--hair); padding-top:var(--s3)}
+.steps li.now{border-top-color:var(--garnet)}
+.steps .n{font-family:var(--mono); font-size:var(--t-micro); color:var(--smoke); letter-spacing:.14em}
+.steps .t{font-size:var(--t-sm); font-weight:500; margin-top:3px}
+.steps li.now .t{color:var(--garnet)}
+
+form{display:grid; grid-template-columns:1fr 1fr; gap:var(--s8); align-items:start; padding-bottom:var(--s9)}
+fieldset{border:0; margin:0 0 var(--s7); padding:0}
+legend{
+  font-family:var(--mono); font-size:var(--t-micro); letter-spacing:.18em; text-transform:uppercase;
+  color:var(--smoke); padding:0 0 var(--s3); border-bottom:var(--rule-ink); width:100%; margin-bottom:var(--s4);
+}
+.opts{display:grid; gap:0; border:var(--rule)}
+.opt{display:flex; gap:var(--s3); padding:var(--s4); border-bottom:var(--rule); cursor:pointer; align-items:flex-start; transition:background var(--snap)}
+.opt:last-child{border-bottom:0}
+.opt:hover{background:var(--ground)}
+.opt input{margin:var(--s1) 0 0; accent-color:var(--garnet)}
+.opt .t{font-size:var(--t-sm); font-weight:500}
+.opt .d{font-size:var(--t-fine); color:var(--smoke); margin-top:var(--s1); display:block}
+
+label.f{display:block; margin-bottom:var(--s4)}
+label.f .lab{display:block; margin-bottom:var(--s2)}
+input[type="text"],input[type="date"],input[type="email"],select,textarea{
+  width:100%; border:var(--rule); border-radius:var(--radius); background:var(--paper); color:var(--ink);
+  padding:var(--s3) var(--s3); font-family:var(--sans); font-size:var(--t-sm);
+}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--garnet); outline-offset:-1px}
+
+/* measurement rows — decimal string + explicit unit */
+.mset{border:var(--rule)}
+.mm{display:grid; grid-template-columns:1fr 104px 76px; gap:0; border-bottom:var(--rule); align-items:center}
+.mm:last-child{border-bottom:0}
+.mm .k{padding:0 var(--s4); font-family:var(--mono); font-size:var(--t-micro); letter-spacing:.14em; text-transform:uppercase; color:var(--smoke)}
+.mm input{border:0; border-left:var(--rule); font-family:var(--mono); font-variant-numeric:tabular-nums; text-align:right}
+.mm select{border:0; border-left:var(--rule); font-family:var(--mono); font-size:var(--t-fine)}
+.mnote{font-family:var(--mono); font-size:var(--t-micro); color:var(--smoke); letter-spacing:.07em; line-height:1.8; margin-top:var(--s3)}
+
+.aside{border:var(--rule-ink); padding:var(--s6); position:sticky; top:104px}
+.aside h3{font-size:var(--t-md); margin:var(--s3) 0 var(--s3); font-weight:600}
+.aside p{font-size:var(--t-sm); color:var(--smoke); margin:0 0 var(--s4)}
+.submit{width:100%; text-align:center; padding:var(--s4)}
+.tz{font-family:var(--mono); font-size:var(--t-micro); color:var(--smoke); letter-spacing:.08em; margin-top:var(--s3); text-align:center; line-height:1.8}
+
+@media (max-width:980px){
+  .ahero,form{grid-template-columns:1fr; gap:var(--s6)}
+  .steps{grid-template-columns:repeat(3,1fr); gap:var(--s3) var(--s4)}
+  .aside{position:static}
+}
+@media (max-width:560px){ .steps{grid-template-columns:repeat(2,1fr)} }
+</style>
+</head>
+<body>
+
+<div class="fixture"><span class="lab">Fixture data — no Atelier Shop API exists yet. Nothing on this screen is live.</span></div>
+<div class="ann"><span class="lab">Consultations at the Lagos atelier, at your address, or by video</span></div>
+
+<header class="hdr">
+  <div class="hdr-in">
+    <button class="menu lab" aria-label="Open menu">Menu</button>
+    <nav class="lab nav-links">
+      <a href="collection.html">Shop</a><a href="collection.html">Collections</a>
+      <a href="bespoke.html">Atelier</a><a href="#">About</a>
+    </nav>
+    <a class="wordmark" href="home.html">NELO<small>Woman</small></a>
+    <div class="hdr-r">
+      <div class="mkt u-hide" role="group" aria-label="Market">
+        <button aria-pressed="true">NG ₦</button><button aria-pressed="false">INT $</button>
+      </div>
+      <span class="lab u-hide">Search</span><span class="lab u-hide">Account</span><span class="lab">Bag (0)</span>
+    </div>
+  </div>
+</header>
+
+<main class="shell">
+
+  <section class="ahero">
+    <div>
+      <span class="lab">The Atelier</span>
+      <h1>Commission a garment</h1>
+      <p>Bespoke and bridal begin with a conversation, not a checkout. Tell us what you need and we will propose a plan, a schedule and a price before anything is agreed.</p>
+    </div>
+    <div class="ph framed">
+      <img src="https://www.nelowoman.com/cdn/shop/files/IMG_0479.jpg?width=1200" alt="A bride in a Nelo gown with a bouquet.">
+    </div>
+  </section>
+
+  <section class="life">
+    <span class="lab">How a commission runs</span>
+    <ol class="steps">
+      <li class="now"><span class="n">01</span><div class="t">Consultation</div></li>
+      <li><span class="n">02</span><div class="t">Proposal</div></li>
+      <li><span class="n">03</span><div class="t">Confirmed</div></li>
+      <li><span class="n">04</span><div class="t">In work</div></li>
+      <li><span class="n">05</span><div class="t">Ready</div></li>
+      <li><span class="n">06</span><div class="t">Completed</div></li>
+    </ol>
+  </section>
+
+  <form>
+    <div>
+      <fieldset>
+        <legend>What are you commissioning</legend>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="ctx" checked>
+            <span><span class="t">Bespoke</span><span class="d">A garment designed with you and cut from nothing.</span></span></label>
+          <label class="opt"><input type="radio" name="ctx">
+            <span><span class="t">Bridal</span><span class="d">Four to nine months, typically three fittings.</span></span></label>
+          <label class="opt"><input type="radio" name="ctx">
+            <span><span class="t">Ready to wear, altered</span><span class="d">An existing style recut to your measurements.</span></span></label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Appointment</legend>
+        <div class="opts" style="margin-bottom:var(--s4)">
+          <label class="opt"><input type="radio" name="purpose" checked>
+            <span><span class="t">Consultation</span><span class="d">First meeting. No measurements taken.</span></span></label>
+          <label class="opt"><input type="radio" name="purpose">
+            <span><span class="t">Fitting</span><span class="d">For a commission already under way.</span></span></label>
+        </div>
+        <label class="f"><span class="lab">Where</span>
+          <select>
+            <option>Lagos atelier — 14 Akin Adesola, Victoria Island</option>
+            <option>My address</option>
+            <option>Video call</option>
+          </select>
+        </label>
+        <label class="f"><span class="lab">Preferred date</span><input type="date" value="2026-10-08"></label>
+        <label class="f"><span class="lab">Preferred time</span>
+          <select><option>Morning — 09:00 to 12:00</option><option>Afternoon — 12:00 to 16:00</option><option>Evening — 16:00 to 19:00</option></select>
+        </label>
+        <p class="mnote">All times West Africa Standard Time (Africa/Lagos, UTC+1). Availability is confirmed by the atelier — this request does not reserve a slot.</p>
+      </fieldset>
+
+      <fieldset>
+        <legend>About the piece</legend>
+        <label class="f"><span class="lab">Occasion</span><input type="text" placeholder="Reception, gala, wedding…"></label>
+        <label class="f"><span class="lab">Date you need it</span><input type="date"></label>
+        <label class="f"><span class="lab">Anything else</span><textarea rows="5" placeholder="References, fabrics, colours, silhouettes you have in mind."></textarea></label>
+      </fieldset>
+    </div>
+
+    <div>
+      <fieldset>
+        <legend>Measurements — optional at this stage</legend>
+        <div class="mset">
+          <div class="mm"><span class="k">Bust</span><input type="text" inputmode="decimal" value="34.00" aria-label="Bust"><select aria-label="Bust unit"><option>in</option><option>cm</option></select></div>
+          <div class="mm"><span class="k">Waist</span><input type="text" inputmode="decimal" value="28.00" aria-label="Waist"><select aria-label="Waist unit"><option>in</option><option>cm</option></select></div>
+          <div class="mm"><span class="k">Hip</span><input type="text" inputmode="decimal" value="38.00" aria-label="Hip"><select aria-label="Hip unit"><option>in</option><option>cm</option></select></div>
+          <div class="mm"><span class="k">Height</span><input type="text" inputmode="decimal" value="66.00" aria-label="Height"><select aria-label="Height unit"><option>in</option><option>cm</option></select></div>
+          <div class="mm"><span class="k">Shoulder</span><input type="text" inputmode="decimal" value="15.50" aria-label="Shoulder width"><select aria-label="Shoulder unit"><option>in</option><option>cm</option></select></div>
+          <div class="mm"><span class="k">Sleeve</span><input type="text" inputmode="decimal" value="23.25" aria-label="Sleeve length"><select aria-label="Sleeve unit"><option>in</option><option>cm</option></select></div>
+          <div class="mm"><span class="k">Inseam</span><input type="text" inputmode="decimal" placeholder="—" aria-label="Inseam"><select aria-label="Inseam unit"><option>in</option><option>cm</option></select></div>
+        </div>
+        <p class="mnote">Enter quarter and eighth inches as decimals — 23.25, not 23¼. We record to 0.01 mm, so a quarter inch is stored as 590.55 mm, never rounded. Leave a field blank if you are not sure; blank means not confirmed, not zero.</p>
+      </fieldset>
+
+      <div class="aside">
+        <span class="lab">Next</span>
+        <h3>We reply within two working days</h3>
+        <p>You will receive a written proposal with a schedule and a price. Nothing is charged, and no date is held, until you accept it.</p>
+        <button class="btn submit" type="button">Request a consultation</button>
+        <p class="tz">No payment is taken at this step</p>
+      </div>
+    </div>
+  </form>
+
+  <footer>
+    <div class="fgrid">
+      <div>
+        <span class="wordmark" style="text-align:left; display:block">NELO<small>Woman</small></span>
+        <p style="color:var(--smoke); font-size:var(--t-sm); max-width:30ch; margin-top:var(--s4)">Cut in Lagos. Shipped worldwide. Sizes 6 to 30, always.</p>
+      </div>
+      <div><h4>Shop</h4><ul><li><a href="#">Ready to wear</a></li><li><a href="#">Gowns</a></li><li><a href="#">Two-piece sets</a></li><li><a href="#">The Nelo Classic</a></li></ul></div>
+      <div><h4>Atelier</h4><ul><li><a href="bespoke.html">Bespoke</a></li><li><a href="bespoke.html">Bridal</a></li><li><a href="bespoke.html">Book a fitting</a></li><li><a href="#">Measurement guide</a></li></ul></div>
+      <div><h4>Care</h4><ul><li><a href="#">Shipping</a></li><li><a href="#">Returns</a></li><li><a href="#">Track an order</a></li><li><a href="#">Contact</a></li></ul></div>
+    </div>
+    <p class="lab" style="margin-top:var(--s7)">© 2026 Nelo Woman · Lagos</p>
+  </footer>
+</main>
+
+</body>
+</html>

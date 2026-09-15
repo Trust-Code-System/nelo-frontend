@@ -1,0 +1,125 @@
+{
+  "schemaVersion": 1,
+  "engineVersion": "4.2.0",
+  "engineRevision": "sha256:eeb89d12b518c178162f72ffe39a7126dd611953d2f66be0f5507de1bfbe7073",
+  "generatedAt": "2026-09-15T10:44:13.579Z",
+  "selection": {
+    "agent": "claude",
+    "grammar": "commerce-conversion",
+    "grammarSource": "built-in:commerce-conversion",
+    "referenceContract": null,
+    "fallback": "commerce-conversion",
+    "adapter": "product-ui",
+    "domain": "ecommerce",
+    "page": "detail",
+    "recipe": "commerce-operator",
+    "recipeSelection": "commerce-operator",
+    "palette": "warm-clay-commerce",
+    "paletteSelection": "warm-clay-commerce",
+    "paletteGeneration": {
+      "keyColor": "#6E1A22",
+      "mode": "light",
+      "character": "deep",
+      "harmony": "adjacent",
+      "temperature": "warm"
+    },
+    "profile": "technical"
+  },
+  "bundle": {
+    "kind": "bundle",
+    "path": ".styleseed/effective-rules.md",
+    "sha256": "3cc4e843dedb5fdc7a03c46e3d800b05e7f91c8d17fe0fbeab3470be1821de0a",
+    "bytes": 20483
+  },
+  "outputs": [
+    {
+      "kind": "bundle",
+      "path": ".styleseed/effective-rules.md",
+      "sha256": "3cc4e843dedb5fdc7a03c46e3d800b05e7f91c8d17fe0fbeab3470be1821de0a",
+      "bytes": 20483
+    },
+    {
+      "kind": "palette-json",
+      "path": ".styleseed/palette.json",
+      "sha256": "b7e5c18a2f8d7013c038de953418e4be026af3acb2ea24ad4fbbc4d8e8a5f22d",
+      "bytes": 5911
+    },
+    {
+      "kind": "palette-css",
+      "path": ".styleseed/palette.css",
+      "sha256": "557117963222537616279f1ce71c8bba0ee7d0f057dfcec0a4fe684dd8b738a5",
+      "bytes": 1157
+    }
+  ],
+  "palette": {
+    "json": {
+      "kind": "palette-json",
+      "path": ".styleseed/palette.json",
+      "sha256": "b7e5c18a2f8d7013c038de953418e4be026af3acb2ea24ad4fbbc4d8e8a5f22d",
+      "bytes": 5911
+    },
+    "css": {
+      "kind": "palette-css",
+      "path": ".styleseed/palette.css",
+      "sha256": "557117963222537616279f1ce71c8bba0ee7d0f057dfcec0a4fe684dd8b738a5",
+      "bytes": 1157
+    }
+  },
+  "sources": [
+    {
+      "id": "agent-execution",
+      "sha256": "5706f16dd770b76a5e92216812c29f69de43b3d6d3ead1e26f8d2b09a3209cc9",
+      "bytes": 283
+    },
+    {
+      "id": "core",
+      "sha256": "b8386021967bb5cea954dbe3b3f8c36574457457d5e4bbe7277b5218a539af54",
+      "bytes": 7968
+    },
+    {
+      "id": "grammar",
+      "sha256": "7adc2137db6dcaba17ee0cc3e23745e4565a2fcf0839cb35b01ce349949a472c",
+      "bytes": 997
+    },
+    {
+      "id": "adapter",
+      "sha256": "7b5b5c34b0b235dca329e6384ccb94c66ee65a348bbe7142277ae7bbda3c13b0",
+      "bytes": 714
+    },
+    {
+      "id": "domain",
+      "sha256": "439d5a1be1f0cebba1660709779b2145e6b063ac3db5d41632de4bbb46ffadb2",
+      "bytes": 1125
+    },
+    {
+      "id": "page",
+      "sha256": "0b4321abc5e338d444ee8ac569f6d03059e33eae2a70bfc5502876cf48b15fc7",
+      "bytes": 679
+    },
+    {
+      "id": "recipe",
+      "sha256": "a5aca0dc1229e15f9ff830a703c53ee2c7eb6a6e4d36dbda43362f2fd5aa1675",
+      "bytes": 1296
+    },
+    {
+      "id": "palette",
+      "sha256": "629c67c60e6d022dd1a4fe7a5137c2b02c5034dbc68497f8bea09b92880fc9b5",
+      "bytes": 2211
+    },
+    {
+      "id": "profile",
+      "sha256": "6a496b751cc029ee5eec99146354ca3db1b85f22801dcdae56846c5ff49e5167",
+      "bytes": 311
+    },
+    {
+      "id": "lock",
+      "sha256": "6c35000663ff5b847670b9cf7fa5473c94768ce3ba5ce58a44d52e35da26771e",
+      "bytes": 399
+    },
+    {
+      "id": "craft",
+      "sha256": "9f8b9c38d3ec1dc6d476a149b7c3502b27c51cbb55bce397a696b44335a22d21",
+      "bytes": 3564
+    }
+  ]
+}
