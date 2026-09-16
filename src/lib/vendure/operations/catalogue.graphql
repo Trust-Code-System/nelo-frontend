@@ -17,6 +17,9 @@ fragment ProductCard on SearchResult {
     preview
   }
   priceWithTax {
+    # __typename is required to branch the union exhaustively — a product whose variants
+    # differ in price returns a PriceRange, not a single value.
+    __typename
     ... on SinglePrice {
       value
     }

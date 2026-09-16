@@ -11,9 +11,25 @@ const config: NextConfig = {
   typescript: { ignoreBuildErrors: false },
   images: {
     // Vendure asset server only. The Shopify CDN is deliberately NOT allowed: this
-    // storefront must not depend on the platform it is replacing. Mockup imagery is served
-    // from design/mockups/assets, and product imagery will come from Vendure.
-    remotePatterns: [],
+    // storefront must not depend on the platform it is replacing.
+    remotePatterns: [
+      // Local development harness (../vendure-dev).
+      { protocol: 'http', hostname: 'localhost', port: '3000', pathname: '/assets/**' },
+      // Deployed Vendure asset host. Set VENDURE_ASSET_HOST in each environment.
+      ...(process.env.VENDURE_ASSET_HOST
+        ? [
+            {
+              protocol: 'https' as const,
+              hostname: process.env.VENDURE_ASSET_HOST,
+              pathname: '/assets/**',
+            },
+          ]
+        : []),
+    ],
+    // Next 16's optimizer refuses to fetch from another localhost port, so local
+    // development serves Vendure previews unoptimized. Production optimizes normally
+    // against the real asset host above — this is a harness limitation, not a policy.
+    unoptimized: process.env.NODE_ENV === 'development',
   },
 };
 

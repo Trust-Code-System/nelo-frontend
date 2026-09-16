@@ -1,51 +1,79 @@
 import { notFound } from 'next/navigation';
 import { SiteFooter } from '@/components/SiteFooter';
 import { SiteHeader } from '@/components/SiteHeader';
+import { ProductGrid } from '@/features/catalogue/ProductGrid';
+import { SearchCatalogueDocument } from '@/lib/vendure/generated/graphql';
 import { isMarket } from '@/lib/vendure/channels';
+import { catalogueQuery } from '@/lib/vendure/transport';
+import type { SearchCatalogueQuery } from '@/lib/vendure/generated/graphql';
 
 /**
- * Home. A server-rendered shell.
+ * Market home.
  *
- * Deliberately not wired to Vendure yet: the Shop API is a verified pre-migration
- * foundation, so there is no seeded catalogue to read. The visual design for this page
- * is in design/mockups/home.html and lands here in phase 2.
+ * Reads the catalogue from Vendure through the anonymous, cacheable path — no session is
+ * attached, so the response is safe to share between visitors. Prices come from the
+ * Channel; nothing is converted here.
  */
 export default async function HomePage({
   params,
 }: {
   params: Promise<{ market: string }>;
 }) {
-  // Route components signal an unknown market with notFound(), never by throwing —
-  // a thrown error races the layout's notFound() and surfaces as a 500.
   const { market } = await params;
   if (!isMarket(market)) notFound();
+
+  // A storefront whose backend is unreachable should say so, not render an empty grid that
+  // reads as "we have nothing to sell". The distinction matters: one is a catalogue state,
+  // the other is an outage.
+  let search: SearchCatalogueQuery['search'] | null = null;
+  try {
+    const { data } = await catalogueQuery(
+      SearchCatalogueDocument,
+      { input: { take: 8, groupByProduct: true } },
+      market,
+    );
+    search = data.search;
+  } catch {
+    search = null;
+  }
 
   return (
     <>
       <SiteHeader market={market} announcement="Statement femininity for the modern woman" />
+
       <main className="shell">
-      <section style={{ paddingBlock: 'var(--s9)' }}>
-        <span className="lab">Phase 1 — foundation</span>
-        <h1 style={{ fontSize: 'var(--t-2xl)', fontWeight: 600, letterSpacing: '-.022em' }}>
-          Nelo Storefront
-        </h1>
-        <p style={{ color: 'var(--smoke)', maxWidth: '52ch' }}>
-          The design system, transport and session layers are in place. Catalogue rendering
-          waits on a reachable Shop API with seeded fixtures.
-        </p>
-        <dl className="mlist" style={{ marginTop: 'var(--s6)', maxWidth: '38rem' }}>
-          <div className="spec">
-            <dt>Market</dt>
-            <span className="led" />
-            <dd>{market}</dd>
+        <div className="proj-head">
+          <div>
+            <span className="lab">Collection</span>
+            <h1>Ready to Wear</h1>
           </div>
-          <div className="spec">
-            <dt>Catalogue</dt>
-            <span className="led" />
-            <dd>Awaiting schema</dd>
+          <div className="proj-meta">
+            <span>
+              {search
+                ? `${search.totalItems} ${search.totalItems === 1 ? 'garment' : 'garments'} · UK 6—30`
+                : 'UK 6—30'}
+            </span>
           </div>
-        </dl>
-      </section>
+        </div>
+
+        <section style={{ paddingBlock: 'var(--s7)' }}>
+          {search ? (
+            <ProductGrid items={search.items} market={market} />
+          ) : (
+            <div className="empty">
+              <span className="lab">Temporarily unavailable</span>
+              <h3>We cannot load the collection right now</h3>
+              <p>
+                This is our side, not yours. The atelier is still open — bespoke and bridal
+                enquiries are unaffected.
+              </p>
+              <a className="btn-q" href={`/${market}/atelier`}>
+                Visit the atelier
+              </a>
+            </div>
+          )}
+        </section>
+
         <SiteFooter market={market} />
       </main>
     </>

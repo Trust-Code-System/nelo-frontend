@@ -27,6 +27,32 @@ npm run codegen        # regenerate types from the Shop API schema
 npm run codegen:check   # drift gate — fails if generated output is stale
 ```
 
+## Local development backend
+
+The storefront develops against a **local Vendure 3.7.3 harness** at `../vendure-dev`
+(SQLite, seeded sample data). It is not the production backend and is not in this repo.
+
+```bash
+cd ../vendure-dev
+npm run dev:server    # Shop API on :3000
+npm run dev:worker    # required — search indexing runs on the worker, not the server
+```
+
+Core commerce — products, collections, search, `activeOrder`, cart mutations — is standard
+Vendure, so types generated here match what production will expose. What the harness does
+**not** have is the Atelier plugin or Nelo's real Channel data; those screens stay on marked
+fixtures.
+
+`vendure-dev/setup-nelo-channels.mjs` creates the two Channels (`nelo-ng` NGN,
+`nelo-international` USD), assigns the catalogue to both, and prints the tokens for
+`.env.local`. After assigning products you must `reindex` — and the **worker must be
+running** or the job sits PENDING and search returns nothing.
+
+Two Windows-specific notes: Vendure's local asset strategy emits preview URLs containing
+backslashes, which `src/lib/vendure/assets.ts` normalises; and Next 16's image optimizer
+refuses to fetch across localhost ports, so development serves previews unoptimized.
+Production optimizes normally against the real asset host.
+
 ## Continuous integration
 
 `.github/workflows/ci.yml` runs on every push to `main` and every pull request, in two jobs:

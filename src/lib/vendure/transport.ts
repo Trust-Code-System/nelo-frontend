@@ -1,4 +1,6 @@
 import 'server-only';
+import { print } from 'graphql';
+import type { TypedDocumentNode } from '@graphql-typed-document-node/core';
 import { channelToken, type Market } from './channels';
 import {
   VendureGraphQLError,
@@ -137,4 +139,43 @@ export function catalogueRequest<TData, TVariables extends object = object>(
     anonymous: true,
     revalidate,
   });
+}
+
+
+/** Reads the operation name off a generated document so callers never pass it twice. */
+function operationNameOf(document: TypedDocumentNode<unknown, unknown>): string {
+  for (const definition of document.definitions) {
+    if (definition.kind === 'OperationDefinition' && definition.name) {
+      return definition.name.value;
+    }
+  }
+  return 'AnonymousOperation';
+}
+
+/**
+ * Executes a generated, schema-validated document. Preferred over `vendureRequest` for
+ * everything: the result type is inferred from the document, so a field the operation did
+ * not select cannot be read by accident.
+ */
+export function vendureQuery<TData, TVariables>(
+  document: TypedDocumentNode<TData, TVariables>,
+  variables: TVariables,
+  options: RequestOptions,
+): Promise<VendureResponse<TData>> {
+  return vendureRequest<TData, TVariables & object>(
+    print(document),
+    variables as TVariables & object,
+    operationNameOf(document as TypedDocumentNode<unknown, unknown>),
+    options,
+  );
+}
+
+/** Anonymous, cacheable catalogue read. Carries no session, so it is safe to share. */
+export function catalogueQuery<TData, TVariables>(
+  document: TypedDocumentNode<TData, TVariables>,
+  variables: TVariables,
+  market: Market,
+  revalidate = 300,
+): Promise<VendureResponse<TData>> {
+  return vendureQuery(document, variables, { market, anonymous: true, revalidate });
 }

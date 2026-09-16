@@ -14,8 +14,14 @@ const config: CodegenConfig = {
   documents: ['src/**/*.graphql'],
   ignoreNoDocuments: true,
   generates: {
-    './src/lib/vendure/generated/': {
-      preset: 'client',
+    './src/lib/vendure/generated/graphql.ts': {
+      // typed-document-node rather than the client preset: operations live in .graphql
+      // files and are executed by one server-side fetch transport, not React hooks.
+      //
+      // The `typescript` plugin is deliberately NOT included. typescript-operations is
+      // self-contained — adding both emits every input type and enum twice, which does
+      // not fail codegen but does fail tsc with duplicate-identifier errors.
+      plugins: ['typescript-operations', 'typed-document-node'],
       config: {
         useTypeImports: true,
         // IDs are opaque strings. Money is integer minor units. Dates stay ISO strings
@@ -26,7 +32,7 @@ const config: CodegenConfig = {
           DateTime: 'string',
           JSON: 'unknown',
         },
-        avoidOptionals: { field: true },
+        skipTypename: false,
       },
     },
   },
