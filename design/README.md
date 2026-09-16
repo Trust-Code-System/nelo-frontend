@@ -20,18 +20,20 @@ Catalogue, prices and photography are pulled from the live nelowoman.com storefr
 (24 products enumerated). Measurements are real conversions: 34.00 in = 863.60 mm,
 23.25 in = 590.55 mm.
 
-## Known gaps — deliberate, for phase 2
+## These are phase-0 artefacts, now superseded in places
 
-- **Mobile filter rail** stacks above the grid. It needs a collapsible sheet; the static
-  mockup does not have one.
-- **Error state** is not demonstrated. `.empty` styling exists but no screen uses it.
-- **The Menu button does nothing** — these are static files with no JavaScript.
-- **Colour swatch hex values are literals** in `product.html`. In the build they come from
-  Vendure variant data, not CSS.
-- **Images are hot-linked** from the live Shopify CDN. They must be re-pointed at the
-  Vendure asset server before anything real is built on this.
-- Only the `ng` market is shown. The `international` / USD view is not mocked, and per the
-  backend context international checkout may need to ship gated.
+The mockups are a record of the agreed direction, not the living implementation. Where the
+app has moved past them, the app wins.
+
+| Mockup limitation | Status in the app |
+| --- | --- |
+| The `Menu` button does nothing | **Fixed.** `MobileMenu` is a real disclosure — aria-expanded, Escape closes and returns focus, market switching by links. |
+| No error state | **Fixed.** `src/app/error.tsx` renders a recovery path and never shows a raw trace. |
+| No loading state | **Fixed.** `src/app/[market]/account/loading.tsx` is a matching skeleton, since account pages always render on demand. |
+| Only the `ng` market is shown | Still true of the mockups. The app serves `ng` and `international`, though international checkout may need to ship gated. |
+| Mobile filter rail stacks above the grid | Still open. The real collection page does not exist yet — it needs a collapsible filter sheet when built. |
+| Colour swatch hex values are literals | Still open by necessity. They come from Vendure variant data once the schema lands. |
+| Images hot-linked from the Shopify CDN | Still open. Must be re-pointed at the Vendure asset server before phase 2 ships. |
 
 ## Nothing here is connected
 
