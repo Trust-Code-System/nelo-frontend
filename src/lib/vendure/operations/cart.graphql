@@ -1,0 +1,94 @@
+# Cart — Vendure Shop API.
+#
+# Every mutation here returns a union. `__typename` and the ErrorResult members are selected
+# deliberately so the generated types force an exhaustive branch: HTTP 200 is not success,
+# and a mutation can return InsufficientStockError or OrderLimitError while looking fine.
+#
+# Totals are always read back from Vendure after a mutation. A browser-side optimistic total
+# is never checkout authority.
+
+fragment CartLine on OrderLine {
+  id
+  quantity
+  linePriceWithTax
+  unitPriceWithTax
+  featuredAsset {
+    id
+    preview
+  }
+  productVariant {
+    id
+    name
+    sku
+    product {
+      slug
+    }
+    options {
+      id
+      code
+      name
+      groupId
+    }
+  }
+}
+
+fragment Cart on Order {
+  __typename
+  id
+  code
+  state
+  active
+  currencyCode
+  totalQuantity
+  subTotalWithTax
+  shippingWithTax
+  totalWithTax
+  lines {
+    ...CartLine
+  }
+}
+
+query ActiveOrder {
+  activeOrder {
+    ...Cart
+  }
+}
+
+mutation AddItemToOrder($variantId: ID!, $quantity: Int!) {
+  addItemToOrder(productVariantId: $variantId, quantity: $quantity) {
+    __typename
+    ...Cart
+    ... on ErrorResult {
+      errorCode
+      message
+    }
+    ... on InsufficientStockError {
+      quantityAvailable
+    }
+  }
+}
+
+mutation AdjustOrderLine($lineId: ID!, $quantity: Int!) {
+  adjustOrderLine(orderLineId: $lineId, quantity: $quantity) {
+    __typename
+    ...Cart
+    ... on ErrorResult {
+      errorCode
+      message
+    }
+    ... on InsufficientStockError {
+      quantityAvailable
+    }
+  }
+}
+
+mutation RemoveOrderLine($lineId: ID!) {
+  removeOrderLine(orderLineId: $lineId) {
+    __typename
+    ...Cart
+    ... on ErrorResult {
+      errorCode
+      message
+    }
+  }
+}

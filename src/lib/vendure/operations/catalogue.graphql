@@ -1,0 +1,149 @@
+# Catalogue reads — Vendure Shop API.
+#
+# These are core Vendure operations, not custom ones: products, collections and search are
+# standard in 3.7.x. They are written against the documented shape and VALIDATED by codegen
+# against the real schema — if a field name here is wrong, `npm run codegen` fails rather
+# than the page breaking at runtime.
+#
+# Every operation is named. Nothing here selects a field the storefront does not render.
+
+fragment ProductCard on SearchResult {
+  productId
+  productName
+  slug
+  description
+  productAsset {
+    id
+    preview
+  }
+  priceWithTax {
+    ... on SinglePrice {
+      value
+    }
+    ... on PriceRange {
+      min
+      max
+    }
+  }
+  currencyCode
+  inStock
+}
+
+query Collections {
+  collections {
+    totalItems
+    items {
+      id
+      name
+      slug
+      description
+      parent {
+        id
+        slug
+      }
+      featuredAsset {
+        id
+        preview
+      }
+    }
+  }
+}
+
+query CollectionBySlug($slug: String!) {
+  collection(slug: $slug) {
+    id
+    name
+    slug
+    description
+    featuredAsset {
+      id
+      preview
+    }
+    breadcrumbs {
+      id
+      name
+      slug
+    }
+  }
+}
+
+# Search drives the collection grid: it carries facet values for the filter rail and is the
+# operation Vendure intends for faceted browsing.
+query SearchCatalogue($input: SearchInput!) {
+  search(input: $input) {
+    totalItems
+    items {
+      ...ProductCard
+    }
+    facetValues {
+      count
+      facetValue {
+        id
+        name
+        code
+        facet {
+          id
+          name
+          code
+        }
+      }
+    }
+  }
+}
+
+query ProductBySlug($slug: String!) {
+  product(slug: $slug) {
+    id
+    name
+    slug
+    description
+    assets {
+      id
+      preview
+    }
+    featuredAsset {
+      id
+      preview
+    }
+    optionGroups {
+      id
+      code
+      name
+      options {
+        id
+        code
+        name
+      }
+    }
+    variants {
+      id
+      name
+      sku
+      # Integer minor units. NGN kobo and USD cents are both 100 per major unit, and the
+      # frontend never converts between currencies.
+      priceWithTax
+      currencyCode
+      stockLevel
+      assets {
+        id
+        preview
+      }
+      options {
+        id
+        code
+        name
+        groupId
+      }
+    }
+    facetValues {
+      id
+      code
+      name
+      facet {
+        id
+        code
+        name
+      }
+    }
+  }
+}
