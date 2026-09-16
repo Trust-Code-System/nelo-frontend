@@ -10,8 +10,8 @@ out
 .env
 .env*.local
 
-# codegen output: regenerated from the Shop API schema, never hand-edited
-src/lib/vendure/generated
+# NOTE: src/lib/vendure/generated is deliberately NOT ignored. It is committed so CI can
+# diff a fresh codegen run against it and fail on schema drift. Never hand-edit it.
 
 # visual-gate renders: ~14MB of @2x PNGs, regenerable from design/mockups
 design/shots

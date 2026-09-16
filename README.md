@@ -20,11 +20,37 @@ Handlers.
 ## Commands
 
 ```bash
-npm run dev         # local development
-npm run verify      # typecheck + lint + production build
-npm run codegen     # regenerate types from the Shop API schema
-npm run codegen:check   # CI drift gate
+npm run dev            # local development
+npm run verify         # typecheck + lint + unit tests + production build
+npm run e2e            # Playwright journeys (desktop + Pixel 7)
+npm run codegen        # regenerate types from the Shop API schema
+npm run codegen:check   # drift gate — fails if generated output is stale
 ```
+
+## Continuous integration
+
+`.github/workflows/ci.yml` runs on every push to `main` and every pull request, in two jobs:
+
+| Job | Steps |
+| --- | --- |
+| **verify** | typecheck · lint · unit tests · production build · codegen drift |
+| **e2e** | Playwright journeys against the **production build**, not the dev server |
+
+Checks are never disabled to get a build through. If one fails, the fix is the code.
+
+### The codegen drift gate
+
+`npm run codegen:check` regenerates from the Shop API schema and fails if the result differs
+from what is committed. That is what makes the schema a real contract rather than a
+description — a backend change that breaks the storefront fails here instead of in production.
+
+Generated output in `src/lib/vendure/generated/` is therefore **committed, not ignored**, so
+CI has something to diff against. Never hand-edit it.
+
+**Right now this gate reports `PENDING`**, because no schema exists yet. It prints a warning
+annotation on every CI run so it cannot rot unnoticed. Drop the SDL into
+`schema/shop-api.graphql` (or set `VENDURE_SCHEMA` to a reachable endpoint) and it becomes
+enforcing with no change to the workflow.
 
 Copy `.env.example` to `.env.local` first. Nothing runs against a real Vendure instance yet.
 
@@ -67,7 +93,7 @@ These come from the backend team's architecture context and are not stylistic pr
 | | Blocked on |
 | --- | --- |
 | Catalogue, cart, checkout | A reachable Shop API with migrations and seeded fixtures |
-| Generated types | The Shop API SDL — `src/lib/vendure/generated/` is gitignored until then |
+| Generated types | The Shop API SDL — the codegen drift gate is PENDING until it lands |
 | Paystack | The initialise-payment operation; name, input and result are still TBD |
 | Atelier screens | Customer-safe resolvers — see `contracts/` for our proposal |
 | International checkout | Confirmation that the Paystack account can accept USD |
