@@ -10,11 +10,10 @@ const config: NextConfig = {
   // (Next 16 moved lint config out of next.config; lint runs as its own CI step.)
   typescript: { ignoreBuildErrors: false },
   images: {
-    // Vendure asset server. Add the real host before phase 2; the Shopify CDN entry is
-    // only here so the phase 0 mockup imagery resolves during early development.
-    remotePatterns: [
-      { protocol: 'https', hostname: 'www.nelowoman.com', pathname: '/cdn/shop/**' },
-    ],
+    // Vendure asset server only. The Shopify CDN is deliberately NOT allowed: this
+    // storefront must not depend on the platform it is replacing. Mockup imagery is served
+    // from design/mockups/assets, and product imagery will come from Vendure.
+    remotePatterns: [],
   },
 };
 
