@@ -163,3 +163,19 @@ test.describe('mobile navigation', () => {
     await expect(page).toHaveURL(/\/international/);
   });
 });
+
+test.describe('the menu panel is actually hidden when closed', () => {
+  test.skip(({ isMobile }) => !isMobile, 'disclosure only exists below 860px');
+
+  test('its links are not reachable until it is opened', async ({ page }) => {
+    await page.goto('/ng');
+
+    // `hidden` alone does not hide an element that sets its own `display`, so assert on
+    // visibility rather than on the attribute.
+    const measurements = page.getByRole('link', { name: 'Your measurements' });
+    await expect(measurements).toBeHidden();
+
+    await page.getByRole('button', { name: /^menu$/i }).click();
+    await expect(measurements).toBeVisible();
+  });
+});

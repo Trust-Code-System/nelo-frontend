@@ -134,7 +134,9 @@ button{font:inherit; color:inherit; border-radius:var(--radius)}
 .scale{display:flex; flex-wrap:wrap; gap:0; border:var(--rule); width:fit-content; max-width:100%}
 .scale button{
   background:none; border:0; border-right:var(--rule);
-  min-width:38px; padding:var(--s2) 0; cursor:pointer;
+  /* min-width suits a bare size number; padding-inline lets longer option labels
+     ("13 inch") size themselves instead of overlapping their neighbour. */
+  min-width:38px; padding:var(--s2) var(--s3); cursor:pointer; white-space:nowrap;
   font-family:var(--mono); font-size:var(--t-fine); font-variant-numeric:tabular-nums;
   transition:background var(--snap),color var(--snap);
 }
@@ -343,6 +345,10 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--garnet); outline
   border-top:var(--rule); margin-top:var(--s4);
   padding-top:var(--s4); display:flex; flex-direction:column; gap:var(--s4);
 }
+/* `hidden` is only a UA-stylesheet `display:none`, so the explicit display above beats it
+   and the panel would render permanently open. Any element with an explicit display needs
+   this. */
+.menu-panel[hidden]{display:none}
 .menu-panel-nav{display:flex; flex-direction:column; gap:var(--s3)}
 .menu-panel-nav a{
   font-family:var(--mono); font-size:var(--t-label); letter-spacing:.16em;
@@ -366,3 +372,89 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--garnet); outline
 .skeleton-row{height:14px; background:var(--ground)}
 .skeleton-row:nth-child(even){width:82%}
 .skeleton-row:nth-child(3n){width:64%}
+
+/* ---------- product detail ---------- */
+.crumb{padding-block:var(--s5) var(--s4); font-family:var(--mono); font-size:var(--t-micro);
+  letter-spacing:.14em; text-transform:uppercase; color:var(--smoke)}
+.crumb a:hover{color:var(--garnet)}
+
+.pdp{display:grid; grid-template-columns:1.12fr 1fr; gap:var(--s8); align-items:start; padding-bottom:var(--s9)}
+.gallery{display:grid; gap:var(--s3)}
+.gallery .main{background:var(--ground); aspect-ratio:4/5; overflow:hidden}
+.thumbs{display:grid; grid-template-columns:repeat(4,1fr); gap:var(--s3)}
+.thumbs button{background:var(--ground); border:0; padding:0; aspect-ratio:1; overflow:hidden;
+  cursor:pointer; opacity:.55; transition:opacity var(--snap)}
+.thumbs button[aria-pressed="true"],.thumbs button:hover{opacity:1}
+
+.panel{position:sticky; top:104px}
+.panel h1{font-size:var(--t-xl); margin:var(--s2) 0 0; font-weight:600; letter-spacing:-.018em}
+.pricerow{display:flex; align-items:baseline; gap:var(--s3); margin-top:var(--s3);
+  padding-bottom:var(--s5); border-bottom:var(--rule)}
+.pricerow .p{font-family:var(--mono); font-size:var(--t-lg); font-weight:500; font-variant-numeric:tabular-nums}
+.pricerow .t{font-family:var(--mono); font-size:var(--t-micro); color:var(--smoke); letter-spacing:.1em}
+
+.blk{padding-block:var(--s5); border-bottom:var(--rule)}
+.blk>.lab{display:flex; justify-content:space-between; gap:var(--s3); margin-bottom:var(--s3)}
+.blk>.lab b{color:var(--ink); font-weight:500; letter-spacing:.14em}
+
+.fit{border:var(--rule-ink); padding:var(--s5); margin-block:var(--s5)}
+.fit-h{display:flex; justify-content:space-between; align-items:baseline; gap:var(--s3); margin-bottom:var(--s4)}
+.fit-h a{font-family:var(--mono); font-size:var(--t-micro); letter-spacing:.14em;
+  text-transform:uppercase; color:var(--garnet)}
+.mgrid{display:grid; grid-template-columns:1fr 1fr; gap:0 var(--s5)}
+.mrow{display:flex; justify-content:space-between; gap:var(--s3); align-items:baseline;
+  padding:var(--s2) 0; border-bottom:1px dotted var(--hair); font-size:var(--t-fine)}
+.mrow dt{font-family:var(--mono); font-size:var(--t-micro); letter-spacing:.12em;
+  text-transform:uppercase; color:var(--smoke)}
+.mrow dd{margin:0; font-family:var(--mono); font-variant-numeric:tabular-nums; white-space:nowrap}
+.mrow.unset dd{color:var(--smoke)}
+
+.buy{margin-block:var(--s5)}
+.buy .note{font-family:var(--mono); font-size:var(--t-micro); color:var(--smoke);
+  letter-spacing:.08em; text-align:center; margin-top:var(--s3); line-height:1.8}
+
+details{border-bottom:var(--rule)}
+details summary{list-style:none; cursor:pointer; padding:var(--s4) 0; font-family:var(--mono);
+  font-size:var(--t-micro); letter-spacing:.16em; text-transform:uppercase;
+  display:flex; justify-content:space-between}
+details summary::-webkit-details-marker{display:none}
+details summary::after{content:'+'; color:var(--smoke)}
+details[open] summary::after{content:'—'}
+details .body{padding-bottom:var(--s5); color:var(--smoke); font-size:var(--t-sm); max-width:46ch}
+
+@media (max-width:980px){
+  .pdp{grid-template-columns:1fr; gap:var(--s6)}
+  .panel{position:static}
+  .mgrid{grid-template-columns:1fr}
+}
+
+/* ---------- cart ---------- */
+.cart-error{border-left:2px solid var(--garnet); background:var(--bone); padding:var(--s3) var(--s4);
+  font-size:var(--t-sm); margin:0 0 var(--s5)}
+.cart-lines{list-style:none; margin:0; padding:0; border-top:var(--rule-ink)}
+.cart-lines li{display:grid; grid-template-columns:96px 1fr auto auto; gap:var(--s5);
+  align-items:start; padding:var(--s5) 0; border-bottom:var(--rule)}
+.cart-lines .ph{background:var(--ground); aspect-ratio:3/4; overflow:hidden}
+.cart-detail h3{font-size:var(--t-sm); font-weight:600; margin:0 0 var(--s2)}
+.cart-detail h3:hover{color:var(--garnet)}
+.cart-detail .lab{display:block; margin-bottom:var(--s1)}
+.cart-qty{display:flex; flex-direction:column; gap:var(--s2); align-items:flex-start}
+.stepper{display:flex; border:var(--rule); align-items:stretch}
+.stepper button{background:none; border:0; padding:var(--s2) var(--s3); cursor:pointer;
+  font-family:var(--mono); transition:background var(--snap)}
+.stepper button:hover:not([disabled]){background:var(--ground)}
+.stepper button[disabled]{color:var(--faint); cursor:not-allowed}
+.stepper .num{padding:var(--s2) var(--s3); border-inline:var(--rule); min-width:40px; text-align:center;
+  font-size:var(--t-sm); font-variant-numeric:tabular-nums}
+.cart-remove{background:none; border:0; padding:0; cursor:pointer; text-decoration:underline}
+.cart-remove:hover{color:var(--garnet)}
+.cart-price{font-size:var(--t-sm); font-weight:600; font-variant-numeric:tabular-nums; white-space:nowrap}
+.cart-totals{margin:var(--s6) 0 0; margin-left:auto; max-width:24rem}
+.cart-totals .spec.total dt,.cart-totals .spec.total dd{color:var(--ink); font-weight:600}
+.cart-totals .spec.total{border-bottom:0; border-top:var(--rule-ink); padding-top:var(--s3)}
+
+@media (max-width:640px){
+  .cart-lines li{grid-template-columns:72px 1fr; gap:var(--s3) var(--s4)}
+  .cart-qty{grid-column:2}
+  .cart-price{grid-column:2; text-align:left}
+}

@@ -118,8 +118,10 @@ These come from the backend team's architecture context and are not stylistic pr
 
 | | Blocked on |
 | --- | --- |
-| Catalogue, cart, checkout | A reachable Shop API with migrations and seeded fixtures |
-| Generated types | The Shop API SDL — the codegen drift gate is PENDING until it lands |
-| Paystack | The initialise-payment operation; name, input and result are still TBD |
+| Checkout | The Paystack initialise-payment operation; name, input and result are still TBD |
 | Atelier screens | Customer-safe resolvers — see `contracts/` for our proposal |
 | International checkout | Confirmation that the Paystack account can accept USD |
+| Real catalogue | Nelo's own products; the harness carries Vendure's sample data |
+
+Built and working against live Vendure: catalogue, product detail with variant selection,
+and the cart (add, adjust, remove) with guest sessions.

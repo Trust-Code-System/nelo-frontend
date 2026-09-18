@@ -40,7 +40,7 @@ export function SiteHeader({ market, announcement }: { market: Market; announcem
             </div>
             <span className="lab u-hide">Search</span>
             <span className="lab u-hide">Account</span>
-            <span className="lab">Bag (0)</span>
+            <Link className="lab" href={`/${market}/cart`}>Bag</Link>
           </div>
         </div>
       </header>
