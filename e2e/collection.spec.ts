@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { catalogueIsLive, NO_CATALOGUE } from './backend';
 
 /**
  * Collection browsing.
@@ -9,6 +10,11 @@ import { expect, test } from '@playwright/test';
  */
 
 const COLLECTION = '/ng/collections/electronics';
+
+// These journeys read the real catalogue. Without one they are skipped, loudly.
+test.beforeEach(async () => {
+  test.skip(!(await catalogueIsLive()), NO_CATALOGUE);
+});
 
 test.describe('collection page', () => {
   test('renders a collection with its product count', async ({ page }) => {
