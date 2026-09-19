@@ -23,6 +23,19 @@ function priceLabel(price: SearchItem['priceWithTax'], market: Market): string {
   return '';
 }
 
+/**
+ * How many card images are fetched eagerly with a preload.
+ *
+ * Two, not four. The grid is four-up on desktop and two-up on a phone, and the Largest
+ * Contentful Paint is almost always the first card — so two covers a phone's entire first
+ * row and still wins the desktop LCP. Preloading all four would spend a mobile visitor's
+ * bandwidth on images below the fold, which on this audience's connections is the wrong
+ * trade: most of Nelo's traffic is mobile.
+ *
+ * Without this, Next reports the first card image as an unoptimised LCP on every grid.
+ */
+const EAGER_CARDS = 2;
+
 export function ProductGrid({
   items,
   market,
@@ -34,7 +47,7 @@ export function ProductGrid({
     return (
       <div className="empty">
         <span className="lab">Nothing here yet</span>
-        <h3>No garments match</h3>
+        <h2>No garments match</h2>
         <p>Try a different size or category, or see everything in the collection.</p>
         <Link className="btn-q" href={`/${market}`}>
           View everything
@@ -45,7 +58,7 @@ export function ProductGrid({
 
   return (
     <div className="grid g4">
-      {items.map((item) => (
+      {items.map((item, index) => (
         <Link className="card" key={item.productId} href={`/${market}/products/${item.slug}`}>
           <figure>
             <div className="ph framed">
@@ -55,6 +68,8 @@ export function ProductGrid({
                   alt={item.productName}
                   width={700}
                   height={933}
+                  priority={index < EAGER_CARDS}
+                  loading={index < EAGER_CARDS ? 'eager' : 'lazy'}
                   sizes="(max-width: 760px) 50vw, 25vw"
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
@@ -62,7 +77,7 @@ export function ProductGrid({
             </div>
             <figcaption>
               <div className="meta">
-                <h3>{item.productName}</h3>
+                <h2>{item.productName}</h2>
                 <span className="price num">{priceLabel(item.priceWithTax, market)}</span>
               </div>
               <div className="strip">

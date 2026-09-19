@@ -134,17 +134,14 @@ export default async function MeasurementsPage({
                 <dl className="mlist">
                   <div className="spec">
                     <dt>Confirmed</dt>
-                    <span className="led" />
                     <dd>{formatDate(active?.confirmedAt ?? null)}</dd>
                   </div>
                   <div className="spec">
                     <dt>By</dt>
-                    <span className="led" />
                     <dd>{active?.confirmedLocation ?? 'Self-measured'}</dd>
                   </div>
                   <div className="spec">
                     <dt>Last edited</dt>
-                    <span className="led" />
                     <dd>{formatDate(active?.updatedAt ?? null)}</dd>
                   </div>
                 </dl>
@@ -155,7 +152,7 @@ export default async function MeasurementsPage({
               </fieldset>
               <div className="aside">
                 <span className="lab">Saving</span>
-                <h3>Nothing leaves this page yet</h3>
+                <h2>Nothing leaves this page yet</h2>
                 <p>
                   Your figures are never put in a web address, stored in your browser, or sent
                   to analytics. When saving is live they go straight to the atelier.
@@ -192,14 +189,14 @@ function ProfileCard({ profile }: { profile: MeasurementProfile }) {
   return (
     <article className="garment">
       <div className="garment-head">
-        <h3>
+        <h2>
           {profile.name}
           {profile.isDefault ? (
             <span className="pill soon" style={{ marginLeft: 'var(--s3)' }}>
               Default
             </span>
           ) : null}
-        </h3>
+        </h2>
         <span className="eta">
           {confirmedCount} of {MEASUREMENT_CODES.length} confirmed ·{' '}
           {profile.confirmedAt

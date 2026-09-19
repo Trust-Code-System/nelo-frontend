@@ -49,14 +49,23 @@ export function MobileMenu({ market }: { market: Market }) {
           <Link href={`/${market}`} onClick={() => setOpen(false)}>
             Shop
           </Link>
-          <Link href={`/${market}`} onClick={() => setOpen(false)}>
+          <Link href={`/${market}/collections`} onClick={() => setOpen(false)}>
             Collections
           </Link>
           <Link href={`/${market}/atelier`} onClick={() => setOpen(false)}>
             Atelier
           </Link>
+          <Link href={`/${market}/search`} onClick={() => setOpen(false)}>
+            Search
+          </Link>
+          <Link href={`/${market}/account`} onClick={() => setOpen(false)}>
+            Your account
+          </Link>
           <Link href={`/${market}/account/measurements`} onClick={() => setOpen(false)}>
             Your measurements
+          </Link>
+          <Link href={`/${market}/size-guide`} onClick={() => setOpen(false)}>
+            Size guide
           </Link>
         </nav>
 

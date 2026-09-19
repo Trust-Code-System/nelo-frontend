@@ -37,10 +37,13 @@ export function FilterRail({
 
   const anyFilter = params.facets.length > 0 || params.inStockOnly;
 
+  // A nav, not an <aside>: a complementary landmark nested inside <main> is flagged, nested
+  // navs are not, and a filter rail is exactly the kind of thing a screen-reader user wants
+  // to jump straight to.
   return (
-    <aside className="rail">
+    <nav className="rail" aria-label="Filter and refine">
       <div className="fset">
-        <h3>Make</h3>
+        <h2>Make</h2>
         <ul>
           <li aria-current={params.inStockOnly ? 'true' : undefined}>
             <Link
@@ -63,7 +66,7 @@ export function FilterRail({
 
       {[...groups.entries()].map(([facetId, group]) => (
         <div className="fset" key={facetId}>
-          <h3>{group.name}</h3>
+          <h2>{group.name}</h2>
           <ul>
             {group.values.map((entry) => {
               const selected = params.facets.includes(entry.facetValue.id);
@@ -98,6 +101,6 @@ export function FilterRail({
           </p>
         </div>
       ) : null}
-    </aside>
+    </nav>
   );
 }

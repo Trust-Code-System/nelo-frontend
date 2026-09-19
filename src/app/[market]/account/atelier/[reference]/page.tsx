@@ -115,7 +115,7 @@ export default async function CommissionPage({
           {project.items.map((item) => (
             <article className="garment" key={item.id}>
               <div className="garment-head">
-                <h3>{item.name}</h3>
+                <h2>{item.name}</h2>
                 <span className="eta">Estimated ready {formatDate(item.estimatedReadyAt)}</span>
               </div>
 

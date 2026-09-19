@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import { Suspense } from 'react';
+import { CartCount } from './CartCount';
 import { MobileMenu } from './MobileMenu';
 import { MARKETS, type Market } from '@/lib/vendure/channels';
 
@@ -7,15 +9,18 @@ import { MARKETS, type Market } from '@/lib/vendure/channels';
 export function SiteHeader({ market, announcement }: { market: Market; announcement: string }) {
   return (
     <>
-      <div className="ann">
+      {/* A labelled landmark rather than a bare div: it sits above the <header>, so without
+          a role of its own it is page content outside every landmark, and a screen-reader
+          user skipping by landmark never reaches it. */}
+      <aside className="ann" aria-label="Store announcement">
         <span className="lab">{announcement}</span>
-      </div>
+      </aside>
       <header className="hdr">
         <div className="hdr-in">
           <MobileMenu market={market} />
           <nav className="lab nav-links" aria-label="Primary">
             <Link href={`/${market}`}>Shop</Link>
-            <Link href={`/${market}`}>Collections</Link>
+            <Link href={`/${market}/collections`}>Collections</Link>
             <Link href={`/${market}/atelier`}>Atelier</Link>
           </nav>
           <Link className="wordmark" href={`/${market}`}>
@@ -38,9 +43,21 @@ export function SiteHeader({ market, announcement }: { market: Market; announcem
                 </Link>
               ))}
             </div>
-            <span className="lab u-hide">Search</span>
-            <span className="lab u-hide">Account</span>
-            <Link className="lab" href={`/${market}/cart`}>Bag</Link>
+            <Link className="lab u-hide" href={`/${market}/search`}>
+              Search
+            </Link>
+            <Link className="lab u-hide" href={`/${market}/account`}>
+              Account
+            </Link>
+            <Link className="lab bag" href={`/${market}/cart`}>
+              Bag
+              {/* Suspended so the header does not block on a session-bearing read. The
+                  fallback is the absence of a number, which is also the empty-bag state —
+                  so nothing flashes a wrong count on its way to the right one. */}
+              <Suspense fallback={null}>
+                <CartCount market={market} />
+              </Suspense>
+            </Link>
           </div>
         </div>
       </header>

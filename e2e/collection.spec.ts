@@ -16,6 +16,20 @@ test.beforeEach(async () => {
   test.skip(!(await catalogueIsLive()), NO_CATALOGUE);
 });
 
+/**
+ * Below 1000px the facet rail is a sheet rather than a column, so it has to be opened before
+ * anything in it can be clicked. The rail markup is identical either way — only its
+ * presentation changes — which is why every assertion after this point is the same.
+ */
+async function openFiltersIfSheet(page: import('@playwright/test').Page) {
+  const trigger = page.getByRole('button', { name: /^filter/i });
+  if (!(await trigger.isVisible())) return;
+  // Idempotent: applying a filter is a client-side navigation, so the sheet is still open
+  // afterwards — which is what you want when choosing several filters in a row. Clicking
+  // the trigger again would be a no-op the scrim swallows.
+  if ((await trigger.getAttribute('aria-expanded')) !== 'true') await trigger.click();
+}
+
 test.describe('collection page', () => {
   test('renders a collection with its product count', async ({ page }) => {
     const response = await page.goto(COLLECTION);
@@ -53,6 +67,8 @@ test.describe('collection page', () => {
   test('the in-stock filter round-trips through the URL', async ({ page }) => {
     await page.goto(COLLECTION);
 
+    await openFiltersIfSheet(page);
+
     // Scoped to the rail: a product card is itself a link whose accessible name contains
     // "Ready to ship", so an unscoped locator matches the whole grid.
     const rail = page.locator('.rail');
@@ -61,7 +77,9 @@ test.describe('collection page', () => {
     await expect(page).toHaveURL(/stock=ready/);
     await expect(page.locator('.chips').getByText('Ready to ship')).toBeVisible();
 
-    // And it can be cleared again.
+    // And it can be cleared again, without having to reopen the sheet: applying a filter
+    // navigates but leaves the sheet where it was, so a second choice is one tap away.
+    await openFiltersIfSheet(page);
     await rail.getByRole('link', { name: 'Clear filters' }).click();
     await expect(page).not.toHaveURL(/stock=ready/);
   });

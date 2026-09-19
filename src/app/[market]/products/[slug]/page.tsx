@@ -1,11 +1,13 @@
 import type { Metadata } from 'next';
-import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { SiteFooter } from '@/components/SiteFooter';
 import { SiteHeader } from '@/components/SiteHeader';
+import { ProductGallery, type GalleryImage } from '@/features/catalogue/ProductGallery';
 import { VariantSelector } from '@/features/catalogue/VariantSelector';
-import { assetPreview } from '@/lib/vendure/assets';
+import { marketAlternates } from '@/lib/seo/site';
+import { breadcrumbJsonLd, jsonLdScript, productJsonLd } from '@/lib/seo/structured-data';
+import { assetPreview, assetUrl } from '@/lib/vendure/assets';
 import { formatMoney, isMarket, type Market } from '@/lib/vendure/channels';
 import { ProductBySlugDocument, type ProductBySlugQuery } from '@/lib/vendure/generated/graphql';
 import { catalogueQuery } from '@/lib/vendure/transport';
@@ -31,7 +33,27 @@ export async function generateMetadata({
   const { market, slug } = await params;
   if (!isMarket(market)) return {};
   const product = await loadProduct(slug, market);
-  return product ? { title: product.name, description: product.description } : {};
+  if (!product) return {};
+
+  const description = product.description
+    ? product.description.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 300)
+    : `${product.name} — cut in Lagos, UK 6 to 30.`;
+  const image = product.featuredAsset ?? product.assets[0];
+
+  return {
+    title: product.name,
+    description,
+    // Each market's product page is its own canonical: same garment, different currency and
+    // different shipping. They declare each other as alternates rather than one claiming to
+    // be the other.
+    alternates: marketAlternates(market, `/products/${slug}`),
+    openGraph: {
+      title: product.name,
+      description,
+      type: 'website',
+      ...(image ? { images: [{ url: assetUrl(image.preview) }] } : {}),
+    },
+  };
 }
 
 /**
@@ -60,51 +82,51 @@ export default async function ProductPage({
     product.variants.map((variant) => [variant.id, formatMoney(variant.priceWithTax, market)]),
   );
 
-  const gallery = product.assets.length > 0 ? product.assets : [];
-  const hero = product.featuredAsset ?? gallery[0] ?? null;
+  // Sources are built here so the island never touches asset URL normalisation, and the
+  // featured asset leads without appearing twice.
+  const ordered = product.featuredAsset
+    ? [product.featuredAsset, ...product.assets.filter((a) => a.id !== product.featuredAsset?.id)]
+    : product.assets;
+  const images: GalleryImage[] = ordered.map((asset) => ({
+    id: asset.id,
+    src: assetPreview(asset.preview, { width: 1200, height: 1500 }),
+    thumb: assetPreview(asset.preview, { width: 300, height: 300 }),
+  }));
+
   const profile = PROFILES.find((p) => p.isDefault) ?? PROFILES[0];
 
   return (
     <>
+      {/* Structured data is emitted from the same objects the page renders, so the two
+          cannot disagree about a price or about availability. */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLdScript(productJsonLd(product, market)) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: jsonLdScript(
+            breadcrumbJsonLd([
+              { name: 'Nelo Woman', path: `/${market}` },
+              { name: 'Collections', path: `/${market}/collections` },
+              { name: product.name, path: `/${market}/products/${product.slug}` },
+            ]),
+          ),
+        }}
+      />
+
       <SiteHeader market={market} announcement="Complimentary shipping within Nigeria over ₦150,000" />
 
       <main className="shell">
-        <p className="crumb">
-          <Link href={`/${market}`}>Nelo</Link> / <Link href={`/${market}`}>Ready to Wear</Link> /{' '}
-          {product.name}
-        </p>
+        <nav className="crumb" aria-label="Breadcrumb">
+          <Link href={`/${market}`}>Nelo</Link> /{' '}
+          <Link href={`/${market}/collections`}>Collections</Link> / {product.name}
+        </nav>
 
         <div className="pdp">
           <div className="gallery">
-            <div className="main framed">
-              {hero ? (
-                <Image
-                  src={assetPreview(hero.preview, { width: 1200, height: 1500 })}
-                  alt={product.name}
-                  width={1200}
-                  height={1500}
-                  priority
-                  sizes="(max-width: 980px) 100vw, 55vw"
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                />
-              ) : null}
-            </div>
-            {gallery.length > 1 ? (
-              <div className="thumbs">
-                {gallery.slice(0, 4).map((asset, index) => (
-                  <button key={asset.id} type="button" aria-pressed={index === 0}>
-                    <Image
-                      src={assetPreview(asset.preview, { width: 300, height: 300 })}
-                      alt={`${product.name} — view ${index + 1}`}
-                      width={300}
-                      height={300}
-                      sizes="12vw"
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    />
-                  </button>
-                ))}
-              </div>
-            ) : null}
+            <ProductGallery images={images} productName={product.name} />
           </div>
 
           <div className="panel">
@@ -140,7 +162,8 @@ export default async function ProductPage({
                 </dl>
                 <p className="mnote">
                   Fixture profile — the Atelier API does not exist yet, so these are not your
-                  real measurements.
+                  real measurements. <Link href={`/${market}/size-guide`}>How we measure</Link>
+                  .
                 </p>
               </section>
             </VariantSelector>
@@ -155,11 +178,21 @@ export default async function ProductPage({
               </details>
             ) : null}
             <details>
+              <summary>Size and fit</summary>
+              <div className="body">
+                Cut in UK 6 to 30, every style. Sizes struck through on the scale above are not
+                in stock to ship today but can still be cut to measure.{' '}
+                <Link href={`/${market}/size-guide`}>The size guide</Link> shows where each
+                measurement is taken.
+              </div>
+            </details>
+            <details>
               <summary>Delivery &amp; returns</summary>
               <div className="body">
                 Lagos 2—3 days. Rest of Nigeria 4—6 days. International 7—12 days, duties
                 included at checkout. Cut-to-measure pieces are returnable for alteration,
-                not refund.
+                not refund. <Link href={`/${market}/shipping`}>Shipping</Link> ·{' '}
+                <Link href={`/${market}/returns`}>Returns</Link>
               </div>
             </details>
           </div>

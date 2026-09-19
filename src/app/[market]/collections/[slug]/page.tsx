@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { SiteFooter } from '@/components/SiteFooter';
 import { SiteHeader } from '@/components/SiteHeader';
 import { FilterRail } from '@/features/catalogue/FilterRail';
+import { FilterSheet } from '@/features/catalogue/FilterSheet';
 import { ProductGrid } from '@/features/catalogue/ProductGrid';
 import {
   buildHref,
@@ -12,6 +13,8 @@ import {
   SORT_LABELS,
   toSearchInput,
 } from '@/features/catalogue/search-params';
+import { marketAlternates } from '@/lib/seo/site';
+import { breadcrumbJsonLd, collectionJsonLd, jsonLdScript } from '@/lib/seo/structured-data';
 import { isMarket, type Market } from '@/lib/vendure/channels';
 import {
   CollectionBySlugDocument,
@@ -29,9 +32,16 @@ export async function generateMetadata({
   if (!isMarket(market)) return {};
   try {
     const { data } = await catalogueQuery(CollectionBySlugDocument, { slug }, market);
-    return data.collection
-      ? { title: data.collection.name, description: data.collection.description }
-      : {};
+    if (!data.collection) return {};
+    const description =
+      data.collection.description.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 300) ||
+      `${data.collection.name} — cut in Lagos, UK 6 to 30.`;
+    return {
+      title: data.collection.name,
+      description,
+      alternates: marketAlternates(market, `/collections/${slug}`),
+      openGraph: { title: data.collection.name, description, type: 'website' },
+    };
   } catch {
     return {};
   }
@@ -87,6 +97,35 @@ export default async function CollectionPage({
 
   return (
     <>
+      {/* Built from the same objects the grid renders, so the item list can never claim
+          products the page is not showing. */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: jsonLdScript(
+            collectionJsonLd({
+              name: collection.name,
+              description: collection.description,
+              market,
+              slug,
+              search,
+            }),
+          ),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: jsonLdScript(
+            breadcrumbJsonLd([
+              { name: 'Nelo Woman', path: `/${market}` },
+              { name: 'Collections', path: `/${market}/collections` },
+              { name: collection.name, path: `/${market}/collections/${slug}` },
+            ]),
+          ),
+        }}
+      />
+
       <SiteHeader market={market} announcement="Complimentary shipping within Nigeria over ₦150,000" />
 
       <main className="shell">
@@ -102,12 +141,17 @@ export default async function CollectionPage({
         </div>
 
         <div className="layout">
-          <FilterRail
-            facetValues={search?.facetValues ?? []}
-            params={catalogueParams}
-            basePath={basePath}
+          <FilterSheet
+            activeCount={catalogueParams.facets.length + (catalogueParams.inStockOnly ? 1 : 0)}
             total={total}
-          />
+          >
+            <FilterRail
+              facetValues={search?.facetValues ?? []}
+              params={catalogueParams}
+              basePath={basePath}
+              total={total}
+            />
+          </FilterSheet>
 
           <div>
             <div className="bar">
@@ -188,7 +232,7 @@ function Unavailable({ market }: { market: Market }) {
       <main className="shell">
         <div className="empty" style={{ marginTop: 'var(--s9)' }}>
           <span className="lab">Temporarily unavailable</span>
-          <h3>We cannot load this collection right now</h3>
+          <h2>We cannot load this collection right now</h2>
           <p>This is our side, not yours. The atelier is unaffected.</p>
           <Link className="btn-q" href={`/${market}/atelier`}>
             Visit the atelier

@@ -166,7 +166,7 @@ export default async function AtelierPage({
 
             <div className="aside">
               <span className="lab">Next</span>
-              <h3>We reply within two working days</h3>
+              <h2>We reply within two working days</h2>
               <p>
                 You will receive a written proposal with a schedule and a price. Nothing is
                 charged, and no date is held, until you accept it.

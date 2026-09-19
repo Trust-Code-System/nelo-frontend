@@ -42,7 +42,7 @@ export function CartLines({
     return (
       <div className="empty">
         <span className="lab">Your bag</span>
-        <h3>Nothing in your bag yet</h3>
+        <h2>Nothing in your bag yet</h2>
         <p>Pieces you add will wait here while you keep looking.</p>
         <Link className="btn-q" href={`/${market}`}>
           Continue shopping
@@ -77,7 +77,7 @@ export function CartLines({
 
             <div className="cart-detail">
               <Link href={`/${market}/products/${line.productVariant.product.slug}`}>
-                <h3>{line.productVariant.name}</h3>
+                <h2>{line.productVariant.name}</h2>
               </Link>
               <p className="lab">{line.productVariant.sku}</p>
               {line.productVariant.options.length > 0 ? (
@@ -127,17 +127,14 @@ export function CartLines({
       <dl className="cart-totals">
         <div className="spec">
           <dt>Subtotal</dt>
-          <span className="led" />
           <dd>{prices.__subTotal}</dd>
         </div>
         <div className="spec">
           <dt>Shipping</dt>
-          <span className="led" />
           <dd>{prices.__shipping}</dd>
         </div>
         <div className="spec total">
           <dt>Total</dt>
-          <span className="led" />
           <dd>{prices.__total}</dd>
         </div>
       </dl>

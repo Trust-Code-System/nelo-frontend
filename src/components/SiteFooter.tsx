@@ -1,6 +1,13 @@
 import Link from 'next/link';
 import type { Market } from '@/lib/vendure/channels';
 
+/**
+ * The footer column headings are h2, not h4.
+ *
+ * They were h4 while every page heading around them was h1, which skips two levels and
+ * leaves a screen reader's outline with holes in it. These sections are siblings of the
+ * page's own content sections, so h2 is what they actually are.
+ */
 export function SiteFooter({ market }: { market: Market }) {
   return (
     <footer>
@@ -14,7 +21,7 @@ export function SiteFooter({ market }: { market: Market }) {
           </p>
         </div>
         <div>
-          <h4>Atelier</h4>
+          <h2>Atelier</h2>
           <ul>
             <li><Link href={`/${market}/atelier`}>Bespoke</Link></li>
             <li><Link href={`/${market}/atelier`}>Bridal</Link></li>
@@ -22,15 +29,18 @@ export function SiteFooter({ market }: { market: Market }) {
           </ul>
         </div>
         <div>
-          <h4>Care</h4>
+          <h2>Care</h2>
           <ul>
-            <li><Link href={`/${market}`}>Shipping</Link></li>
-            <li><Link href={`/${market}`}>Returns</Link></li>
-            <li><Link href={`/${market}`}>Contact</Link></li>
+            <li><Link href={`/${market}/size-guide`}>Size guide</Link></li>
+            <li><Link href={`/${market}/shipping`}>Shipping</Link></li>
+            <li><Link href={`/${market}/returns`}>Returns</Link></li>
+            <li><Link href={`/${market}/order-tracking`}>Track an order</Link></li>
+            <li><Link href={`/${market}/contact`}>Contact</Link></li>
+            <li><Link href={`/${market}/about`}>About Nelo</Link></li>
           </ul>
         </div>
         <div>
-          <h4>Region</h4>
+          <h2>Region</h2>
           <ul>
             <li><Link href="/ng">Nigeria — NGN</Link></li>
             <li><Link href="/international">International — USD</Link></li>
