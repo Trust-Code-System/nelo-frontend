@@ -1,3 +1,5 @@
+import type { Metadata } from 'next';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { SiteFooter } from '@/components/SiteFooter';
 import { SiteHeader } from '@/components/SiteHeader';
@@ -5,7 +7,25 @@ import { ProductGrid } from '@/features/catalogue/ProductGrid';
 import { SearchCatalogueDocument } from '@/lib/vendure/generated/graphql';
 import { isMarket } from '@/lib/vendure/channels';
 import { catalogueQuery } from '@/lib/vendure/transport';
+import { marketAlternates } from '@/lib/seo/site';
+import { jsonLdScript, organisationJsonLd } from '@/lib/seo/structured-data';
 import type { SearchCatalogueQuery } from '@/lib/vendure/generated/graphql';
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ market: string }>;
+}): Promise<Metadata> {
+  const { market } = await params;
+  if (!isMarket(market)) return {};
+  return {
+    description:
+      'Nigerian luxury womenswear, cut in Lagos. Ready to wear in UK 6 to 30, plus bespoke and bridal commissions from measurements we keep.',
+    // The two markets are different pages — different currency, different eligibility — so
+    // each is its own canonical and they declare each other as alternates.
+    alternates: marketAlternates(market, ''),
+  };
+}
 
 /**
  * Market home.
@@ -39,6 +59,11 @@ export default async function HomePage({
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLdScript(organisationJsonLd(market)) }}
+      />
+
       <SiteHeader market={market} announcement="Statement femininity for the modern woman" />
 
       <main className="shell">
@@ -62,14 +87,14 @@ export default async function HomePage({
           ) : (
             <div className="empty">
               <span className="lab">Temporarily unavailable</span>
-              <h3>We cannot load the collection right now</h3>
+              <h2>We cannot load the collection right now</h2>
               <p>
                 This is our side, not yours. The atelier is still open — bespoke and bridal
                 enquiries are unaffected.
               </p>
-              <a className="btn-q" href={`/${market}/atelier`}>
+              <Link className="btn-q" href={`/${market}/atelier`}>
                 Visit the atelier
-              </a>
+              </Link>
             </div>
           )}
         </section>

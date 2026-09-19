@@ -150,3 +150,24 @@ query ProductBySlug($slug: String!) {
     }
   }
 }
+
+# Sitemap source.
+#
+# Deliberately minimal: a slug and a timestamp are the only things a sitemap entry needs, and
+# pulling assets or prices for several hundred products to build an XML file would be waste.
+# `products` in the Shop API returns only enabled products, so a disabled one never appears.
+query SitemapCatalogue($options: ProductListOptions) {
+  products(options: $options) {
+    totalItems
+    items {
+      slug
+      updatedAt
+    }
+  }
+  collections {
+    items {
+      slug
+      updatedAt
+    }
+  }
+}

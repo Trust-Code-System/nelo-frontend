@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Nelo Woman">
+  <!-- Direction D, at 32px: garnet field, bone letterform, square corners. The N is drawn
+       as geometry rather than set in Instrument Sans so the mark does not depend on a
+       webfont loading, and so it holds at 16px where a typeface would not. -->
+  <rect width="32" height="32" fill="#6E1A22"/>
+  <path fill="#FBFAF8" d="M7 6h4v20H7zM21 6h4v20h-4zM11 6h4l6 20h-4z"/>
+</svg>

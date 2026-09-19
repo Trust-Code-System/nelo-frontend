@@ -4,12 +4,26 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { SiteFooter } from '@/components/SiteFooter';
 import { SiteHeader } from '@/components/SiteHeader';
+import { marketAlternates } from '@/lib/seo/site';
 import { assetPreview } from '@/lib/vendure/assets';
 import { isMarket } from '@/lib/vendure/channels';
 import { CollectionsDocument, type CollectionsQuery } from '@/lib/vendure/generated/graphql';
 import { catalogueQuery } from '@/lib/vendure/transport';
 
-export const metadata: Metadata = { title: 'Collections' };
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ market: string }>;
+}): Promise<Metadata> {
+  const { market } = await params;
+  if (!isMarket(market)) return {};
+  return {
+    title: 'Collections',
+    description:
+      'Every Nelo Woman collection, cut in Lagos in UK 6 to 30. Ready to wear, plus bespoke and bridal by commission.',
+    alternates: marketAlternates(market, '/collections'),
+  };
+}
 
 /** All collections. Top-level only — child collections belong inside their parent. */
 export default async function CollectionsPage({
@@ -53,7 +67,7 @@ export default async function CollectionsPage({
           {unreachable ? (
             <div className="empty">
               <span className="lab">Temporarily unavailable</span>
-              <h3>We cannot load the collections right now</h3>
+              <h2>We cannot load the collections right now</h2>
               <p>This is our side, not yours. The atelier is unaffected.</p>
               <Link className="btn-q" href={`/${market}/atelier`}>
                 Visit the atelier
@@ -75,7 +89,11 @@ export default async function CollectionsPage({
                             width: 700,
                             height: 933,
                           })}
-                          alt={collection.name}
+                          // Deliberately empty. The collection's name is the link text
+                          // directly beneath, so alt text would make a screen reader read
+                          // the same words twice — the image is decorative here even though
+                          // it is the visual point of the card.
+                          alt=""
                           width={700}
                           height={933}
                           sizes="(max-width: 760px) 50vw, 25vw"
@@ -85,7 +103,7 @@ export default async function CollectionsPage({
                     </div>
                     <figcaption>
                       <div className="meta">
-                        <h3>{collection.name}</h3>
+                        <h2>{collection.name}</h2>
                       </div>
                     </figcaption>
                   </figure>
