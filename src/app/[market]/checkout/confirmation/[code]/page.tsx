@@ -120,8 +120,9 @@ export default async function ConfirmationPage({
           )}
         </section>
 
-        <SiteFooter market={market} />
       </main>
+
+      <SiteFooter market={market} />
     </>
   );
 }

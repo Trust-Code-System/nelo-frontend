@@ -101,8 +101,9 @@ export default async function CartPage({
           )}
         </section>
 
-        <SiteFooter market={market} />
       </main>
+
+      <SiteFooter market={market} />
     </>
   );
 }

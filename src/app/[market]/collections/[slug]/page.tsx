@@ -219,8 +219,9 @@ export default async function CollectionPage({
           </div>
         </div>
 
-        <SiteFooter market={market} />
       </main>
+
+      <SiteFooter market={market} />
     </>
   );
 }
@@ -238,8 +239,9 @@ function Unavailable({ market }: { market: Market }) {
             Visit the atelier
           </Link>
         </div>
-        <SiteFooter market={market} />
       </main>
+
+      <SiteFooter market={market} />
     </>
   );
 }

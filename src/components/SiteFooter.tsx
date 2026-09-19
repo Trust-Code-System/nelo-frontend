@@ -10,7 +10,12 @@ import type { Market } from '@/lib/vendure/channels';
  */
 export function SiteFooter({ market }: { market: Market }) {
   return (
-    <footer>
+    // Outside <main>, so this is a real `contentinfo` landmark. A <footer> nested inside
+    // <main> is not one — the role only applies at the top level — and contentinfo is one of
+    // the landmarks screen-reader users navigate by most. It carries its own shell because it
+    // is no longer inside the page's.
+    <footer className="sitefoot">
+      <div className="shell">
       <div className="fgrid">
         <div>
           <span className="wordmark" style={{ textAlign: 'left', display: 'block' }}>
@@ -48,6 +53,7 @@ export function SiteFooter({ market }: { market: Market }) {
         </div>
       </div>
       <p className="lab" style={{ marginTop: 'var(--s7)' }}>© 2026 Nelo Woman · Lagos</p>
+      </div>
     </footer>
   );
 }

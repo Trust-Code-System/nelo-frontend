@@ -46,8 +46,9 @@ export function ContentPage({
           {aside ? <div className="aside">{aside}</div> : null}
         </div>
 
-        <SiteFooter market={market} />
       </main>
+
+      <SiteFooter market={market} />
     </>
   );
 }

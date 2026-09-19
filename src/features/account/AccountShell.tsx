@@ -64,8 +64,9 @@ export function AccountShell({
 
         <section className="section-gap">{children}</section>
 
-        <SiteFooter market={market} />
       </main>
+
+      <SiteFooter market={market} />
     </>
   );
 }

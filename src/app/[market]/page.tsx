@@ -99,8 +99,9 @@ export default async function HomePage({
           )}
         </section>
 
-        <SiteFooter market={market} />
       </main>
+
+      <SiteFooter market={market} />
     </>
   );
 }

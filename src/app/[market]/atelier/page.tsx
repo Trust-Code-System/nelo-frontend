@@ -181,8 +181,9 @@ export default async function AtelierPage({
           </div>
         </form>
 
-        <SiteFooter market={market} />
       </main>
+
+      <SiteFooter market={market} />
     </>
   );
 }

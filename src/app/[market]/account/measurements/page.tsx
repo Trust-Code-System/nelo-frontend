@@ -176,8 +176,9 @@ export default async function MeasurementsPage({
           </form>
         </section>
 
-        <SiteFooter market={market} />
       </main>
+
+      <SiteFooter market={market} />
     </>
   );
 }

@@ -220,8 +220,9 @@ export default async function SearchPage({
           </div>
         )}
 
-        <SiteFooter market={market} />
       </main>
+
+      <SiteFooter market={market} />
     </>
   );
 }

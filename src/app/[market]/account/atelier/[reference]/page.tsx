@@ -208,8 +208,9 @@ export default async function CommissionPage({
         </div>
         <p className="mnote">Actions are disabled until the Atelier API exists.</p>
 
-        <SiteFooter market={market} />
       </main>
+
+      <SiteFooter market={market} />
     </>
   );
 }

@@ -113,8 +113,9 @@ export default async function CollectionsPage({
           )}
         </section>
 
-        <SiteFooter market={market} />
       </main>
+
+      <SiteFooter market={market} />
     </>
   );
 }

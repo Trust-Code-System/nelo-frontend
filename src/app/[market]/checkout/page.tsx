@@ -492,8 +492,9 @@ function Frame({ market, children }: { market: Market; children: React.ReactNode
           </div>
         </div>
         <section className="section-gap">{children}</section>
-        <SiteFooter market={market} />
       </main>
+
+      <SiteFooter market={market} />
     </>
   );
 }

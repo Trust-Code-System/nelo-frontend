@@ -198,8 +198,9 @@ export default async function ProductPage({
           </div>
         </div>
 
-        <SiteFooter market={market} />
       </main>
+
+      <SiteFooter market={market} />
     </>
   );
 }
