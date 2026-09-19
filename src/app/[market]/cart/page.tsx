@@ -71,7 +71,7 @@ export default async function CartPage({
           {unreachable ? (
             <div className="empty">
               <span className="lab">Temporarily unavailable</span>
-              <h3>We cannot reach your bag right now</h3>
+              <h2>We cannot reach your bag right now</h2>
               <p>Nothing has been lost. Try again in a moment.</p>
               <Link className="btn-q" href={`/${market}`}>
                 Continue shopping
@@ -81,22 +81,18 @@ export default async function CartPage({
             <>
               <CartLines cart={cart} market={market} prices={prices} />
               <div className="acts-row">
-                <button className="btn" type="button" disabled>
+                <Link className="btn" href={`/${market}/checkout`}>
                   Checkout
-                </button>
+                </Link>
                 <Link className="btn-q" href={`/${market}`}>
                   Continue shopping
                 </Link>
               </div>
-              <p className="mnote">
-                Checkout is disabled: the Paystack initialise-payment operation does not exist
-                yet, and a checkout that cannot take payment should not pretend otherwise.
-              </p>
             </>
           ) : (
             <div className="empty">
               <span className="lab">Your bag</span>
-              <h3>Nothing in your bag yet</h3>
+              <h2>Nothing in your bag yet</h2>
               <p>Pieces you add will wait here while you keep looking.</p>
               <Link className="btn-q" href={`/${market}`}>
                 Continue shopping
