@@ -8,13 +8,32 @@ import { isMarket, type Market } from '@/lib/vendure/channels';
 import { OrderByCodeDocument, type OrderDetailFragment } from '@/lib/vendure/generated/graphql';
 import { vendureQuery } from '@/lib/vendure/transport';
 
-export function generateMetadata({ params }: { params: Promise<{ market: string }> }) {
-  return contentMetadata(params, {
-    path: '/order-tracking',
-    title: 'Track an order',
-    description:
-      'Look up a Nelo Woman order by its code. The state shown is the store’s own record.',
-  });
+/**
+ * Indexable empty, noindex with a code.
+ *
+ * The bare page is a landing page people search for and it is linked from the footer, so it
+ * should be indexed. A URL carrying somebody's order code should not be — not because it
+ * leaks anything (Vendure decides who may read an order) but because there is no reason for
+ * one customer's lookup to end up in a search index.
+ */
+export async function generateMetadata({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ market: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const [metadata, raw] = await Promise.all([
+    contentMetadata(params, {
+      path: '/order-tracking',
+      title: 'Track an order',
+      description:
+        'Look up a Nelo Woman order by its code. The state shown is the store’s own record.',
+    }),
+    searchParams,
+  ]);
+
+  return raw.code ? { ...metadata, robots: { index: false, follow: true } } : metadata;
 }
 
 // Reads a session-bearing query, so nothing here may be cached or prerendered.

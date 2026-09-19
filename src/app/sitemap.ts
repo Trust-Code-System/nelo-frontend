@@ -38,6 +38,9 @@ const STATIC_PATHS = [
   { path: '/shipping', priority: 0.5, changeFrequency: 'monthly' as const },
   { path: '/returns', priority: 0.5, changeFrequency: 'monthly' as const },
   { path: '/contact', priority: 0.5, changeFrequency: 'monthly' as const },
+  // Indexable while empty: people search for "track my order" by name. The page carries
+  // `noindex` only once a code is in the query string.
+  { path: '/order-tracking', priority: 0.5, changeFrequency: 'monthly' as const },
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

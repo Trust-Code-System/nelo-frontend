@@ -79,6 +79,17 @@ test.describe('SEO surface', () => {
     expect(body).toContain('Sitemap:');
     // The commercial pages must not be restricted in any way.
     expect(body).not.toMatch(/Disallow:\s*\/\*\/(products|collections)/);
+    // Nor order tracking: it is a page people search for, and blocking the crawl would also
+    // stop a crawler ever reading the noindex the page carries once a code is supplied.
+    expect(body).not.toContain('Disallow: /*/order-tracking');
+  });
+
+  test('order tracking is indexable empty and noindex with a code', async ({ page }) => {
+    await page.goto('/ng/order-tracking');
+    await expect(page.locator('meta[name="robots"][content*="noindex"]')).toHaveCount(0);
+
+    await page.goto('/ng/order-tracking?code=SOMEORDERCODE');
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/);
   });
 
   test('a product page declares a canonical and both market alternates', async ({ page }) => {
