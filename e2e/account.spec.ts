@@ -90,6 +90,14 @@ test.describe('account round trip', () => {
     test.skip(!mailboxIsAvailable(), NO_MAILBOX);
   });
 
+  // These journeys are long by nature — register, verify, sign in, fill a bag, walk four
+  // checkout steps, then read the order back. Thirteen seconds on an idle machine, but the
+  // local suite runs against the dev server, which compiles each route on first request, and
+  // the default budget is for a test that touches one page. Marking them slow is honest
+  // about what they are; padding every test's timeout to suit these would hide a genuine
+  // hang somewhere else.
+  test.slow();
+
   test('register, verify, sign in, sign out', async ({ page }) => {
     const email = freshEmail();
 

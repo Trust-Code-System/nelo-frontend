@@ -119,8 +119,10 @@ button{font:inherit; color:inherit; border-radius:var(--radius)}
   text-transform:uppercase; color:var(--smoke)}
 .spec dt::after{content:''; flex:1 1 auto; border-bottom:1px dotted var(--hair);
   transform:translateY(-3px)}
-.spec dd{margin:0; flex:0 0 auto; font-family:var(--mono); font-size:var(--t-fine);
-  font-variant-numeric:tabular-nums}
+/* shrink-to-fit, but able to wrap: a long email address in a review row would otherwise
+   run past the edge of a 390px screen rather than breaking. */
+.spec dd{margin:0; flex:0 1 auto; min-width:0; overflow-wrap:anywhere; text-align:right;
+  font-family:var(--mono); font-size:var(--t-fine); font-variant-numeric:tabular-nums}
 
 /* buttons */
 .btn{

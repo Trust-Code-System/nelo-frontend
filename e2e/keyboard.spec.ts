@@ -99,6 +99,10 @@ test.describe('keyboard checkout', () => {
     test.skip(!(await catalogueIsLive()), NO_CATALOGUE);
   });
 
+  // Driving a whole checkout by Tab and Enter is slower than clicking it, on top of the dev
+  // server's first-request compile. See the note in account.spec.ts.
+  test.slow();
+
   test('a guest can complete checkout with the keyboard alone', async ({ page }) => {
     // Open the first product by keyboard: the grid holds links, so Enter follows one.
     await page.goto('/ng');

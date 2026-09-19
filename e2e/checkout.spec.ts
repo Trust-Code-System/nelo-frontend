@@ -18,6 +18,10 @@ test.beforeEach(async () => {
   test.skip(!(await catalogueIsLive()), NO_CATALOGUE);
 });
 
+// A full checkout walks four steps plus a confirmation, on a dev server that compiles each
+// route the first time it is asked for. See the note in account.spec.ts.
+test.slow();
+
 /** Adds the first in-stock garment to the bag, leaving the browser on the bag page. */
 async function addSomethingToBag(page: Page) {
   await page.goto('/ng');
