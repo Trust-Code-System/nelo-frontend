@@ -8,6 +8,10 @@ export default function Loading() {
   return (
     <main className="shell" style={{ paddingBlock: 'var(--s9)' }} aria-busy="true">
       <span className="lab">Loading your account…</span>
+      {/* A real h1, not just a grey bar. Without it the page has no level-one heading for
+          as long as the load takes, and a screen reader landing here has nothing to orient
+          on. It is visually hidden because the skeleton bar below is the visual placeholder. */}
+      <h1 className="sr">Your account</h1>
       <div className="skeleton-head" />
       <div className="skeleton-rows">
         {Array.from({ length: 6 }, (_, index) => (

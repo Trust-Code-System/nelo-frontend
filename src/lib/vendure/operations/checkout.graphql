@@ -1,0 +1,286 @@
+# Checkout and order history — Vendure Shop API.
+#
+# The order of operations is Vendure's, not ours: set the customer, set the shipping address,
+# read ELIGIBLE shipping methods (never a hardcoded list), set one, transition to
+# ArrangingPayment, read ELIGIBLE payment methods, add the payment.
+#
+# Two rules are encoded in the shape of these documents:
+#
+#   1. Every mutation re-reads the Order it returns through the `OrderDetail` fragment, so
+#      the storefront always renders Vendure's totals rather than its own arithmetic. The
+#      browser never supplies a payable amount — `addPaymentToOrder` takes no amount at all,
+#      which is the correct design.
+#   2. Every union selects `__typename` and its ErrorResult members. `transitionOrderToState`
+#      is the sharpest example: it is NULLABLE, and a null result means the order was already
+#      in the requested state — which is not the same as the transition having succeeded now.
+
+fragment OrderDetailLine on OrderLine {
+  id
+  quantity
+  unitPriceWithTax
+  linePriceWithTax
+  discountedLinePriceWithTax
+  featuredAsset {
+    id
+    preview
+  }
+  productVariant {
+    id
+    name
+    sku
+    product {
+      slug
+    }
+    options {
+      id
+      code
+      name
+      groupId
+    }
+  }
+}
+
+fragment OrderAddressDetail on OrderAddress {
+  fullName
+  company
+  streetLine1
+  streetLine2
+  city
+  province
+  postalCode
+  country
+  countryCode
+  phoneNumber
+}
+
+fragment OrderDetail on Order {
+  __typename
+  id
+  code
+  state
+  active
+  createdAt
+  orderPlacedAt
+  currencyCode
+  totalQuantity
+  subTotalWithTax
+  shippingWithTax
+  totalWithTax
+  couponCodes
+  discounts {
+    description
+    amountWithTax
+  }
+  lines {
+    ...OrderDetailLine
+  }
+  shippingAddress {
+    ...OrderAddressDetail
+  }
+  billingAddress {
+    ...OrderAddressDetail
+  }
+  shippingLines {
+    priceWithTax
+    shippingMethod {
+      id
+      code
+      name
+      description
+    }
+  }
+  # Payment state is Vendure's word. A `reference` returned by a payment provider on a
+  # browser redirect is a hint; this is the record.
+  payments {
+    id
+    method
+    state
+    amount
+    transactionId
+  }
+  customer {
+    id
+    emailAddress
+    firstName
+    lastName
+  }
+}
+
+query ActiveOrderForCheckout {
+  activeOrder {
+    ...OrderDetail
+  }
+}
+
+# Read by CODE, not by `activeOrder`. Once an order reaches PaymentAuthorized or
+# PaymentSettled it stops being active, so a confirmation screen that reads `activeOrder`
+# shows an empty bag at exactly the moment it must show the order.
+query OrderByCode($code: String!) {
+  orderByCode(code: $code) {
+    ...OrderDetail
+  }
+}
+
+query CustomerOrders($options: OrderListOptions) {
+  activeCustomer {
+    id
+    orders(options: $options) {
+      totalItems
+      items {
+        id
+        code
+        state
+        orderPlacedAt
+        createdAt
+        totalQuantity
+        totalWithTax
+        currencyCode
+        lines {
+          id
+          quantity
+          featuredAsset {
+            id
+            preview
+          }
+          productVariant {
+            name
+            product {
+              slug
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+query NextOrderStates {
+  nextOrderStates
+}
+
+mutation SetCustomerForOrder($input: CreateCustomerInput!) {
+  setCustomerForOrder(input: $input) {
+    __typename
+    ...OrderDetail
+    ... on ErrorResult {
+      errorCode
+      message
+    }
+  }
+}
+
+mutation SetOrderShippingAddress($input: CreateAddressInput!) {
+  setOrderShippingAddress(input: $input) {
+    __typename
+    ...OrderDetail
+    ... on ErrorResult {
+      errorCode
+      message
+    }
+  }
+}
+
+mutation SetOrderBillingAddress($input: CreateAddressInput!) {
+  setOrderBillingAddress(input: $input) {
+    __typename
+    ...OrderDetail
+    ... on ErrorResult {
+      errorCode
+      message
+    }
+  }
+}
+
+# Eligibility is Vendure's decision, recalculated against the current address and contents.
+# A method that was eligible before the address changed may not be eligible now.
+query EligibleShippingMethods {
+  eligibleShippingMethods {
+    id
+    code
+    name
+    description
+    price
+    priceWithTax
+  }
+}
+
+mutation SetOrderShippingMethod($ids: [ID!]!) {
+  setOrderShippingMethod(shippingMethodId: $ids) {
+    __typename
+    ...OrderDetail
+    ... on ErrorResult {
+      errorCode
+      message
+    }
+  }
+}
+
+query EligiblePaymentMethods {
+  eligiblePaymentMethods {
+    id
+    code
+    name
+    description
+    isEligible
+    eligibilityMessage
+  }
+}
+
+mutation TransitionOrderToState($state: String!) {
+  transitionOrderToState(state: $state) {
+    __typename
+    ...OrderDetail
+    ... on OrderStateTransitionError {
+      errorCode
+      message
+      transitionError
+      fromState
+      toState
+    }
+  }
+}
+
+# No amount is passed, and none could be: Vendure charges its own `totalWithTax`. `metadata`
+# is handler-specific — for the development dummy handler it is the decline/error switches,
+# and for Paystack it will be whatever that contract specifies once it exists.
+mutation AddPaymentToOrder($input: PaymentInput!) {
+  addPaymentToOrder(input: $input) {
+    __typename
+    ...OrderDetail
+    ... on ErrorResult {
+      errorCode
+      message
+    }
+    ... on PaymentFailedError {
+      paymentErrorMessage
+    }
+    ... on PaymentDeclinedError {
+      paymentErrorMessage
+    }
+    ... on OrderStateTransitionError {
+      transitionError
+      fromState
+      toState
+    }
+  }
+}
+
+mutation ApplyCouponCode($code: String!) {
+  applyCouponCode(couponCode: $code) {
+    __typename
+    ...OrderDetail
+    ... on ErrorResult {
+      errorCode
+      message
+    }
+    ... on CouponCodeLimitError {
+      limit
+    }
+  }
+}
+
+mutation RemoveCouponCode($code: String!) {
+  removeCouponCode(couponCode: $code) {
+    ...OrderDetail
+  }
+}

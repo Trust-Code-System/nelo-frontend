@@ -1,0 +1,192 @@
+# Customer accounts — Vendure Shop API.
+#
+# Vendure is the authentication authority. There is no auth library here, no frontend-issued
+# JWT, and no shadow user table: every operation below is a documented Shop API mutation,
+# and the only thing the storefront keeps is the opaque session token in an HttpOnly cookie.
+#
+# Every mutation returns a union, and several of them return a union where one member looks
+# like success. `NotVerifiedError` from `login` is the obvious trap: HTTP 200, no GraphQL
+# errors, and the customer is not signed in. So `__typename` is selected everywhere and the
+# ErrorResult members are selected explicitly.
+
+fragment CustomerIdentity on Customer {
+  __typename
+  id
+  title
+  firstName
+  lastName
+  emailAddress
+  phoneNumber
+}
+
+fragment CustomerAddress on Address {
+  __typename
+  id
+  fullName
+  company
+  streetLine1
+  streetLine2
+  city
+  province
+  postalCode
+  phoneNumber
+  defaultShippingAddress
+  defaultBillingAddress
+  country {
+    code
+    name
+  }
+}
+
+# Null for a guest. That is the whole signed-in check — there is no separate session probe.
+query ActiveCustomer {
+  activeCustomer {
+    ...CustomerIdentity
+  }
+}
+
+query ActiveCustomerAddresses {
+  activeCustomer {
+    ...CustomerIdentity
+    addresses {
+      ...CustomerAddress
+    }
+  }
+}
+
+# Country list for the address form. Vendure decides which countries are enabled per
+# Channel; the storefront never hardcodes a list.
+query AvailableCountries {
+  availableCountries {
+    id
+    code
+    name
+  }
+}
+
+mutation Login($email: String!, $password: String!, $rememberMe: Boolean) {
+  login(username: $email, password: $password, rememberMe: $rememberMe) {
+    __typename
+    ... on CurrentUser {
+      id
+      identifier
+    }
+    ... on ErrorResult {
+      errorCode
+      message
+    }
+  }
+}
+
+mutation Logout {
+  logout {
+    success
+  }
+}
+
+# Vendure's four registration flows all end in either Success or an ErrorResult. Success
+# does NOT mean the customer can sign in — with verification enabled they must follow the
+# emailed token to `verifyCustomerAccount` first.
+mutation RegisterCustomerAccount($input: RegisterCustomerInput!) {
+  registerCustomerAccount(input: $input) {
+    __typename
+    ... on Success {
+      success
+    }
+    ... on ErrorResult {
+      errorCode
+      message
+    }
+  }
+}
+
+mutation VerifyCustomerAccount($token: String!, $password: String) {
+  verifyCustomerAccount(token: $token, password: $password) {
+    __typename
+    ... on CurrentUser {
+      id
+      identifier
+    }
+    ... on ErrorResult {
+      errorCode
+      message
+    }
+  }
+}
+
+mutation RefreshCustomerVerification($email: String!) {
+  refreshCustomerVerification(emailAddress: $email) {
+    __typename
+    ... on Success {
+      success
+    }
+    ... on ErrorResult {
+      errorCode
+      message
+    }
+  }
+}
+
+# Nullable result: Vendure returns null when the address is not registered, so that the
+# response cannot be used to enumerate which emails have accounts. The storefront shows the
+# same confirmation either way.
+mutation RequestPasswordReset($email: String!) {
+  requestPasswordReset(emailAddress: $email) {
+    __typename
+    ... on Success {
+      success
+    }
+    ... on ErrorResult {
+      errorCode
+      message
+    }
+  }
+}
+
+mutation ResetPassword($token: String!, $password: String!) {
+  resetPassword(token: $token, password: $password) {
+    __typename
+    ... on CurrentUser {
+      id
+      identifier
+    }
+    ... on ErrorResult {
+      errorCode
+      message
+    }
+  }
+}
+
+mutation UpdateCustomerPassword($currentPassword: String!, $newPassword: String!) {
+  updateCustomerPassword(currentPassword: $currentPassword, newPassword: $newPassword) {
+    __typename
+    ... on Success {
+      success
+    }
+    ... on ErrorResult {
+      errorCode
+      message
+    }
+  }
+}
+
+# Addresses. `createCustomerAddress` and `updateCustomerAddress` return a bare Address rather
+# than a union — a validation failure arrives as a top-level GraphQL error, which the
+# transport layer decodes as its own failure class.
+mutation CreateCustomerAddress($input: CreateAddressInput!) {
+  createCustomerAddress(input: $input) {
+    ...CustomerAddress
+  }
+}
+
+mutation UpdateCustomerAddress($input: UpdateAddressInput!) {
+  updateCustomerAddress(input: $input) {
+    ...CustomerAddress
+  }
+}
+
+mutation DeleteCustomerAddress($id: ID!) {
+  deleteCustomerAddress(id: $id) {
+    success
+  }
+}

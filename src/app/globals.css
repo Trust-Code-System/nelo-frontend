@@ -109,10 +109,18 @@ button{font:inherit; color:inherit; border-radius:var(--radius)}
 .framed::after{bottom:-1px; right:-1px; border-bottom:1px solid var(--ink); border-right:1px solid var(--ink)}
 
 /* spec rows */
-.spec{display:grid; grid-template-columns:auto 1fr auto; gap:var(--s3); align-items:baseline; padding:var(--s3) 0; border-bottom:var(--rule)}
-.spec dt{font-family:var(--mono); font-size:var(--t-micro); letter-spacing:.16em; text-transform:uppercase; color:var(--smoke)}
-.spec dd{margin:0; grid-column:3; font-family:var(--mono); font-size:var(--t-fine); font-variant-numeric:tabular-nums}
-.spec .led{border-bottom:1px dotted var(--hair); transform:translateY(-3px)}
+/* The dotted leader used to be a <span class="led"> sitting between the <dt> and the <dd>.
+   That is invalid inside a <dl> — only dt, dd, div, script and template may appear there —
+   and axe reports it as a serious violation on every spec row on the site. It is now a
+   pseudo-element on the dt, which renders identically and is not in the DOM at all. */
+.spec{display:flex; align-items:baseline; gap:var(--s3); padding:var(--s3) 0; border-bottom:var(--rule)}
+.spec dt{display:flex; align-items:baseline; gap:var(--s3); flex:1 1 auto; min-width:0;
+  font-family:var(--mono); font-size:var(--t-micro); letter-spacing:.16em;
+  text-transform:uppercase; color:var(--smoke)}
+.spec dt::after{content:''; flex:1 1 auto; border-bottom:1px dotted var(--hair);
+  transform:translateY(-3px)}
+.spec dd{margin:0; flex:0 0 auto; font-family:var(--mono); font-size:var(--t-fine);
+  font-variant-numeric:tabular-nums}
 
 /* buttons */
 .btn{
@@ -152,7 +160,7 @@ button{font:inherit; color:inherit; border-radius:var(--radius)}
 .card .ph img{width:100%; height:100%; object-fit:cover; transition:opacity var(--snap)}
 .card:hover .ph img{opacity:.9}
 .card .meta{display:flex; justify-content:space-between; gap:var(--s3); margin-top:var(--s3); align-items:baseline}
-.card h3{font-size:var(--t-sm); font-weight:600; margin:0; letter-spacing:.01em}
+.card h2,.card h3{font-size:var(--t-sm); font-weight:600; margin:0; letter-spacing:.01em}
 .card .price{font-family:var(--mono); font-size:var(--t-sm); font-variant-numeric:tabular-nums; font-weight:500}
 .strip{                                   /* measurement strip */
   margin-top:var(--s2); padding-top:var(--s2); border-top:var(--rule);
@@ -168,7 +176,7 @@ button{font:inherit; color:inherit; border-radius:var(--radius)}
 
 footer{border-top:var(--rule-ink); margin-top:var(--s10); padding-block:var(--s7) var(--s6)}
 .fgrid{display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:var(--s6)}
-footer h4{font-family:var(--mono); font-size:var(--t-micro); letter-spacing:.18em; text-transform:uppercase; color:var(--smoke); margin:0 0 var(--s3); font-weight:500}
+footer h2,footer h4{font-family:var(--mono); font-size:var(--t-micro); letter-spacing:.18em; text-transform:uppercase; color:var(--smoke); margin:0 0 var(--s3); font-weight:500}
 footer ul{list-style:none; margin:0; padding:0; font-size:var(--t-sm)}
 footer li{margin-bottom:var(--s2)}
 footer a:hover{color:var(--garnet)}
@@ -237,9 +245,14 @@ legend{font-family:var(--mono); font-size:var(--t-micro); letter-spacing:.18em; 
 .opt .t{font-size:var(--t-sm); font-weight:500}
 .opt .d{font-size:var(--t-fine); color:var(--smoke); margin-top:2px; display:block}
 
-label.f{display:block; margin-bottom:var(--s4)}
-label.f .lab{display:block; margin-bottom:7px}
-input[type="text"],input[type="date"],input[type="email"],select,textarea{
+/* Both shapes exist: the atelier and measurement forms wrap their input in the label,
+   while ActionForm keeps help and error text outside it so they do not become part of the
+   accessible name. The rules apply to either. */
+.f{display:block; margin-bottom:var(--s4)}
+.f .lab{display:block; margin-bottom:7px}
+.f>label{display:block; margin-bottom:0}
+input[type="text"],input[type="date"],input[type="email"],input[type="password"],
+input[type="tel"],input[type="search"],input[type="number"],select,textarea{
   width:100%; border:var(--rule); border-radius:var(--radius); background:var(--paper); color:var(--ink);
   padding:var(--s3); font-family:var(--sans); font-size:var(--t-sm)}
 input:focus,select:focus,textarea:focus{outline:2px solid var(--garnet); outline-offset:-1px}
@@ -258,7 +271,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--garnet); outline
 .mnote{font-family:var(--mono); font-size:var(--t-micro); color:var(--smoke); letter-spacing:.07em; line-height:1.8; margin-top:var(--s3)}
 
 .aside{border:var(--rule-ink); padding:var(--s6); position:sticky; top:104px}
-.aside h3{font-size:var(--t-md); margin:var(--s3) 0; font-weight:600}
+.aside h2,.aside h3{font-size:var(--t-md); margin:var(--s3) 0; font-weight:600}
 .aside p{font-size:var(--t-sm); color:var(--smoke); margin:0 0 var(--s4)}
 .submit{width:100%; text-align:center; padding:var(--s4)}
 
@@ -292,7 +305,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--garnet); outline
 .garment{border:var(--rule); padding:var(--s6); margin-top:var(--s5)}
 .garment-head{display:flex; justify-content:space-between; align-items:baseline; gap:var(--s4);
   flex-wrap:wrap; margin-bottom:var(--s4)}
-.garment-head h3{font-size:var(--t-md); margin:0; font-weight:600}
+.garment-head h2,.garment-head h3{font-size:var(--t-md); margin:0; font-weight:600}
 .garment-head .eta{font-family:var(--mono); font-size:var(--t-fine); color:var(--smoke)}
 
 .snap{margin-top:var(--s5); border-top:var(--rule); padding-top:var(--s4)}
@@ -435,8 +448,8 @@ details .body{padding-bottom:var(--s5); color:var(--smoke); font-size:var(--t-sm
 .cart-lines li{display:grid; grid-template-columns:96px 1fr auto auto; gap:var(--s5);
   align-items:start; padding:var(--s5) 0; border-bottom:var(--rule)}
 .cart-lines .ph{background:var(--ground); aspect-ratio:3/4; overflow:hidden}
-.cart-detail h3{font-size:var(--t-sm); font-weight:600; margin:0 0 var(--s2)}
-.cart-detail h3:hover{color:var(--garnet)}
+.cart-detail h2,.cart-detail h3{font-size:var(--t-sm); font-weight:600; margin:0 0 var(--s2)}
+.cart-detail h2:hover,.cart-detail h3:hover{color:var(--garnet)}
 .cart-detail .lab{display:block; margin-bottom:var(--s1)}
 .cart-qty{display:flex; flex-direction:column; gap:var(--s2); align-items:flex-start}
 .stepper{display:flex; border:var(--rule); align-items:stretch}
@@ -470,7 +483,7 @@ details .body{padding-bottom:var(--s5); color:var(--smoke); font-size:var(--t-sm
 .rail{position:sticky; top:104px; align-self:start}
 .fset{border-bottom:var(--rule); padding-bottom:var(--s5); margin-bottom:var(--s5)}
 .fset:last-child{border-bottom:0}
-.fset h3{font-family:var(--mono); font-size:var(--t-micro); letter-spacing:.18em;
+.fset h2,.fset h3{font-family:var(--mono); font-size:var(--t-micro); letter-spacing:.18em;
   text-transform:uppercase; color:var(--smoke); margin:0 0 var(--s3); font-weight:500}
 .fset ul{list-style:none; margin:0; padding:0; font-size:var(--t-sm)}
 .fset li{margin-bottom:var(--s2); display:flex; justify-content:space-between; gap:var(--s3)}
@@ -503,3 +516,228 @@ details .body{padding-bottom:var(--s5); color:var(--smoke); font-size:var(--t-sm
   .layout{grid-template-columns:1fr; gap:var(--s6)}
   .rail{position:static; border-bottom:var(--rule-ink); padding-bottom:var(--s5)}
 }
+
+/* ---------- empty and unavailable states ----------
+   Used by the catalogue grid, the bag and every account surface. These existed as markup
+   from the first catalogue commit but had no rules at all, so an empty bag rendered as
+   unstyled body text. */
+.empty{border:var(--rule-ink); padding:var(--s8) var(--s6); text-align:center;
+  display:flex; flex-direction:column; align-items:center; gap:var(--s3)}
+.empty h2,.empty h3{font-size:var(--t-lg); font-weight:600; margin:0; letter-spacing:-.012em}
+.empty p{color:var(--smoke); font-size:var(--t-sm); margin:0; max-width:46ch}
+.empty .acts-row{justify-content:center; margin-top:var(--s3)}
+
+/* ---------- account ---------- */
+.acct-nav{display:flex; gap:var(--s5); flex-wrap:wrap; padding-block:var(--s4);
+  border-bottom:var(--rule); font-family:var(--mono); font-size:var(--t-micro);
+  letter-spacing:.16em; text-transform:uppercase}
+.acct-nav a{color:var(--smoke); padding-bottom:var(--s1)}
+.acct-nav a:hover{color:var(--ink)}
+.acct-nav a[aria-current="page"]{color:var(--ink); border-bottom:1px solid var(--garnet)}
+
+/* A single measured column: an auth form is a short vertical sequence, and stretching it
+   across 1440px makes a three-field form look like a spreadsheet. */
+.authwrap{max-width:30rem}
+.lead{color:var(--smoke); font-size:var(--t-sm); max-width:52ch; margin:0 0 var(--s6)}
+
+.notice{border-left:2px solid var(--ink); background:var(--ground);
+  padding:var(--s3) var(--s4); font-size:var(--t-sm); margin:0 0 var(--s5)}
+.notice-error{border-left-color:var(--garnet)}
+.notice-ok{border-left-color:var(--ink)}
+/* Garnet on bone is the only place the accent carries meaning rather than emphasis, and it
+   clears 4.5:1 against both --ground and --paper in light and dark. */
+.field-error{display:block; margin-top:6px; font-family:var(--mono); font-size:var(--t-micro);
+  letter-spacing:.06em; color:var(--garnet)}
+.f .mnote{margin-top:6px}
+.check{display:flex; gap:var(--s3); align-items:center; margin-bottom:var(--s5);
+  font-size:var(--t-sm)}
+.check input{accent-color:var(--garnet); width:16px; height:16px; margin:0}
+
+/* An auth form plus its context. The form column is measured rather than fluid: a password
+   field 900px wide is not a better password field. */
+.authgrid{display:grid; grid-template-columns:minmax(0,30rem) minmax(0,21rem);
+  gap:var(--s8); align-items:start}
+@media (max-width:900px){ .authgrid{grid-template-columns:1fr; gap:var(--s6)} }
+
+/* Inline links inside mono notes and lead paragraphs carried no affordance at all — same
+   colour, same weight, no underline. In a paragraph, underline is the only thing left. */
+.mnote a,.lead a,.empty p a{text-decoration:underline; text-underline-offset:2px}
+.mnote a:hover,.lead a:hover,.empty p a:hover{color:var(--garnet)}
+.aside ul{list-style:none; margin:0; padding:0; font-size:var(--t-sm); color:var(--smoke)}
+.aside li{padding-block:var(--s3); border-bottom:var(--rule)}
+.aside li:last-child{border-bottom:0}
+
+/* ---------- address book ---------- */
+.fpair{display:grid; grid-template-columns:1fr 1fr; gap:var(--s4)}
+@media (max-width:560px){ .fpair{grid-template-columns:1fr; gap:0} }
+
+.addr-list{list-style:none; margin:0; padding:0; border-top:var(--rule-ink)}
+.addr-list>li{padding-block:var(--s5); border-bottom:var(--rule)}
+.addr-head{display:flex; justify-content:space-between; align-items:baseline;
+  gap:var(--s4); flex-wrap:wrap}
+.addr-head h2,.addr-head h3{font-size:var(--t-md); font-weight:600; margin:0}
+.addr-flags{display:flex; gap:var(--s2); flex-wrap:wrap}
+.addr-list address{font-style:normal; color:var(--smoke); font-size:var(--t-sm);
+  margin-top:var(--s2); max-width:60ch}
+.addr-acts{display:flex; gap:var(--s5); align-items:flex-start; margin-top:var(--s4);
+  flex-wrap:wrap}
+.addr-acts details{flex:1 1 22rem; min-width:0}
+.addr-del{display:flex; gap:var(--s4); align-items:center; flex-wrap:wrap}
+.btn-danger{border-color:var(--garnet); color:var(--garnet)}
+.btn-danger:hover{background:var(--garnet); color:var(--on-garnet)}
+.addr-add{margin-top:var(--s7); border-top:var(--rule-ink); padding-top:var(--s4)}
+
+/* ---------- orders ---------- */
+.ordcode{font-size:var(--t-sm); text-decoration:underline; text-underline-offset:2px}
+.ordcode:hover{color:var(--garnet)}
+.ordmeta{margin:0; max-width:34rem}
+.ordsub{font-family:var(--mono); font-size:var(--t-micro); letter-spacing:.18em;
+  text-transform:uppercase; color:var(--smoke); font-weight:500;
+  margin:0 0 var(--s3); padding-bottom:var(--s2); border-bottom:var(--rule-ink)}
+.ordcols{display:grid; grid-template-columns:1fr 1fr; gap:var(--s8); margin-top:var(--s7)}
+.ordcols address{font-style:normal; font-size:var(--t-sm); color:var(--smoke); line-height:1.8}
+@media (max-width:760px){ .ordcols{grid-template-columns:1fr; gap:var(--s6)} }
+
+/* ---------- checkout ---------- */
+.costeps ol{list-style:none; margin:0; padding:0; display:grid;
+  grid-template-columns:repeat(4,1fr); gap:0; border:var(--rule)}
+.costeps li{display:flex; gap:var(--s3); align-items:baseline;
+  padding:var(--s4); border-right:var(--rule)}
+.costeps li:last-child{border-right:0}
+/* --smoke, not --faint. At 10px --faint (#9A938A) measures 2.6:1 on the active step and
+   2.9:1 elsewhere, against a hard 4.5:1 floor for body text. The step number is not
+   decoration — it is how the step is identified. */
+.costeps .n{font-family:var(--mono); font-size:var(--t-micro); color:var(--smoke);
+  letter-spacing:.12em}
+.costeps .t{font-family:var(--mono); font-size:var(--t-micro); letter-spacing:.14em;
+  text-transform:uppercase; color:var(--smoke)}
+.costeps li.done .t{color:var(--ink)}
+.costeps li.done a.t:hover{color:var(--garnet); text-decoration:underline}
+.costeps li.now{background:var(--ground)}
+.costeps li.now .t{color:var(--garnet)}
+@media (max-width:760px){
+  .costeps ol{grid-template-columns:repeat(2,1fr)}
+  .costeps li:nth-child(2n){border-right:0}
+  .costeps li:nth-child(-n+2){border-bottom:var(--rule)}
+}
+
+.colayout{display:grid; grid-template-columns:minmax(0,1fr) 22rem; gap:var(--s8);
+  align-items:start; margin-top:var(--s7); padding-bottom:var(--s9)}
+.costep{min-width:0}
+.cosum{border:var(--rule-ink); padding:var(--s6); position:sticky; top:104px}
+.cosum-lines{list-style:none; margin:0 0 var(--s4); padding:0;
+  border-bottom:var(--rule-ink); font-size:var(--t-sm)}
+.cosum-lines li{display:flex; justify-content:space-between; gap:var(--s4);
+  padding-block:var(--s3); border-bottom:var(--rule)}
+.cosum-lines li:last-child{border-bottom:0}
+.cosum-lines .lab{display:inline}
+@media (max-width:980px){
+  .colayout{grid-template-columns:1fr; gap:var(--s7)}
+  /* The summary leads on a phone: what you are paying for comes before the form. */
+  .cosum{position:static; order:-1}
+}
+
+/* The bag count sits on the baseline of the label rather than as a floating badge — a
+   circular badge would need a radius, and this direction has none. */
+.bag{display:inline-flex; gap:6px; align-items:baseline}
+.bagcount{font-size:var(--t-micro); color:var(--paper); background:var(--garnet);
+  padding:2px 5px; letter-spacing:.04em}
+
+/* ---------- search ---------- */
+.searchform{display:flex; gap:0; align-items:stretch; width:min(26rem,100%)}
+.searchform input[type="search"]{border-right:0; padding:var(--s3) var(--s4);
+  font-size:var(--t-sm); -webkit-appearance:none; appearance:none}
+.searchform .btn-q{padding-inline:var(--s5); white-space:nowrap}
+
+/* ---------- written pages ---------- */
+.contentgrid{display:grid; grid-template-columns:minmax(0,1fr) 21rem; gap:var(--s8);
+  align-items:start; padding-bottom:var(--s9)}
+@media (max-width:980px){ .contentgrid{grid-template-columns:1fr; gap:var(--s7)} }
+
+/* 66ch is where a line of body copy stops being comfortable. A policy nobody reads is a
+   policy nobody follows. */
+.prose{max-width:66ch; padding-bottom:var(--s9)}
+.prose h2{font-size:var(--t-lg); font-weight:600; letter-spacing:-.012em;
+  margin:var(--s8) 0 var(--s3); padding-bottom:var(--s2); border-bottom:var(--rule-ink)}
+.prose h2:first-child{margin-top:0}
+.prose p{margin:0 0 var(--s4); line-height:1.7}
+.prose a{text-decoration:underline; text-underline-offset:2px}
+.prose a:hover{color:var(--garnet)}
+.prose .notice{max-width:none}
+
+/* the seven recorded points, as definitions rather than a bulleted list */
+.mdefs{margin:var(--s4) 0 var(--s6); border-top:var(--rule-ink)}
+.mdefs>div{display:grid; grid-template-columns:8rem minmax(0,1fr); gap:var(--s4);
+  padding-block:var(--s3); border-bottom:var(--rule)}
+.mdefs dt{font-family:var(--mono); font-size:var(--t-micro); letter-spacing:.14em;
+  text-transform:uppercase; color:var(--smoke); padding-top:2px}
+.mdefs dd{margin:0; font-size:var(--t-sm)}
+@media (max-width:560px){ .mdefs>div{grid-template-columns:1fr; gap:var(--s1)} }
+
+/* A 7-column table has nowhere to go on a phone but sideways, so it scrolls rather than
+   wrapping into nonsense. tabindex makes that scroll reachable from the keyboard. */
+.tablewrap{overflow-x:auto; margin:var(--s4) 0 var(--s6); border-bottom:var(--rule)}
+.sizetable{min-width:34rem}
+.sizetable th[scope="row"]{font-family:var(--mono); font-size:var(--t-sm); color:var(--ink);
+  border-bottom:var(--rule); text-align:right; padding-right:var(--s4); letter-spacing:0}
+
+/* ---------- mobile filter sheet ----------
+   One implementation, two presentations. Above 1000px the sheet IS the static rail and the
+   trigger is hidden; below it, the rail becomes a panel over the page. */
+.sheet-trigger{display:none}
+.sheet{position:sticky; top:104px; align-self:start}
+.sheet-head,.sheet-foot,.sheet-close,.sheet-scrim{display:none}
+
+@media (max-width:1000px){
+  .sheet-trigger{display:inline-block; padding:var(--s3) var(--s5)}
+
+  .sheet{
+    position:fixed; inset:0; z-index:40; background:var(--paper);
+    display:grid; grid-template-rows:auto 1fr auto;
+    /* Kept in the DOM rather than unmounted so the server-rendered rail is not rebuilt on
+       every open, and so nothing inside it loses state. */
+    transform:translateY(100%); visibility:hidden;
+    /* transform only. `visibility` is animatable but interpolates DISCRETELY — it flips at
+       the midpoint — so transitioning it left the panel visibility:hidden for the first
+       70ms after opening, and an element that is visibility:hidden cannot take focus. The
+       sheet moves focus to its close button the moment it opens, so that lost the focus
+       every time. The slide still animates; only the visibility flip is now immediate. */
+    transition:transform var(--snap);
+  }
+  .sheet[data-open="true"]{transform:translateY(0); visibility:visible}
+
+  .sheet-head{
+    display:flex; justify-content:space-between; align-items:center; gap:var(--s4);
+    padding:var(--s4) var(--gutter); border-bottom:var(--rule-ink);
+  }
+  /* The blanket display:none above hides this outside the breakpoint; it has to be turned
+     back on here or the sheet has no visible way out but Escape. */
+  .sheet-close{display:inline-block; background:none; border:0; padding:var(--s2) 0;
+    cursor:pointer; text-decoration:underline; text-underline-offset:2px}
+  .sheet-body{overflow-y:auto; padding:var(--s5) var(--gutter); -webkit-overflow-scrolling:touch}
+  .sheet-body .rail{position:static; border-bottom:0; padding-bottom:0}
+  .sheet-foot{display:block; padding:var(--s4) var(--gutter); border-top:var(--rule-ink)}
+  .sheet-scrim{display:block; position:fixed; inset:0; z-index:39; border:0;
+    background:var(--ink); opacity:.4; cursor:pointer}
+}
+
+/* The reduced-motion rule at the top of this file already disables the transform
+   transition; the sheet then simply appears, which is the correct behaviour. */
+/* The sheet is the sticky element now; a nested sticky rail inside it just fights it. */
+.sheet .rail{position:static}
+
+/* ---------- layout corrections found by looking at the rendered pages ---------- */
+
+/* `.phead` is a flex row, so its first child was sized by its widest line — a short h1 like
+   "Size guide" squeezed the standfirst under it into a 210px column. It has to grow. */
+.phead>div:first-child{flex:1 1 30rem; min-width:0}
+
+/* The prose column is capped at 66ch, so a `1fr` first track pushed the aside to the far
+   right with a void between them. Sizing the track to the copy keeps the two adjacent. */
+.contentgrid{grid-template-columns:minmax(0,68ch) minmax(0,21rem); justify-content:start}
+/* .prose already carries the bottom padding; the grid adding its own doubled it. */
+.contentgrid{padding-bottom:0}
+
+/* Fig. 01 needs room for its own labels: below about 320px the 7.5px mono type in the
+   drawing stops being legible, and the aside is narrower than that on a phone. */
+.aside svg{min-width:0; max-width:22rem; margin-inline:auto}
