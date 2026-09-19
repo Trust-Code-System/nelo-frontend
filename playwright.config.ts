@@ -17,7 +17,18 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  ...(process.env.CI ? { workers: 1 } : {}),
+  /**
+   * CI runs one worker against a production build. Locally the suite runs against the DEV
+   * server, which compiles each route on first request — so six workers all asking for a
+   * route nobody has opened yet routinely blow a 30-second navigation timeout. Three workers
+   * and a longer per-test budget is the difference between a flaky local gate and a slow one,
+   * and a flaky gate is worse.
+   *
+   * It also keeps concurrent order writes down to three. The harness is SQLite, which has one
+   * writer; that is a property of the harness, not of the storefront.
+   */
+  workers: process.env.CI ? 1 : 3,
+  timeout: process.env.CI ? 30_000 : 60_000,
   reporter: process.env.CI ? [['github'], ['html', { open: 'never' }]] : [['list']],
   use: {
     baseURL,
@@ -38,8 +49,16 @@ export default defineConfig({
     timeout: 120_000,
     env: {
       VENDURE_SHOP_API_URL: 'http://localhost:3000/shop-api',
-      VENDURE_CHANNEL_TOKEN_NG: 'e2e-ng',
-      VENDURE_CHANNEL_TOKEN_INTERNATIONAL: 'e2e-int',
+      // Locally these are overridden by .env.local, which holds the harness's real tokens.
+      // In CI there is no Vendure at all, so the value only has to exist.
+      VENDURE_CHANNEL_TOKEN_NG: process.env.VENDURE_CHANNEL_TOKEN_NG ?? 'e2e-ng',
+      VENDURE_CHANNEL_TOKEN_INTERNATIONAL:
+        process.env.VENDURE_CHANNEL_TOKEN_INTERNATIONAL ?? 'e2e-int',
+      NELO_SITE_URL: baseURL,
+      // The checkout journey has to reach a payment handler to be a checkout journey. This
+      // is Vendure's development handler and takes no money; the Paystack path does not
+      // exist yet. See src/features/checkout/config.ts.
+      NELO_DEV_PAYMENT: 'enabled',
     },
   },
 });

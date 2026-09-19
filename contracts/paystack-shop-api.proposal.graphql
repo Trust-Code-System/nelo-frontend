@@ -1,0 +1,288 @@
+# Nelo Paystack — proposed Shop API extension
+#
+# STATUS: PROPOSAL. Nothing here exists yet. This is the frontend's side of the contract,
+# written as something concrete the backend engineer can accept, amend or reject rather than
+# a blank page. Names, nullability and result unions are all open to change.
+#
+# Written against `frontend-architecture-context.md` (2026-09-15), which states:
+#   - Paystack uses a HOSTED REDIRECT. The customer leaves the storefront.
+#   - The `reference` on the return URL is an UNTRUSTED HINT.
+#   - The initialise-payment operation's name, input and result are still TBD.
+#   - Settlement (the webhook that moves an Order to PaymentSettled) is not implemented.
+#
+# What the storefront has already built against this shape (see src/features/checkout):
+#   - Checkout completes every step up to payment with core Vendure operations only.
+#   - The return route renders "confirming payment", never a receipt, until the BACKEND
+#     reports a paid state. See src/app/[market]/checkout/confirmation/[code]/page.tsx.
+#   - A private status endpoint is polled with bounded backoff and stops on a terminal
+#     state: src/app/api/order-status/[code]/route.ts. It returns a state and two booleans
+#     and nothing else.
+#   - Against ../vendure-dev the flow is completed by Vendure's `dummy-payment-handler`,
+#     behind `NELO_DEV_PAYMENT=enabled`, so the journey is testable today. That switch is a
+#     development affordance and is not a Paystack implementation.
+#
+# Four decisions we need from the backend. They are called out inline below as well:
+#   1. Does initialisation go through `addPaymentToOrder`, or its own mutation?
+#   2. Is the authorization URL guaranteed to be on a Paystack domain, and which?
+#   3. Which order state does an initialised-but-unpaid order sit in?
+#   4. Is there a customer-callable way to ask "has settlement happened", or is polling
+#      `orderByCode` the intended mechanism?
+
+# ---------------------------------------------------------------------------
+# The shape of the decision
+# ---------------------------------------------------------------------------
+#
+# OPTION A — reuse `addPaymentToOrder`.
+#
+#   mutation { addPaymentToOrder(input: { method: "paystack", metadata: {} }) { ... } }
+#
+# Vendure's own idiom: the PaymentMethodHandler's `createPayment()` returns a Payment whose
+# `metadata` carries the authorization URL, and the storefront digs it out of
+# `Order.payments[].metadata`.
+#
+# We do NOT recommend this, for one reason: `metadata` is `JSON`, so the field that decides
+# where we send a paying customer would be untyped. The frontend would have to assert the
+# shape of an arbitrary JSON blob and then redirect the browser to whatever it found in it.
+# That is an open-redirect waiting to happen, and codegen cannot protect us from it.
+#
+# OPTION B — a dedicated, typed mutation. This is what is proposed below.
+#
+# It costs the backend one resolver and gives both sides a typed, schema-checked contract:
+# the URL we redirect to is a declared field, the failure cases are declared members of a
+# union, and `npm run codegen:check` fails in CI if either changes.
+
+# ---------------------------------------------------------------------------
+# Scalars
+# ---------------------------------------------------------------------------
+
+"Offset-bearing ISO-8601. Never a date-only local time."
+scalar DateTime
+
+"""
+An absolute https URL on a Paystack-controlled host.
+
+DECISION NEEDED (2): we would like the backend to guarantee this — both that it is absolute
+https, and which hosts are possible. The storefront intends to ALLOWLIST the host before
+redirecting rather than trusting the field, because a payment redirect is the single most
+valuable open-redirect target on the site. Tell us the host list and we will encode it; if
+you would rather the backend enforce it, say so and we will still check.
+"""
+scalar PaystackAuthorizationUrl
+
+# ---------------------------------------------------------------------------
+# Initialisation
+# ---------------------------------------------------------------------------
+
+input InitialisePaystackPaymentInput {
+  """
+  The PaymentMethod code, as it appears in `eligiblePaymentMethods`. Passed so the storefront
+  can offer several Paystack configurations (for example a naira method and a dollar one)
+  without the operation guessing which.
+  """
+  method: String!
+
+  """
+  Where Paystack should send the customer back to. Absolute, and on the storefront's own
+  origin.
+
+  The backend MUST validate this against its own allowlist of storefront origins and reject
+  anything else — it is caller-supplied, which makes it the other side of the same
+  open-redirect problem. We send it rather than having it configured backend-side only
+  because the market segment belongs in it:
+
+      https://nelowoman.com/ng/checkout/confirmation/{orderCode}
+
+  If you would rather derive it entirely from the Channel and ignore this field, that is
+  fine — say so and we will stop sending it. What must not happen is the backend building a
+  return URL with no market segment, because every storefront route carries one.
+  """
+  returnUrl: String!
+}
+
+"""
+The initialised transaction.
+
+Deliberately minimal. The storefront needs exactly two things — where to send the customer,
+and the order code to poll afterwards — and every additional field is one more thing that
+could disagree with the Order.
+
+Note what is NOT here: no amount, and no currency. Paystack must be initialised for the
+Order's own `totalWithTax` in the Channel's own currency, computed backend-side. The
+frontend has no amount to send and must not be given one to echo back.
+"""
+type PaystackTransaction {
+  "Where to send the browser. See the scalar's note on allowlisting."
+  authorizationUrl: PaystackAuthorizationUrl!
+
+  """
+  Paystack's reference for this transaction.
+
+  Returned for logging and support only. The storefront will NOT treat it as proof of
+  anything, will not match it against the `reference` on the return URL, and will not store
+  it. It is here so a customer service conversation can quote it.
+  """
+  reference: String!
+
+  "The Vendure Order code. What the storefront polls, and the only identifier it trusts."
+  orderCode: String!
+
+  """
+  When this authorization URL stops working. The storefront uses it to decide whether
+  offering "try again" is honest, not to decide anything about payment.
+  """
+  expiresAt: DateTime
+}
+
+"Paystack could not be reached, or refused the initialisation."
+type PaystackInitialisationFailedError implements ErrorResult {
+  errorCode: ErrorCode!
+  message: String!
+  """
+  A customer-safe reason, if there is one. MUST NOT carry a Paystack API key, a raw upstream
+  body, or an internal stack — the storefront renders `message` and this string directly.
+  """
+  providerMessage: String
+}
+
+"""
+The Order is not in a state that can take a payment.
+
+`fromState` is included so the storefront can be specific: an order already in
+`PaymentAuthorized` means "you have already paid, here is your order", while `AddingItems`
+means "your checkout is incomplete". Those are different screens.
+"""
+type PaystackOrderStateError implements ErrorResult {
+  errorCode: ErrorCode!
+  message: String!
+  fromState: String!
+}
+
+"""
+The Channel's currency is not one this Paystack account can settle.
+
+This is the error that makes the international market's gate real rather than a guess. The
+storefront currently gates international checkout behind `NELO_INTERNATIONAL_CHECKOUT`
+because we cannot prove the account accepts USD (see src/features/checkout/config.ts). If
+this error exists, the gate can be replaced by the backend's own answer — which is where the
+knowledge actually lives.
+"""
+type PaystackCurrencyNotSupportedError implements ErrorResult {
+  errorCode: ErrorCode!
+  message: String!
+  currencyCode: String!
+  supportedCurrencyCodes: [String!]!
+}
+
+union InitialisePaystackPaymentResult =
+    PaystackTransaction
+  | PaystackInitialisationFailedError
+  | PaystackOrderStateError
+  | PaystackCurrencyNotSupportedError
+  | NoActiveOrderError
+  | IneligiblePaymentMethodError
+
+# ---------------------------------------------------------------------------
+# Confirmation
+# ---------------------------------------------------------------------------
+
+"""
+What the storefront asks after the customer comes back.
+
+DECISION NEEDED (4): this may not need to exist at all. `orderByCode` already returns
+`state` and `payments`, and the storefront's poller reads exactly that today. A dedicated
+query is proposed only because `orderByCode` is limited to two hours for a guest, and a
+guest whose settlement webhook is slow can outlive that window on a bad connection — at
+which point the confirmation screen stops being able to answer its own question.
+If you would rather we simply poll `orderByCode` and accept the window, say so and we will
+delete this half of the proposal.
+
+Whatever the shape: this must be a READ. There must be no customer-callable operation that
+transitions an Order into a paid state, and the storefront will not call one if it exists.
+"""
+type PaystackPaymentStatus {
+  orderCode: String!
+
+  "Vendure's order state, verbatim. The storefront maps it to words; it never derives it."
+  orderState: String!
+
+  """
+  The backend's verdict, and the ONLY thing that produces a receipt in the storefront.
+
+  Specifically NOT derived from the `reference` on the return URL, not from the customer
+  having arrived back, and not from `PaystackTransaction.reference` matching anything.
+  """
+  isPaid: Boolean!
+
+  """
+  True when no further waiting will change the answer — settled, or definitively failed.
+  The storefront stops polling on this rather than exhausting its backoff budget.
+  """
+  isTerminal: Boolean!
+
+  "Customer-safe. Null while there is nothing useful to say."
+  customerMessage: String
+}
+
+extend type Query {
+  """
+  Ownership-checked against the session, exactly as `orderByCode` is. Null when the code is
+  not one this caller may read — never an error that confirms the code exists.
+  """
+  paystackPaymentStatus(orderCode: String!): PaystackPaymentStatus
+}
+
+extend type Mutation {
+  """
+  Initialises a Paystack transaction for the ACTIVE order and returns where to send the
+  customer.
+
+  DECISION NEEDED (1): whether this exists as its own mutation or is folded into
+  `addPaymentToOrder`. See the note at the top — we prefer this because the redirect target
+  is then a typed field rather than a value dug out of a `JSON` blob.
+
+  DECISION NEEDED (3): which state the Order is in between this returning and settlement
+  arriving. We assume `ArrangingPayment` and that it stays there, so an abandoned payment
+  leaves a recoverable checkout rather than a stuck order. If a Paystack-specific state is
+  added instead, tell us its name — the storefront's PAID_STATES set in
+  src/features/checkout/states.ts treats every state it does not recognise as NOT paid, so a
+  new state is safe by default but will read as "not paid" until we add it deliberately.
+  """
+  initialisePaystackPayment(
+    input: InitialisePaystackPaymentInput!
+  ): InitialisePaystackPaymentResult!
+}
+
+# ---------------------------------------------------------------------------
+# Deliberately NOT proposed
+# ---------------------------------------------------------------------------
+#
+# - Any operation that takes an amount, a price or a total from the client. Paystack must be
+#   initialised for the Order's own `totalWithTax`. There is no field the browser could put a
+#   number in, and that is the point.
+#
+# - Any operation that marks an Order paid, verifies a reference, or transitions an Order
+#   into `PaymentSettled` from the storefront. Settlement is the webhook's job. A
+#   customer-callable "confirm my payment" mutation would be a free-goods button.
+#
+# - Any field carrying a Paystack secret key, public key, raw API response, or webhook
+#   signature. The storefront needs none of them and must not be able to leak them.
+#
+# - Card fields, a card form, or anything that would make the storefront handle card data.
+#   The redirect is hosted for exactly this reason and the storefront must stay out of PCI
+#   scope entirely.
+#
+# - A refund or partial-capture operation. Those are staff controls.
+#
+# ---------------------------------------------------------------------------
+# What the storefront will do once this lands
+# ---------------------------------------------------------------------------
+#
+# 1. Add these operations as .graphql documents and run `npm run codegen`. Until the schema
+#    has them, codegen fails — which is the guard against inventing an operation name.
+# 2. Replace the review step's `placeDevOrder` action with one that calls
+#    `initialisePaystackPayment`, allowlists the returned host, and redirects.
+# 3. Point the confirmation poller at `paystackPaymentStatus` if it exists, or leave it on
+#    `orderByCode` if it does not. Either way the receipt condition does not change: only a
+#    backend-confirmed paid state produces one.
+# 4. Delete `NELO_DEV_PAYMENT` and the dummy-handler path, and remove the review step's
+#    "payment not connected" state.
