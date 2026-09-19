@@ -20,14 +20,32 @@ function freshEmail(): string {
 }
 
 test.describe('account, without a backend', () => {
-  test('the account page offers a way back in rather than redirecting', async ({ page }) => {
-    // A session that has expired must become a recoverable sign-in state, never a silent
-    // re-authentication and never a bounce to a login page that loses the destination.
+  test('an unreachable store is not reported as being signed out', async ({ page }) => {
+    // The distinction `getActiveCustomer` draws, asserted from the outside. With no Vendure
+    // at all the account page must say it cannot reach the store — NOT that the visitor is
+    // signed out, because signing someone out over a transport failure is a silent
+    // re-authentication and is the thing that separation exists to prevent.
+    //
+    // This runs in CI precisely because CI has no backend. The signed-out state needs a
+    // reachable Vendure that answers "no customer", so it is asserted in the round trip
+    // below instead.
+    test.skip(await catalogueIsLive(), 'this asserts the no-backend state');
+
     const response = await page.goto('/ng/account');
     expect(response?.status()).toBe(200);
     await expect(page).toHaveURL(/\/ng\/account$/);
-    await expect(page.getByRole('link', { name: /^sign in$/i })).toBeVisible();
-    await expect(page.getByText(/your bag is not affected/i)).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: /cannot reach your account/i }),
+    ).toBeVisible();
+    await expect(page.getByText(/you have not been signed out/i)).toBeVisible();
+  });
+
+  test('the account page never redirects away from itself', async ({ page }) => {
+    // Whatever state it is in, it stays at its own URL. A bounce to a login page loses the
+    // destination the customer asked for.
+    const response = await page.goto('/ng/account');
+    expect(response?.status()).toBe(200);
+    await expect(page).toHaveURL(/\/ng\/account$/);
   });
 
   test('signing out is a POST, never a link', async ({ page }) => {
@@ -122,6 +140,22 @@ test.describe('account round trip', () => {
     await page.getByRole('button', { name: /^sign in$/i }).click();
     await expect(page).toHaveURL(/\/ng\/account$/);
     await expect(page.getByRole('heading', { name: 'Ada Okafor' })).toBeVisible();
+  });
+
+  test('a signed-out visitor is offered a way back in, with the destination kept', async ({
+    page,
+  }) => {
+    // Reachable Vendure, no customer for this session: that is the signed-out state, and it
+    // must be recoverable rather than a dead end.
+    await page.goto('/ng/account/orders');
+    await expect(page.getByRole('link', { name: /^sign in$/i })).toBeVisible();
+    await expect(page.getByText(/your bag is not affected/i)).toBeVisible();
+
+    // The sign-in link carries the page that was asked for, so signing in returns there.
+    await expect(page.getByRole('link', { name: /^sign in$/i })).toHaveAttribute(
+      'href',
+      /next=%2Fng%2Faccount%2Forders/,
+    );
   });
 
   test('a reset request answers identically whether or not the account exists', async ({

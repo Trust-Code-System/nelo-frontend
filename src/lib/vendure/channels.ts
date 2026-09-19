@@ -83,14 +83,22 @@ export function channelToken(market: Market): string {
 
 /**
  * Formats a Vendure integer minor-unit amount for display.
+ *
  * Never used to convert between currencies — Channel pricing is backend-owned, and the
  * frontend must never produce a payable price by applying an exchange rate.
+ *
+ * Minor units are shown only when there are any. A fixed `maximumFractionDigits: 0` printed
+ * $42.99 as "$43", which is a wrong price on a page — the kind of rounding that is invisible
+ * on whole-naira pricing and actively misleading the first time a Channel carries cents.
+ * Whole amounts still render clean, which is what the direction wants for NGN.
  */
 export function formatMoney(minorUnits: number, market: Market): string {
   const { currency, locale } = CHANNELS[market];
+  const hasMinorUnits = minorUnits % 100 !== 0;
   return new Intl.NumberFormat(locale, {
     style: 'currency',
     currency,
-    maximumFractionDigits: 0,
+    minimumFractionDigits: hasMinorUnits ? 2 : 0,
+    maximumFractionDigits: hasMinorUnits ? 2 : 0,
   }).format(minorUnits / 100);
 }
