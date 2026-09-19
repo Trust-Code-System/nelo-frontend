@@ -14,14 +14,6 @@ import { catalogueIsLive, NO_CATALOGUE } from './backend';
  * behaviour and calling itself a checkout test.
  */
 
-test.beforeEach(async () => {
-  test.skip(!(await catalogueIsLive()), NO_CATALOGUE);
-});
-
-// A full checkout walks four steps plus a confirmation, on a dev server that compiles each
-// route the first time it is asked for. See the note in account.spec.ts.
-test.slow();
-
 /** Adds the first in-stock garment to the bag, leaving the browser on the bag page. */
 async function addSomethingToBag(page: Page) {
   await page.goto('/ng');
@@ -38,6 +30,14 @@ async function addSomethingToBag(page: Page) {
 }
 
 test.describe('checkout', () => {
+  test.beforeEach(async () => {
+    test.skip(!(await catalogueIsLive()), NO_CATALOGUE);
+  });
+
+  // A full checkout walks four steps plus a confirmation, on a dev server that compiles each
+  // route the first time it is asked for. See the note in account.spec.ts.
+  test.slow();
+
   test('an empty bag cannot be checked out', async ({ page }) => {
     await page.goto('/ng/checkout');
     await expect(page.getByRole('heading', { name: /nothing to check out/i })).toBeVisible();
@@ -119,6 +119,13 @@ test.describe('checkout', () => {
   });
 });
 
+/**
+ * Deliberately NOT guarded on the catalogue.
+ *
+ * The gate is checked before the page reads anything from Vendure, which is the whole point —
+ * an order that cannot be paid for should not start collecting an address. So this runs in
+ * CI, where there is no backend at all, and it is the only coverage the gate gets there.
+ */
 test.describe('international checkout gate', () => {
   test('is closed, and explains itself rather than 404ing', async ({ page }) => {
     const response = await page.goto('/international/checkout');
@@ -131,6 +138,8 @@ test.describe('international checkout gate', () => {
   });
 
   test('the Nigerian market is not gated', async ({ page }) => {
+    // With no backend this renders "we cannot reach the store", which is also not the gate.
+    // Either way the assertion holds: the gate must never appear in the ng market.
     await page.goto('/ng/checkout');
     await expect(
       page.getByRole('heading', { name: /international checkout is not open/i }),
