@@ -92,16 +92,14 @@ export function HomeExperience({ children }: { children: ReactNode }) {
         });
       }
 
-      const media = gsap.matchMedia();
-      media.add('(min-width: 981px)', () => {
-        const film = root.querySelector<HTMLElement>('.film');
-        const sticky = film?.querySelector<HTMLElement>('.film-sticky');
-        const track = film?.querySelector<HTMLElement>('.film-track');
-        if (!film || !sticky || !track) return;
-
-        // Move through exactly the track's horizontal overflow. Overshooting by
-        // the track's 12vw of inline padding leaves an empty ink-only frame at
-        // the end of the pin.
+      const film = root.querySelector<HTMLElement>('.film');
+      const sticky = film?.querySelector<HTMLElement>('.film-sticky');
+      const track = film?.querySelector<HTMLElement>('.film-track');
+      if (film && sticky && track) {
+        // Same pinned runway on phone and desktop: vertical scroll holds the
+        // frame, then scrubs sideways through every look. Overshooting by the
+        // track's inline padding would leave an empty ink-only frame at the
+        // end of the pin. Touch follows the finger more tightly than a wheel.
         const distance = () => Math.max(0, track.scrollWidth - window.innerWidth);
         gsap.to(track, {
           x: () => -distance(),
@@ -110,7 +108,7 @@ export function HomeExperience({ children }: { children: ReactNode }) {
             trigger: film,
             start: 'top top',
             end: () => `+=${distance()}`,
-            scrub: 0.75,
+            scrub: finePointer ? 0.75 : 0.4,
             pin: sticky,
             // MotionProvider leaves a transformed ancestor in the page. A
             // fixed-position pin is then positioned against that ancestor
@@ -120,7 +118,7 @@ export function HomeExperience({ children }: { children: ReactNode }) {
             invalidateOnRefresh: true,
           },
         });
-      });
+      }
 
       /* Exit depth: as the banner scrolls away the procession keeps rising a
          beat longer, so the stage reads as a space with depth, not a card. The
@@ -143,13 +141,14 @@ export function HomeExperience({ children }: { children: ReactNode }) {
         if (mounted) ScrollTrigger.refresh();
       };
       document.fonts.ready.then(refresh);
+      window.visualViewport?.addEventListener('resize', refresh);
       root.querySelectorAll('img').forEach((image) => {
         if (!image.complete) image.addEventListener('load', refresh, { once: true });
       });
 
       return () => {
         mounted = false;
-        media.revert();
+        window.visualViewport?.removeEventListener('resize', refresh);
         root.classList.remove('motion-enhanced');
       };
     },

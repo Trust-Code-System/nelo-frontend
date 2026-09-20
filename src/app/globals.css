@@ -1204,13 +1204,23 @@ details .body{padding-bottom:var(--s5); color:var(--smoke); font-size:var(--t-sm
 }
 
 @media (max-width:980px){
-  .film{height:260vh}
+  /* Tall spacer is only for the CSS scroll-driven fallback. GSAP sets
+     height:auto on .motion-enhanced .film and owns the pin-spacer instead. */
+  @supports (animation-timeline:view()){
+    .film{height:260vh}
+  }
   /* A 4/5 frame at phone width is only ~360px tall inside an 844px pinned
      frame, which leaves the ink ground empty above and below it. A taller
      crop fills the pin instead of floating in it. */
-  .film-track figure{width:84vw}
+  .film-track figure{width:min(88vw, calc((100svh - 128px) * 2 / 3))}
   .film-track .ph{aspect-ratio:2/3}
-  .film-head{top:var(--s9)}
+  .film-head{top:clamp(14px, 2.4vh, 22px)}
+  .film-sticky,
+  .motion-enhanced .film-sticky{
+    align-items:flex-start;
+    padding-top:clamp(56px, 10vh, 76px);
+  }
+  .motion-enhanced .film-head{padding-block:0}
 }
 
 /* ===========================================================================
@@ -1302,7 +1312,10 @@ details .body{padding-bottom:var(--s5); color:var(--smoke); font-size:var(--t-sm
   grid-column:10 / -1;align-self:end;border-top:var(--rule-ink);padding-top:var(--s4);
 }
 .campaign-grid__note p{max-width:28ch;color:var(--smoke);margin:var(--s3) 0 var(--s5)}
-/* Once the client motion island is active, GSAP owns these properties. */
+/* Once the client motion island is active, GSAP owns these properties.
+   Specificity here also beats the no-view-timeline fallback so a phone that
+   lacks animation-timeline still gets the pinned runway instead of a swipe
+   strip. */
 .motion-enhanced .hero-seq .lab,
 .motion-enhanced .hero-seq h1 .unmask,
 .motion-enhanced .hero-seq .blurb,
@@ -1310,8 +1323,9 @@ details .body{padding-bottom:var(--s5); color:var(--smoke); font-size:var(--t-sm
 .motion-enhanced .hero-seq .hero-foot,
 .motion-enhanced .hero-seq .ph img{animation:none}
 .motion-enhanced .film{height:auto}
-.motion-enhanced .film-sticky{position:relative;top:auto;height:100svh}
-.motion-enhanced .film-track{animation:none}
+.motion-enhanced .film-sticky{position:relative;top:auto;height:100svh;overflow:hidden}
+.motion-enhanced .film-track{animation:none;overflow-x:hidden;scroll-snap-type:none}
+.motion-enhanced .film-head{position:absolute}
 
 @media (max-width:980px){
   .hero{grid-template-columns:1fr;min-height:0;gap:var(--s7);padding-block:var(--s5) var(--s8)}
@@ -1321,11 +1335,6 @@ details .body{padding-bottom:var(--s5); color:var(--smoke); font-size:var(--t-sm
   .hero h1{font-size:clamp(3.15rem,15.5vw,5.5rem);line-height:.86}
   .hero-scan__axis,.hero-scan__target,.hero-scan__line{display:none}
   .hero-scan::before{opacity:.18}
-  .motion-enhanced .film{height:auto}
-  .motion-enhanced .film-sticky{position:static;height:auto;padding-block:var(--s8)}
-  .motion-enhanced .film-track{overflow-x:auto;scroll-snap-type:x mandatory}
-  .motion-enhanced .film-track figure{scroll-snap-align:start}
-  .motion-enhanced .film-head{position:static;padding-block:var(--s5)}
   .campaign-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s6) var(--s4)}
   .campaign-grid figure:nth-child(n){grid-column:auto;margin-top:0}
   .campaign-grid figure:nth-child(even){margin-top:var(--s8)}
