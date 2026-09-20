@@ -127,6 +127,17 @@ button{font:inherit; color:inherit; border-radius:var(--radius)}
   display:inline-block; transition:background var(--snap),color var(--snap);
 }
 .btn-q:hover{background:var(--ink); color:var(--paper)}
+.direct-link{
+  display:inline-block;
+  color:inherit;
+  line-height:0;
+  vertical-align:middle;
+}
+.direct-link svg{
+  display:block;
+  width:.78em;
+  height:.78em;
+}
 
 /* size scale - the signature move */
 .scale{display:flex; flex-wrap:wrap; gap:0; border:var(--rule); width:fit-content; max-width:100%}
@@ -2566,7 +2577,7 @@ details summary{font-family:var(--sans);font-size:12px;font-weight:700;letter-sp
 @media (max-width:860px){
   .menu-panel{
     position:fixed;
-    z-index:-1;
+    z-index:240;
     inset:74px 12px 12px;
     display:grid;
     grid-template-columns:minmax(0,1.1fr) minmax(230px,.72fr);
@@ -2586,7 +2597,7 @@ details summary{font-family:var(--sans);font-size:12px;font-weight:700;letter-sp
     transform:translateY(-8px);
     transition:opacity 170ms ease,transform 360ms cubic-bezier(.32,.72,0,1),clip-path 440ms cubic-bezier(.32,.72,0,1),visibility 440ms;
   }
-  .menu-panel[data-open="true"]{opacity:1;visibility:visible;pointer-events:auto;clip-path:inset(0 round var(--r-md));transform:none}
+  .menu-panel[data-open="true"]{z-index:240;opacity:1;visibility:visible;pointer-events:auto;clip-path:inset(0 round var(--r-md));transform:none}
   .menu-panel__heading{grid-column:1;align-self:start}
   .menu-panel__heading p{max-width:30ch;margin:10px 0 0;color:var(--smoke);font-size:13px}
   .menu-panel-nav{grid-column:1;gap:0;align-self:center}
