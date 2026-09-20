@@ -1352,20 +1352,6 @@ html{scroll-padding-top:7rem}
 body{overflow-x:clip}
 body.intro-locked{overflow:hidden}
 
-/* Hold the storefront behind a solid veil until the curtains exist in the
-   stream and then open. Default is hidden so a visitor without JavaScript
-   never gets stuck on a black frame. */
-html[data-intro="play"]{overflow:hidden}
-html[data-intro="play"]::before{
-  content:'';
-  position:fixed;
-  inset:0;
-  z-index:999;
-  background:#050505;
-  pointer-events:none;
-}
-html:not([data-intro="play"]) .curtain-intro{display:none!important}
-
 /* Typography loses the old dashboard costume without sacrificing the useful
    mono readouts used for prices, dimensions, and order data. */
 .lab{
@@ -1422,7 +1408,7 @@ html:not([data-intro="play"]) .curtain-intro{display:none!important}
 
 /* Short, session-scoped opening. The two panels are real solid curtains; no
    video, gradient, or decorative loading state is hiding the page underneath. */
-.curtain-intro{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;overflow:hidden;color:#fff;background:#050505}
+.curtain-intro{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;overflow:hidden;color:#fff}
 .curtain-intro__panel{position:absolute;inset-block:0;width:50.2%;background:#050505;will-change:transform}
 .curtain-intro__panel--left{left:0;border-right:1px solid rgba(255,255,255,.14)}
 .curtain-intro__panel--right{right:0}
