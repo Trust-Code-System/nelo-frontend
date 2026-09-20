@@ -19,7 +19,7 @@ import { DEFAULT_MARKET, isMarket } from '@/lib/vendure/channels';
  * What this never does is resolve or change a market that is already present. Geographic
  * detection may *suggest* a market to a first-time visitor; per the backend context it must
  * never silently change one, and it must never alter a checkout in flight. So a request that
- * already names a market passes through untouched — including an invalid one, which the
+ * already names a market passes through untouched - including an invalid one, which the
  * [market] layout turns into a 404 rather than a redirect to the default Channel.
  */
 export function proxy(request: NextRequest) {

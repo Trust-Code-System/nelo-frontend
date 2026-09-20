@@ -2,7 +2,11 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { SiteFooter } from '@/components/SiteFooter';
 import { SiteHeader } from '@/components/SiteHeader';
-import { MeasurementFields } from '@/features/atelier/MeasurementFields';
+import {
+  MeasurementFields,
+  type MeasurementInitial,
+} from '@/features/atelier/MeasurementFields';
+import { CoutureDatePicker } from '@/features/atelier/CoutureDatePicker';
 import { PROJECT_STAGES } from '@/features/atelier/fixtures';
 import { isMarket } from '@/lib/vendure/channels';
 
@@ -23,17 +27,42 @@ export const metadata: Metadata = {
  */
 export default async function AtelierPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ market: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { market } = await params;
   if (!isMarket(market)) notFound();
+  const query = await searchParams;
+  const value = (key: string) => {
+    const item = query[key];
+    return (Array.isArray(item) ? item[0] : item)?.trim().slice(0, 120) ?? '';
+  };
+  const requestedPiece = value('piece');
+  const requestedColour = value('colour');
+  const requestedSize = value('size');
+  const measurementInitial: MeasurementInitial = {};
+  const requestedMeasurements = {
+    bust: value('bust'),
+    waist: value('waist'),
+    hip: value('hips'),
+    height: value('height'),
+  } as const;
+  Object.entries(requestedMeasurements).forEach(([code, measurement]) => {
+    if (measurement) {
+      measurementInitial[code as keyof typeof requestedMeasurements] = {
+        value: measurement,
+        unit: 'inch',
+      };
+    }
+  });
 
   return (
     <>
       <div className="fixture">
         <span className="lab">
-          Fixture data — no Atelier Shop API exists yet. Nothing on this screen is live.
+          Fixture data - no Atelier Shop API exists yet. Nothing on this screen is live.
         </span>
       </div>
       <SiteHeader
@@ -42,15 +71,24 @@ export default async function AtelierPage({
       />
 
       <main className="shell">
-        <section className="ahero">
-          <div>
+        <section className="ahero ahero--atelier">
+          <div className="atelier-hero__copy">
             <span className="lab">The Atelier</span>
             <h1>Commission a garment</h1>
             <p>
               Bespoke and bridal begin with a conversation, not a checkout. Tell us what you
               need and we will propose a plan, a schedule and a price before anything is agreed.
             </p>
+            <a className="atelier-hero__action" href="#commission-form">
+              Begin your consultation <span aria-hidden="true">↓</span>
+            </a>
+            <dl className="atelier-hero__facts">
+              <div><dt>Services</dt><dd>Bespoke · Bridal</dd></div>
+              <div><dt>Fittings</dt><dd>Lagos · At home · Video</dd></div>
+              <div><dt>Reply</dt><dd>Within 2 working days</dd></div>
+            </dl>
           </div>
+          <span className="atelier-hero__edition num" aria-hidden="true">ATELIER / BY APPOINTMENT</span>
         </section>
 
         <section className="life">
@@ -65,13 +103,13 @@ export default async function AtelierPage({
           </ol>
         </section>
 
-        <form className="aform" action="#" aria-describedby="not-live">
+        <form id="commission-form" className="aform" action="#" aria-describedby="not-live">
           <div>
             <fieldset>
               <legend>What are you commissioning</legend>
               <div className="opts">
                 <label className="opt">
-                  <input type="radio" name="context" value="bespoke" defaultChecked />
+                  <input type="radio" name="context" value="bespoke" defaultChecked={!requestedPiece} />
                   <span>
                     <span className="t">Bespoke</span>
                     <span className="d">A garment designed with you and cut from nothing.</span>
@@ -85,7 +123,7 @@ export default async function AtelierPage({
                   </span>
                 </label>
                 <label className="opt">
-                  <input type="radio" name="context" value="readyToWear" />
+                  <input type="radio" name="context" value="readyToWear" defaultChecked={Boolean(requestedPiece)} />
                   <span>
                     <span className="t">Ready to wear, altered</span>
                     <span className="d">An existing style recut to your measurements.</span>
@@ -116,23 +154,33 @@ export default async function AtelierPage({
               <label className="f" htmlFor="where">
                 <span className="lab">Where</span>
                 <select id="where" name="locationMode" defaultValue="inStore">
-                  <option value="inStore">Lagos atelier — Victoria Island</option>
+                  <option value="inStore">Lagos atelier - Victoria Island</option>
                   <option value="customerLocation">My address</option>
                   <option value="virtual">Video call</option>
                 </select>
               </label>
-              <label className="f" htmlFor="preferred">
-                <span className="lab">Preferred date</span>
-                <input id="preferred" name="preferredAt" type="date" />
-              </label>
+              <CoutureDatePicker id="preferred" name="preferredAt" label="Preferred date" />
               <p className="mnote">
                 All times West Africa Standard Time (Africa/Lagos, UTC+1). Availability is
-                confirmed by the atelier — requesting does not reserve a slot.
+                confirmed by the atelier - requesting does not reserve a slot.
               </p>
             </fieldset>
 
             <fieldset>
               <legend>About the piece</legend>
+              {requestedPiece ? (
+                <div className="atelier-piece-ref">
+                  <span className="lab">Selected from the shop</span>
+                  <strong>{requestedPiece}</strong>
+                  <p>
+                    {[requestedColour, requestedSize ? `Size ${requestedSize}` : '']
+                      .filter(Boolean)
+                      .join(' · ') || 'Your selected shop configuration'}
+                  </p>
+                  <input type="hidden" name="piece" value={requestedPiece} />
+                  <input type="hidden" name="variant" value={value('variant')} />
+                </div>
+              ) : null}
               <label className="f" htmlFor="occasion">
                 <span className="lab">Occasion</span>
                 <input
@@ -142,10 +190,7 @@ export default async function AtelierPage({
                   placeholder="Reception, gala, wedding…"
                 />
               </label>
-              <label className="f" htmlFor="neededBy">
-                <span className="lab">Date you need it</span>
-                <input id="neededBy" name="neededBy" type="date" />
-              </label>
+              <CoutureDatePicker id="neededBy" name="neededBy" label="Date you need it" />
               <label className="f" htmlFor="notes">
                 <span className="lab">Anything else</span>
                 <textarea
@@ -160,8 +205,8 @@ export default async function AtelierPage({
 
           <div>
             <fieldset>
-              <legend>Measurements — optional at this stage</legend>
-              <MeasurementFields />
+              <legend>Measurements - optional at this stage</legend>
+              <MeasurementFields initial={measurementInitial} />
             </fieldset>
 
             <div className="aside">
@@ -175,7 +220,7 @@ export default async function AtelierPage({
                 Request a consultation
               </button>
               <p className="mnote" id="not-live" style={{ textAlign: 'center' }}>
-                Disabled until the Atelier API exists — this form does not submit
+                Disabled until the Atelier API exists - this form does not submit
               </p>
             </div>
           </div>

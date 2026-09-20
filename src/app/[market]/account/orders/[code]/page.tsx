@@ -23,7 +23,7 @@ export async function generateMetadata({
  * once payment completes the order stops being active, so a detail page built on
  * `activeOrder` would go blank at the exact moment the customer most wants to look at it.
  *
- * Vendure enforces who may read what — a signed-in customer's own orders, and a guest order
+ * Vendure enforces who may read what - a signed-in customer's own orders, and a guest order
  * only within two hours of placing it. An order that is not the caller's simply comes back
  * null, which is a 404 here rather than a message that confirms the code exists.
  */

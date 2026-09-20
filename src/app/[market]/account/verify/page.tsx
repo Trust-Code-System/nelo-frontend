@@ -13,7 +13,7 @@ export const metadata: Metadata = { title: 'Verify your account', robots: { inde
  *
  * The token arrives in the URL, but verifying is a state change, so it happens on an
  * explicit POST rather than on page load. A GET that consumes a token can be triggered by a
- * link preview, a corporate mail scanner or a prefetch — all of which would burn the token
+ * link preview, a corporate mail scanner or a prefetch - all of which would burn the token
  * before the customer ever clicked it.
  */
 export default async function VerifyPage({

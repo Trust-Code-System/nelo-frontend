@@ -11,7 +11,7 @@ type Variant = Product['variants'][number];
 /**
  * Variant selection and add-to-bag.
  *
- * Options are presented as a scale rather than a dropdown — the 6 to 30 range is a brand
+ * Options are presented as a scale rather than a dropdown - the 6 to 30 range is a brand
  * asset, and hiding it in a select throws that away. Unavailable sizes are struck through
  * rather than removed, because "we make this in your size, just not in stock today" is a
  * different message from "we do not make this in your size".
@@ -26,8 +26,8 @@ export function VariantSelector({
 }: {
   product: Product;
   market: Market;
-  /** Pre-formatted per variant. Formatting stays on the server so currency rules — and the
-   *  Channel they come from — never need to reach the browser. */
+  /** Pre-formatted per variant. Formatting stays on the server so currency rules - and the
+   *  Channel they come from - never need to reach the browser. */
   prices: Record<string, string>;
   /** Rendered between the options and the CTA: what a garment will be cut to is context
    *  for the decision, so it must appear before the decision, not after it. */
@@ -128,18 +128,18 @@ export function VariantSelector({
           {pending
             ? 'Adding…'
             : selectedVariant
-              ? `Add to bag — ${prices[selectedVariant.id] ?? ''}`
+              ? `Add to bag - ${prices[selectedVariant.id] ?? ''}`
               : 'Select a size'}
         </button>
 
         <p className="note" aria-live="polite">
           {feedback ? (
-            <span style={{ color: feedback.tone === 'error' ? 'var(--garnet)' : 'var(--ink)' }}>
+            <span style={{ color: feedback.tone === 'error' ? 'var(--action)' : 'var(--ink)' }}>
               {feedback.message}
             </span>
           ) : (
             <>
-              Cut to measure · dispatched in 10—14 days
+              Cut to measure · dispatched in 10-14 days
               <br />
               Free alterations within 30 days of delivery
             </>

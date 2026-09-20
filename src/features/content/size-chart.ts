@@ -1,13 +1,13 @@
 /**
  * The house size chart.
  *
- * BODY measurements, not garment measurements — the number you get off a tape measure, not
+ * BODY measurements, not garment measurements - the number you get off a tape measure, not
  * the width of the finished dress. That distinction is the single most common reason a size
  * guide gets misread.
  *
  * ASSUMPTION TO CONFIRM: this is a conventional UK grading, evenly stepped, covering the
  * full 6–30 range the brand promises. It is the right *shape* for the guide and the right
- * range, but it is not yet Nelo's own block — the atelier has to confirm the actual bust,
+ * range, but it is not yet Nelo's own block - the atelier has to confirm the actual bust,
  * waist and hip at each size before this page is treated as authoritative. It is kept as
  * data in one place so that correction is a single edit.
  *

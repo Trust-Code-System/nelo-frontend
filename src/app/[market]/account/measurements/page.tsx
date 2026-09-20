@@ -13,7 +13,7 @@ export const metadata: Metadata = { title: 'Your measurements' };
 const LAGOS = 'Africa/Lagos';
 
 function formatDate(iso: string | null): string {
-  if (!iso) return '—';
+  if (!iso) return '-';
   return new Intl.DateTimeFormat('en-GB', { dateStyle: 'medium', timeZone: LAGOS }).format(
     new Date(iso),
   );
@@ -23,7 +23,7 @@ function formatDate(iso: string | null): string {
  * Measurement profiles.
  *
  * Profiles are reusable and exactly one is the active default. A commission does not read
- * this page live — it holds its own confirmed snapshot — so editing here never changes a
+ * this page live - it holds its own confirmed snapshot - so editing here never changes a
  * garment already in production. That is stated on the page, because it is not obvious and
  * getting it wrong would be expensive.
  *
@@ -55,16 +55,19 @@ export default async function MeasurementsPage({
     <>
       <div className="fixture">
         <span className="lab">
-          Fixture data — no Atelier Shop API exists yet. Nothing on this screen is live.
+          Fixture data - no Atelier Shop API exists yet. Nothing on this screen is live.
         </span>
       </div>
-      <SiteHeader market={market} announcement="Your measurements — Nelo Atelier" />
+      <SiteHeader market={market} announcement="Your measurements - Nelo Atelier" />
 
       <main className="shell">
         <div className="proj-head">
           <div>
             <span className="lab">Account</span>
             <h1>Your measurements</h1>
+            <p className="masthead-copy">
+              Keep precise profiles ready for fittings, alterations and future commissions.
+            </p>
           </div>
           <div className="proj-meta">
             <span>

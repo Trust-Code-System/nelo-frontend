@@ -27,8 +27,8 @@ export function isStep(value: unknown): value is Step {
  *
  * Kept as a set rather than a string comparison so that adding one is a deliberate edit.
  * `PaymentAuthorized` counts: the money is committed even though settlement has not run.
- * Everything else — including `ArrangingPayment`, which is where a failed attempt leaves an
- * order — does not.
+ * Everything else - including `ArrangingPayment`, which is where a failed attempt leaves an
+ * order - does not.
  */
 export const PAID_STATES: ReadonlySet<string> = new Set([
   'PaymentAuthorized',
@@ -76,7 +76,7 @@ export function stepState(order: OrderDetailFragment, signedIn: boolean): StepSt
 /**
  * The step to render.
  *
- * A requested step is honoured only if the order has already got that far — otherwise the
+ * A requested step is honoured only if the order has already got that far - otherwise the
  * customer would be looking at a review screen for an order with no address. Going back is
  * always allowed; skipping forward is not.
  */

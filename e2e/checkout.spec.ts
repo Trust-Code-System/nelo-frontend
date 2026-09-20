@@ -16,7 +16,7 @@ import { catalogueIsLive, NO_CATALOGUE } from './backend';
 
 /** Adds the first in-stock garment to the bag, leaving the browser on the bag page. */
 async function addSomethingToBag(page: Page) {
-  await page.goto('/ng');
+  await page.goto('/ng/collections/electronics');
   await page.locator('.card').first().click();
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
 

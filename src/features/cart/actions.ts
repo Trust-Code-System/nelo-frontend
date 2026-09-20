@@ -16,7 +16,7 @@ import { vendureQuery } from '@/lib/vendure/transport';
  * Cart mutations.
  *
  * Server Actions are reachable endpoints, so every one validates its own inputs rather than
- * trusting the caller. The backend still enforces ownership — this is defence in depth, not
+ * trusting the caller. The backend still enforces ownership - this is defence in depth, not
  * the only check.
  *
  * Vendure's session token is captured here and nowhere else: a Server Action is one of the
@@ -48,7 +48,7 @@ function parseId(value: unknown, label: string): string {
  *
  * Vendure returns a union: the Order on success, an ErrorResult otherwise. HTTP 200 says
  * nothing about which. InsufficientStockError is singled out because it is the one a
- * customer can act on — it carries how many are actually available.
+ * customer can act on - it carries how many are actually available.
  */
 function unwrapCart(result: {
   __typename?: string;

@@ -32,6 +32,7 @@ const MAX_PRODUCTS = 5000;
 const STATIC_PATHS = [
   { path: '', priority: 1, changeFrequency: 'daily' as const },
   { path: '/collections', priority: 0.9, changeFrequency: 'daily' as const },
+  { path: '/shop', priority: 1, changeFrequency: 'daily' as const },
   { path: '/atelier', priority: 0.9, changeFrequency: 'weekly' as const },
   { path: '/size-guide', priority: 0.7, changeFrequency: 'monthly' as const },
   { path: '/about', priority: 0.6, changeFrequency: 'monthly' as const },

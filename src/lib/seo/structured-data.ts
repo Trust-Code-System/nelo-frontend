@@ -1,4 +1,5 @@
 import { absolute } from './site';
+import { STORE_CONTACT } from '@/lib/contact';
 import { assetUrl } from '@/lib/vendure/assets';
 import { channelFor, type Market } from '@/lib/vendure/channels';
 import type { ProductBySlugQuery, SearchCatalogueQuery } from '@/lib/vendure/generated/graphql';
@@ -13,7 +14,7 @@ import type { ProductBySlugQuery, SearchCatalogueQuery } from '@/lib/vendure/gen
  *
  * `priceCurrency` is the Channel's currency, read from the market configuration rather than
  * guessed. Availability comes from Vendure's `stockLevel`, and a variant Vendure calls
- * out-of-stock is declared out of stock here too — even though the atelier can still cut it,
+ * out-of-stock is declared out of stock here too - even though the atelier can still cut it,
  * because `InStock` in schema.org means "can be shipped now" and that would be a lie.
  */
 
@@ -139,8 +140,17 @@ export function organisationJsonLd(market: Market): Record<string, unknown> {
     description:
       'Nigerian luxury womenswear, cut in Lagos. Ready to wear in UK 6 to 30, plus bespoke and bridal commissions.',
     url: absolute(`/${market}`),
+    telephone: STORE_CONTACT.phoneHref,
+    email: STORE_CONTACT.email,
+    sameAs: [STORE_CONTACT.instagram],
     currenciesAccepted: channelFor(market).currency,
-    address: { '@type': 'PostalAddress', addressLocality: 'Lagos', addressCountry: 'NG' },
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: STORE_CONTACT.streetAddress,
+      addressLocality: STORE_CONTACT.area,
+      addressRegion: STORE_CONTACT.city,
+      addressCountry: 'NG',
+    },
   };
 }
 

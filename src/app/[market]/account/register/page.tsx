@@ -34,8 +34,12 @@ export default async function RegisterPage({
   if (customer) redirect(next);
 
   return (
-    <AccountShell market={market} title="Create an account" eyebrow="Account" showNav={false}>
+    <AccountShell market={market} title="Create an account" eyebrow="Account" showNav={false} variant="auth">
       <AuthLayout
+        market={market}
+        mode="register"
+        title="Create your profile"
+        intro="A private place for your fit, your wardrobe and every NELO order."
         aside={
           <>
             <span className="lab">What we do with this</span>

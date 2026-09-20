@@ -13,7 +13,7 @@ export const metadata: Metadata = { title: 'Your bag' };
 /**
  * Cart.
  *
- * Read with the session attached and never cached — a cart is the most personal thing on
+ * Read with the session attached and never cached - a cart is the most personal thing on
  * the site and must never be shared between visitors.
  */
 export const dynamic = 'force-dynamic';
@@ -57,6 +57,9 @@ export default async function CartPage({
           <div>
             <span className="lab">Bag</span>
             <h1>Your bag</h1>
+            <p className="masthead-copy">
+              Review your pieces, quantities and delivery total before checkout.
+            </p>
           </div>
           {cart ? (
             <div className="proj-meta">

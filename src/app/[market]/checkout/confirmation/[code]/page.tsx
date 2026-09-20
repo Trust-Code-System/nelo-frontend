@@ -18,7 +18,7 @@ export const fetchCache = 'only-no-store';
 /**
  * After checkout.
  *
- * Read by code, because the order is no longer active — that is precisely what completing a
+ * Read by code, because the order is no longer active - that is precisely what completing a
  * checkout means. A confirmation page built on `activeOrder` shows an empty bag here.
  *
  * There are two outcomes and they look different on purpose:
@@ -39,7 +39,7 @@ export default async function ConfirmationPage({
   if (!isMarket(market)) notFound();
 
   // A payment provider may append its own reference on return. It is read only so the screen
-  // can acknowledge that the customer came back from somewhere — it is never matched against
+  // can acknowledge that the customer came back from somewhere - it is never matched against
   // anything, never stored, and never used to decide that an order is paid.
   const raw = await searchParams;
   const returnedFromProvider = Boolean(raw.reference ?? raw.trxref);
@@ -59,7 +59,7 @@ export default async function ConfirmationPage({
     <>
       <SiteHeader
         market={market}
-        announcement={paid ? 'Thank you — your order is with the atelier' : 'Confirming your order'}
+        announcement={paid ? 'Thank you - your order is with the atelier' : 'Confirming your order'}
       />
 
       <main className="shell">
@@ -67,6 +67,11 @@ export default async function ConfirmationPage({
           <div>
             <span className="lab">{paid ? 'Order confirmed' : 'Order pending'}</span>
             <h1>{paid ? 'Thank you' : 'Confirming your payment'}</h1>
+            <p className="masthead-copy">
+              {paid
+                ? 'Your order is with the atelier. We will keep you informed as it progresses.'
+                : 'We are checking the payment status and will update this order shortly.'}
+            </p>
           </div>
           <div className="proj-meta">
             <span className="num">{code}</span>
@@ -79,7 +84,7 @@ export default async function ConfirmationPage({
               <span className="lab">Temporarily unavailable</span>
               <h2>We cannot reach the store to confirm this</h2>
               <p>
-                Your order code is <span className="num">{code}</span>. Keep it — nothing is
+                Your order code is <span className="num">{code}</span>. Keep it - nothing is
                 lost, and we can look it up.
               </p>
             </div>

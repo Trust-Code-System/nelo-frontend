@@ -15,8 +15,8 @@ import { vendureQuery } from '@/lib/vendure/transport';
  * What it returns is deliberately almost nothing: a state string and two booleans. No
  * totals, no lines, no address, no customer. A polling endpoint is the easiest thing in a
  * storefront to point at somebody else's order code, so it must not be a way to read one.
- * Vendure's own rules still apply on top — a customer sees their own orders, and a guest
- * order only within two hours — so an order that is not the caller's comes back as unknown.
+ * Vendure's own rules still apply on top - a customer sees their own orders, and a guest
+ * order only within two hours - so an order that is not the caller's comes back as unknown.
  *
  * The `reference` a payment provider puts in a return URL never reaches this: the code in
  * the path is the storefront's own order code, and only the state Vendure reports counts.

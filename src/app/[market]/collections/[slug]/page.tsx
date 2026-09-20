@@ -35,7 +35,7 @@ export async function generateMetadata({
     if (!data.collection) return {};
     const description =
       data.collection.description.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 300) ||
-      `${data.collection.name} — cut in Lagos, UK 6 to 30.`;
+      `${data.collection.name} - cut in Lagos, UK 6 to 30.`;
     return {
       title: data.collection.name,
       description,
@@ -52,7 +52,7 @@ export async function generateMetadata({
  *
  * Filters, sort and pagination are URL state, so the whole page stays server-rendered and a
  * filtered view is shareable. Vendure's search supplies both the results and the facet
- * counts — nothing is aggregated here.
+ * counts - nothing is aggregated here.
  */
 export default async function CollectionPage({
   params,
@@ -133,10 +133,13 @@ export default async function CollectionPage({
           <div>
             <span className="lab">Collection</span>
             <h1>{collection.name}</h1>
-            {collection.description ? <p>{collection.description}</p> : null}
+            <p>
+              {collection.description ||
+                'Explore the complete edit, with every silhouette considered from first look to final detail.'}
+            </p>
           </div>
           <span className="count">
-            {total} {total === 1 ? 'garment' : 'garments'} · UK 6—30
+            {total} {total === 1 ? 'garment' : 'garments'} · UK 6-30
           </span>
         </div>
 

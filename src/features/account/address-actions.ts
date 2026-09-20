@@ -18,7 +18,7 @@ import type { FormState } from './state';
  * `createCustomerAddress` and `updateCustomerAddress` are among the few Shop API mutations
  * that return a bare entity rather than a result union, so their business failures arrive as
  * top-level GraphQL errors. The transport decodes those as `VendureGraphQLError`, whose raw
- * message can carry internal detail — so it is deliberately NOT shown verbatim. What the
+ * message can carry internal detail - so it is deliberately NOT shown verbatim. What the
  * customer gets is the field-level validation this module performs plus a generic recovery.
  *
  * Nothing about an address is inferred from the market. The market picks the default
@@ -45,7 +45,7 @@ function read(form: FormData, field: Field): string {
 
 /**
  * Builds the input Vendure expects, and refuses to send a blank optional field as an empty
- * string — an empty `province` is not the same as a province that was not given, and storing
+ * string - an empty `province` is not the same as a province that was not given, and storing
  * "" would print an empty line on a shipping label.
  */
 function readAddress(form: FormData): { input: CreateAddressInput } | { error: FormState } {
@@ -117,7 +117,7 @@ export async function updateAddress(
     if ('error' in parsed) return parsed.error;
 
     // Ownership is enforced by Vendure against the session, not by this id. Passing an id
-    // that is not the caller's fails there — which is where it should fail.
+    // that is not the caller's fails there - which is where it should fail.
     await vendureQuery(
       UpdateCustomerAddressDocument,
       { input: { id, ...parsed.input } },

@@ -33,7 +33,7 @@ export default async function ResetPasswordPage({
         <div className="empty">
           <span className="lab">Link incomplete</span>
           <h2>This reset link is missing its token</h2>
-          <p>Ask for a new link and use the most recent email — older links stop working.</p>
+          <p>Ask for a new link and use the most recent email - older links stop working.</p>
           <Link className="btn-q" href={`/${market}/account/password`}>
             Request a new link
           </Link>

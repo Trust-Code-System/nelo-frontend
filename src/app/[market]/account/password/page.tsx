@@ -12,7 +12,7 @@ export const metadata: Metadata = { title: 'Password' };
 /**
  * One route, two jobs, decided by whether there is a customer.
  *
- * Signed in: change the password, which requires the current one — a session alone must not
+ * Signed in: change the password, which requires the current one - a session alone must not
  * be enough to take an account over.
  * Signed out: request a reset link. The confirmation is identical whether or not the address
  * is registered, because a different answer would let anyone test which emails have accounts.

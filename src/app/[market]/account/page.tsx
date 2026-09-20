@@ -72,7 +72,7 @@ export default async function AccountPage({
         <div className="spec">
           <dt>Phone</dt>
           {/* Vendure returns an empty string, not null, for a customer who gave no phone
-              number — so `??` never fires and the row rendered blank. A missing value has
+              number - so `??` never fires and the row rendered blank. A missing value has
               to say it is missing. */}
           <dd>{customer.phoneNumber || 'Not given'}</dd>
         </div>

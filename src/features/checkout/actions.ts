@@ -28,7 +28,7 @@ import { PAID_STATES } from './states';
  * Shared rules, applied by every action in this file:
  *
  *   1. No amount, price or total is ever sent. `addPaymentToOrder` deliberately has no
- *      amount argument — Vendure charges its own `totalWithTax`. Anything the browser could
+ *      amount argument - Vendure charges its own `totalWithTax`. Anything the browser could
  *      contribute to the figure would be an attack surface.
  *   2. Every union is branched on `__typename`. `setOrderShippingMethod` returning
  *      `IneligibleShippingMethodError` is HTTP 200 and would otherwise read as success.
@@ -69,7 +69,7 @@ function failure(error: unknown): FormState {
 /**
  * The international gate, enforced in the actions and not only in the UI.
  *
- * A hidden `market` field is client-supplied, so a gated market must be refused here too —
+ * A hidden `market` field is client-supplied, so a gated market must be refused here too -
  * a checkout that is only disabled in the markup is not disabled.
  */
 function gateCheck(market: Market): FormState | null {
@@ -83,7 +83,7 @@ function gateCheck(market: Market): FormState | null {
   return null;
 }
 
-/** Details step — guests only. A signed-in customer already has one, and Vendure answers
+/** Details step - guests only. A signed-in customer already has one, and Vendure answers
  *  `AlreadyLoggedInError` if this is sent anyway. */
 export async function setCheckoutCustomer(
   _previous: FormState,
@@ -142,7 +142,7 @@ export async function setCheckoutCustomer(
  *
  * Setting the address invalidates the shipping choice: Vendure recalculates eligibility
  * against the new destination, and a method chosen for Lagos may not be eligible for Kano.
- * So the previously selected method is NOT carried forward here — the next step re-reads
+ * So the previously selected method is NOT carried forward here - the next step re-reads
  * `eligibleShippingMethods` and the customer chooses again.
  */
 export async function setCheckoutShippingAddress(
@@ -187,7 +187,7 @@ export async function setCheckoutShippingAddress(
   }
 }
 
-/** Shipping step. The id is Vendure's, from `eligibleShippingMethods` — an id that is not
+/** Shipping step. The id is Vendure's, from `eligibleShippingMethods` - an id that is not
  *  eligible is refused there, which is the check that matters. */
 export async function setCheckoutShippingMethod(
   _previous: FormState,
@@ -211,7 +211,7 @@ export async function setCheckoutShippingMethod(
     const result = data.setOrderShippingMethod;
     if (result.__typename !== 'Order') {
       // IneligibleShippingMethodError lands here. It is not a transport failure and it is
-      // certainly not a success — the customer has to pick something else.
+      // certainly not a success - the customer has to pick something else.
       return { status: 'error', message: result.message };
     }
 
@@ -273,7 +273,7 @@ export async function removeCoupon(_previous: FormState, form: FormData): Promis
  *   only then show a confirmation.
  *
  * `transitionOrderToState` is NULLABLE. A null result means the order was already in the
- * requested state, which is not the same as this call having moved it there — so the order
+ * requested state, which is not the same as this call having moved it there - so the order
  * is re-read instead of the null being treated as either success or failure.
  */
 export async function placeDevOrder(_previous: FormState, form: FormData): Promise<FormState> {
@@ -339,7 +339,7 @@ export async function placeDevOrder(_previous: FormState, form: FormData): Promi
     if (!PAID_STATES.has(result.state)) {
       return {
         status: 'error',
-        message: `Payment did not complete — the order is in the ${result.state} state. Nothing has been charged. Your bag is unchanged.`,
+        message: `Payment did not complete - the order is in the ${result.state} state. Nothing has been charged. Your bag is unchanged.`,
       };
     }
 

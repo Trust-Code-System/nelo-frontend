@@ -98,12 +98,15 @@ test.describe('collection page', () => {
     await expect(pager.getByText(/Page 2 of/)).toBeVisible();
   });
 
-  test('the collections index links into a collection', async ({ page }) => {
+  test('the collections index is a campaign archive that leads to shopping', async ({ page }) => {
     await page.goto('/ng/collections');
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(/collections/i);
 
-    await page.locator('.card').first().click();
-    await expect(page).toHaveURL(/\/ng\/collections\/[a-z0-9-]+/);
+    await expect(page.locator('.collection-story')).toHaveCount(4);
+    const shopLink = page.getByRole('link', { name: /go straight to the shop/i });
+    await expect(shopLink).toHaveAttribute('href', '/ng/shop');
+    await shopLink.click();
+    await expect(page).toHaveURL(/\/ng\/shop/, { timeout: 15_000 });
   });
 });
 

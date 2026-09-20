@@ -1,15 +1,40 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ContentPage } from '@/features/content/ContentPage';
+import { SiteFooter } from '@/components/SiteFooter';
+import { SiteHeader } from '@/components/SiteHeader';
 import { contentMetadata } from '@/features/content/metadata';
 import { isMarket } from '@/lib/vendure/channels';
+
+const EXPRESSIONS = [
+  {
+    number: '01',
+    title: 'Elegance',
+    copy: 'Sculptural silhouettes, considered proportion and presence without performance.',
+  },
+  {
+    number: '02',
+    title: 'Consciousness',
+    copy: 'Made with intention in Lagos, in quantities that respect the hands behind every piece.',
+  },
+  {
+    number: '03',
+    title: 'Timelessness',
+    copy: 'Clothes designed to outlive a moment and return to your wardrobe with new meaning.',
+  },
+  {
+    number: '04',
+    title: 'Empowerment',
+    copy: 'A full size range and an atelier service that begin with the woman, never an idealised body.',
+  },
+] as const;
 
 export function generateMetadata({ params }: { params: Promise<{ market: string }> }) {
   return contentMetadata(params, {
     path: '/about',
-    title: 'About',
+    title: 'Our story',
     description:
-      'Nelo Woman is cut in Lagos for the woman who dresses on purpose. Ready to wear in UK 6 to 30, and bespoke from measurements we record to the hundredth of a millimetre.',
+      'Founded in Lagos by Chinelo Nzelu, Nelo Woman brings art, purpose and personal storytelling into fashion.',
   });
 }
 
@@ -22,67 +47,125 @@ export default async function AboutPage({
   if (!isMarket(market)) notFound();
 
   return (
-    <ContentPage
-      market={market}
-      eyebrow="About"
-      title="Cut in Lagos, for the woman who dresses on purpose"
-      standfirst="Nelo Woman makes statement femininity wearable: ready to wear in UK 6 to 30, and bespoke and bridal commissioned from measurements we keep."
-      aside={
-        <>
-          <span className="lab">The house, in facts</span>
-          <h2>Nelo Woman</h2>
-          <ul>
-            <li>Founded and based in Lagos, Nigeria</li>
-            <li>Ready to wear: UK 6 to 30, every style</li>
-            <li>Bespoke and bridal by commission</li>
-            <li>Measurements recorded to 0.01 mm</li>
-            <li>Two markets: Nigeria in naira, international in US dollars</li>
-          </ul>
-        </>
-      }
-    >
-      <h2>Every style, in every size</h2>
-      <p>
-        Most labels publish a size range and then quietly stop cutting above a certain point.
-        We do not. Every style in the collection is made in UK 6 to 30, and the size scale on
-        each product page shows the whole range rather than hiding it inside a dropdown. When
-        a size is not in stock to ship, it can still be cut to measure — those are different
-        statements and we keep them separate.
-      </p>
+    <>
+      <SiteHeader market={market} announcement="Designed in Lagos, worn everywhere" />
 
-      <h2>Measurements, kept properly</h2>
-      <p>
-        A garment that fits is arithmetic before it is anything else. We record seven points —
-        bust, waist, hip, height, shoulder, sleeve and inseam — as decimals in millimetres,
-        because a quarter of an inch is 6.35&nbsp;mm and rounding it to 6 throws away work
-        somebody did with a tape measure. Your measurements belong to your account, not to a
-        single order, so a second commission starts from what we already know.
-      </p>
-      <p>
-        <Link href={`/${market}/size-guide`}>The size guide</Link> shows where each point is
-        taken and what we do with it.
-      </p>
+      <main className="about-page">
+        <section className="about-hero" aria-labelledby="about-title">
+          <span className="about-hero__parallax" data-motion-parallax="7">
+            <Image
+              src="/editorial/live/about-founder-landscape.jpg"
+              alt="Nelo Woman founder Chinelo Nzelu in her Lagos studio"
+              fill
+              priority
+              sizes="100vw"
+            />
+          </span>
+          <div className="about-hero__shade" />
+          <div className="about-hero__copy">
+            <span className="lab">Lagos, since 2019</span>
+            <h1 id="about-title" data-motion-words>A fashion house for every version of her.</h1>
+            <p>Founded by designer Chinelo Nzelu.</p>
+          </div>
+          <span className="about-hero__index num">NL / STORY 01</span>
+        </section>
 
-      <h2>Ready to wear and the atelier</h2>
-      <p>
-        Ready to wear is a catalogue: you choose a size, you add it to your bag, you check
-        out. The atelier is not. A bespoke or bridal garment begins with a conversation, a
-        proposal and a schedule, and it has no add-to-bag button anywhere on this site —
-        because a commission is not a cart, and pretending otherwise is how a gown ends up
-        listed at zero.
-      </p>
-      <p>
-        <Link href={`/${market}/atelier`}>Commission something</Link>, or{' '}
-        <Link href={`/${market}/contact`}>ask us first</Link>.
-      </p>
+        <section className="about-statement shell" aria-labelledby="about-statement-title">
+          <span className="lab">Our story</span>
+          <h2 id="about-statement-title" data-motion-words>
+            Clothing with meaning, made for women with somewhere to go.
+          </h2>
+          <div className="about-statement__copy">
+            <p>
+              Founded in 2019 by Nigerian designer Chinelo Nzelu, Nelo Woman brings art,
+              purpose and personal storytelling into fashion. Every collection begins with a
+              woman in mind, then becomes shape, movement and memory.
+            </p>
+            <p>
+              The house is rooted in Lagos and speaks to women everywhere. Ready to wear runs
+              from UK 6 to 30. Bespoke and bridal begin with conversation, exact measurements
+              and the belief that clothes should meet the body where it is.
+            </p>
+          </div>
+        </section>
 
-      <h2>How we ship</h2>
-      <p>
-        We ship from Lagos to anywhere. Prices are set per market by the store, in naira for
-        Nigeria and US dollars internationally — we never convert a price in your browser, so
-        what you see is what the store charges.{' '}
-        <Link href={`/${market}/shipping`}>Shipping and duties</Link> has the detail.
-      </p>
-    </ContentPage>
+        <section className="about-founder shell" aria-labelledby="founder-title">
+          <div className="about-founder__portrait" data-motion-clip>
+            <Image
+              src="/editorial/live/about-founder-portrait.jpg"
+              alt="Chinelo Nzelu smiling in the Nelo Woman studio"
+              fill
+              sizes="(max-width: 760px) 100vw, 46vw"
+            />
+            <span className="num">FOUNDER / CREATIVE DIRECTOR</span>
+          </div>
+          <div className="about-founder__copy">
+            <span className="lab">The designer</span>
+            <h2 id="founder-title">Chinelo Nzelu designs from recognition.</h2>
+            <p>
+              Her work recognises the different roles a woman moves through, the softness she
+              protects and the power she does not need to announce. The result is expressive,
+              feminine clothing with disciplined construction beneath the drama.
+            </p>
+            <blockquote>
+              “We make clothes that let a woman arrive as herself, only more clearly.”
+            </blockquote>
+            <Link className="btn" href={`/${market}/atelier`}>
+              Enter the atelier
+            </Link>
+          </div>
+        </section>
+
+        <section className="about-beliefs" aria-label="Mission and vision" data-motion-stagger>
+          <article>
+            <span className="num">01 / MISSION</span>
+            <h2>Make self-expression feel unmistakably personal.</h2>
+            <p>
+              We create distinctive pieces that honour individuality, confidence and the joy
+              of dressing with intention.
+            </p>
+          </article>
+          <article>
+            <span className="num">02 / VISION</span>
+            <h2>Build a globally recognised house from Lagos.</h2>
+            <p>
+              One known for strong design, inclusive sizing, responsible choices and an
+              experience as considered as the clothes.
+            </p>
+          </article>
+        </section>
+
+        <section className="about-expressions shell" aria-labelledby="expressions-title">
+          <div className="about-expressions__head">
+            <span className="lab">What we carry forward</span>
+            <h2 id="expressions-title">Four expressions of the house</h2>
+          </div>
+          <ol data-motion-stagger>
+            {EXPRESSIONS.map((expression) => (
+              <li key={expression.number}>
+                <span className="num">{expression.number}</span>
+                <h3>{expression.title}</h3>
+                <p>{expression.copy}</p>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <section className="about-cta shell" data-motion-reveal>
+          <span className="lab">Continue the story</span>
+          <h2>Choose a finished piece, or begin one with us.</h2>
+          <div>
+            <Link className="btn" href={`/${market}/shop`}>
+              Shop the collection
+            </Link>
+            <Link className="btn btn-q" href={`/${market}/atelier`}>
+              Commission a garment
+            </Link>
+          </div>
+        </section>
+      </main>
+
+      <SiteFooter market={market} />
+    </>
   );
 }

@@ -224,7 +224,7 @@ test.describe('account round trip', () => {
     await expect(page.locator('.chip', { hasText: 'Default delivery' })).toBeVisible();
 
     // The acceptance criterion: that address is what checkout offers.
-    await page.goto('/ng');
+    await page.goto('/ng/collections/electronics');
     await page.locator('.card').first().click();
     await page.getByRole('button', { name: /add to bag/i }).click();
     await expect(page.getByText(/added to your bag/i)).toBeVisible();
@@ -258,7 +258,7 @@ test.describe('account round trip', () => {
     await page.goto('/ng/account/orders');
     await expect(page.getByRole('heading', { name: /no orders on this account/i })).toBeVisible();
 
-    await page.goto('/ng');
+    await page.goto('/ng/collections/electronics');
     await page.locator('.card').first().click();
     await page.getByRole('button', { name: /add to bag/i }).click();
     await expect(page.getByText(/added to your bag/i)).toBeVisible();

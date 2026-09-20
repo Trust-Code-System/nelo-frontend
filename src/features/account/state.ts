@@ -20,7 +20,7 @@ export const IDLE: FormState = { status: 'idle' };
  *
  * Only a path inside this market is accepted: no scheme, no host, no protocol-relative
  * `//evil.example`, no backslash (which some browsers normalise to `/`). Anything else
- * falls back to the account home rather than being "cleaned up" — a redirect that has to be
+ * falls back to the account home rather than being "cleaned up" - a redirect that has to be
  * repaired is one that should not be followed.
  */
 export function safeReturnPath(raw: unknown, market: string): string {

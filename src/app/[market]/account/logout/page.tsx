@@ -11,7 +11,7 @@ export const metadata: Metadata = { title: 'Sign out', robots: { index: false } 
 /**
  * Sign out.
  *
- * Visiting this URL does not sign anyone out — the button does, over POST. A GET that ends a
+ * Visiting this URL does not sign anyone out - the button does, over POST. A GET that ends a
  * session can be fired by any third-party page that embeds the URL, so the route asks first.
  */
 export default async function LogoutPage({

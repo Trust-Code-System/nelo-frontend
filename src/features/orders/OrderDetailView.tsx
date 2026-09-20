@@ -9,7 +9,7 @@ import type { OrderDetailFragment } from '@/lib/vendure/generated/graphql';
  * One order, rendered from Vendure's own record.
  *
  * Shared by the account history and the post-checkout confirmation, because they should show
- * the same thing — a confirmation that renders a different, friendlier version of the order
+ * the same thing - a confirmation that renders a different, friendlier version of the order
  * is how a customer ends up believing something was paid that was not.
  *
  * Every figure comes from the Order. Nothing is summed here: not the line totals, not the

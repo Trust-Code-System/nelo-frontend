@@ -1,4 +1,4 @@
-# Customer accounts — Vendure Shop API.
+# Customer accounts - Vendure Shop API.
 #
 # Vendure is the authentication authority. There is no auth library here, no frontend-issued
 # JWT, and no shadow user table: every operation below is a documented Shop API mutation,
@@ -38,7 +38,7 @@ fragment CustomerAddress on Address {
   }
 }
 
-# Null for a guest. That is the whole signed-in check — there is no separate session probe.
+# Null for a guest. That is the whole signed-in check - there is no separate session probe.
 query ActiveCustomer {
   activeCustomer {
     ...CustomerIdentity
@@ -85,7 +85,7 @@ mutation Logout {
 }
 
 # Vendure's four registration flows all end in either Success or an ErrorResult. Success
-# does NOT mean the customer can sign in — with verification enabled they must follow the
+# does NOT mean the customer can sign in - with verification enabled they must follow the
 # emailed token to `verifyCustomerAccount` first.
 mutation RegisterCustomerAccount($input: RegisterCustomerInput!) {
   registerCustomerAccount(input: $input) {
@@ -171,7 +171,7 @@ mutation UpdateCustomerPassword($currentPassword: String!, $newPassword: String!
 }
 
 # Addresses. `createCustomerAddress` and `updateCustomerAddress` return a bare Address rather
-# than a union — a validation failure arrives as a top-level GraphQL error, which the
+# than a union - a validation failure arrives as a top-level GraphQL error, which the
 # transport layer decodes as its own failure class.
 mutation CreateCustomerAddress($input: CreateAddressInput!) {
   createCustomerAddress(input: $input) {

@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useRef, useState } from 'react';
+import { useRef, useState, ViewTransition } from 'react';
 
 /**
  * Product gallery.
@@ -11,7 +11,7 @@ import { useRef, useState } from 'react';
  *
  * Accessibility and performance notes, both deliberate:
  *
- *   - The thumbnails are a `radiogroup`, because that is what they are — one of several,
+ *   - The thumbnails are a `radiogroup`, because that is what they are - one of several,
  *     exactly one selected. Arrow keys move between them by default with roving tabindex,
  *     which is what a keyboard user expects from a picker.
  *   - The first image keeps `priority`, and it is the only one that does. It is the largest
@@ -32,9 +32,17 @@ export type GalleryImage = {
 export function ProductGallery({
   images,
   productName,
+  transitionName,
 }: {
   images: readonly GalleryImage[];
   productName: string;
+  /**
+   * Shared-element name, built by `garmentTransitionName()`. Pairs this hero with the
+   * card the visitor clicked so the browser morphs one into the other. Only navigation
+   * activates it - selecting a thumbnail is a plain setState, which React deliberately
+   * does not treat as a Transition, so the picker keeps its instant swap.
+   */
+  transitionName?: string;
 }) {
   const [index, setIndex] = useState(0);
   const buttons = useRef<(HTMLButtonElement | null)[]>([]);
@@ -54,25 +62,27 @@ export function ProductGallery({
 
   return (
     <>
-      <div className="main framed">
-        <Image
+      <ViewTransition name={transitionName}>
+        <div className="main framed">
+          <Image
           // Keyed on the image so React swaps the element rather than mutating the src of the
-          // one that is already decoded — without this the previous photograph lingers for a
+          // one that is already decoded - without this the previous photograph lingers for a
           // frame while the new one loads.
           key={active.id}
           src={active.src}
           alt={
             index === 0
               ? productName
-              : `${productName} — view ${index + 1} of ${images.length}`
+              : `${productName} - view ${index + 1} of ${images.length}`
           }
           width={1200}
           height={1500}
           priority={index === 0}
           sizes="(max-width: 980px) 100vw, 55vw"
-          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-        />
-      </div>
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          />
+        </div>
+      </ViewTransition>
 
       {images.length > 1 ? (
         <div className="thumbs" role="radiogroup" aria-label={`${productName} images`}>

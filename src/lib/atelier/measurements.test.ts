@@ -11,12 +11,12 @@ import {
 /**
  * These tests exist to protect one thing: the backend stores decimal millimetres to two
  * places, and a quarter inch is 6.35 mm. Any change that rounds to whole millimetres, or
- * routes a value through an integer, breaks the approved contract silently — the UI would
+ * routes a value through an integer, breaks the approved contract silently - the UI would
  * still look correct.
  */
 
 describe('toMillimetres', () => {
-  it('keeps quarter-inch precision — the case the contract is written around', () => {
+  it('keeps quarter-inch precision - the case the contract is written around', () => {
     expect(toMillimetres('0.25', 'inch')).toBe('6.35');
   });
 
@@ -60,7 +60,7 @@ describe('toMillimetres', () => {
 });
 
 describe('parseDecimal', () => {
-  it('rejects fraction glyphs and mixed notation — the customer must type a decimal', () => {
+  it('rejects fraction glyphs and mixed notation - the customer must type a decimal', () => {
     expect(parseDecimal('23¼')).toBeNull();
     expect(parseDecimal('23 1/4')).toBeNull();
     expect(parseDecimal('23,25')).toBeNull();
@@ -112,7 +112,7 @@ describe('validate', () => {
     }
   });
 
-  it('treats ranges as guidance, not authority — every code has a range', () => {
+  it('treats ranges as guidance, not authority - every code has a range', () => {
     for (const code of MEASUREMENT_CODES) {
       expect(validate(code, '1000', 'inch').state).toBe('implausible');
     }

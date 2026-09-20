@@ -105,7 +105,7 @@ test.describe('keyboard checkout', () => {
 
   test('a guest can complete checkout with the keyboard alone', async ({ page }) => {
     // Open the first product by keyboard: the grid holds links, so Enter follows one.
-    await page.goto('/ng');
+    await page.goto('/ng/collections/electronics');
     const firstCard = page.locator('.card').first();
     await firstCard.focus();
     await page.keyboard.press('Enter');

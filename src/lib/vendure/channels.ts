@@ -6,7 +6,7 @@
  * unknown market must fail explicitly rather than falling back to Vendure's default Channel.
  *
  * The channel codes below are defined constants in the backend repository. They are NOT
- * proof that the Channels have been provisioned — tokens must be verified per environment
+ * proof that the Channels have been provisioned - tokens must be verified per environment
  * before integration.
  */
 
@@ -24,7 +24,7 @@ type ChannelConfig = {
   readonly currency: 'NGN' | 'USD';
   readonly locale: string;
   /** Env var holding this channel's `vendure-token`. Routing identifier, not a secret that
-   *  grants privileged access — and never a substitute for session authentication. */
+   *  grants privileged access - and never a substitute for session authentication. */
   readonly tokenEnv: string;
 };
 
@@ -47,7 +47,7 @@ export function isMarket(value: unknown): value is Market {
   return typeof value === 'string' && (MARKETS as readonly string[]).includes(value);
 }
 
-/** Throws on an unknown market. Callers must not paper over this — an unrecognised segment
+/** Throws on an unknown market. Callers must not paper over this - an unrecognised segment
  *  is a 404, not a redirect to the default Channel. */
 export function assertMarket(value: unknown): Market {
   if (!isMarket(value)) {
@@ -75,7 +75,7 @@ export function channelToken(market: Market): string {
   if (!token) {
     throw new Error(
       `${tokenEnv} is not set. The ${CHANNELS[market].code} Channel may not be provisioned ` +
-        `in this environment — verify with the backend team before integrating.`,
+        `in this environment - verify with the backend team before integrating.`,
     );
   }
   return token;
@@ -84,11 +84,11 @@ export function channelToken(market: Market): string {
 /**
  * Formats a Vendure integer minor-unit amount for display.
  *
- * Never used to convert between currencies — Channel pricing is backend-owned, and the
+ * Never used to convert between currencies - Channel pricing is backend-owned, and the
  * frontend must never produce a payable price by applying an exchange rate.
  *
  * Minor units are shown only when there are any. A fixed `maximumFractionDigits: 0` printed
- * $42.99 as "$43", which is a wrong price on a page — the kind of rounding that is invisible
+ * $42.99 as "$43", which is a wrong price on a page - the kind of rounding that is invisible
  * on whole-naira pricing and actively misleading the first time a Channel carries cents.
  * Whole amounts still render clean, which is what the direction wants for NGN.
  */

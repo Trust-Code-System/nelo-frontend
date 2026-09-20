@@ -89,7 +89,7 @@ describe('productJsonLd', () => {
 describe('jsonLdScript', () => {
   it('escapes < so catalogue copy cannot close the script tag', () => {
     // The product NAME is what matters here. Descriptions go through plainText, which strips
-    // markup on the way out — but a name, a variant name and an SKU are emitted verbatim
+    // markup on the way out - but a name, a variant name and an SKU are emitted verbatim
     // from Vendure, so this escape is the only thing between catalogue text and a closed
     // script tag.
     const escaped = jsonLdScript(

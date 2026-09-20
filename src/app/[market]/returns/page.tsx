@@ -9,7 +9,7 @@ export function generateMetadata({ params }: { params: Promise<{ market: string 
     path: '/returns',
     title: 'Returns',
     description:
-      'Nelo Woman returns, exchanges and free alterations within 30 days — and why a cut-to-measure piece is altered rather than refunded.',
+      'Nelo Woman returns, exchanges and free alterations within 30 days - and why a cut-to-measure piece is altered rather than refunded.',
   });
 }
 
@@ -32,11 +32,11 @@ export default async function ReturnsPage({
           <span className="lab">At a glance</span>
           <h2>The rules</h2>
           <ul>
-            <li>Alterations — free, within 30 days of delivery</li>
-            <li>Ready-to-ship pieces — returnable within 14 days, unworn</li>
-            <li>Cut to measure — altered, not refunded</li>
-            <li>Bespoke and bridal — altered to fit, at fitting stage</li>
-            <li>Faulty or wrong item — our cost, always</li>
+            <li>Alterations - free, within 30 days of delivery</li>
+            <li>Ready-to-ship pieces - returnable within 14 days, unworn</li>
+            <li>Cut to measure - altered, not refunded</li>
+            <li>Bespoke and bridal - altered to fit, at fitting stage</li>
+            <li>Faulty or wrong item - our cost, always</li>
           </ul>
         </>
       }
@@ -60,7 +60,7 @@ export default async function ReturnsPage({
       <h2>Pieces cut to measure</h2>
       <p>
         A garment cut to your measurements was made for one person, and there is no second
-        customer for it. Those pieces are altered rather than refunded — as many times as it
+        customer for it. Those pieces are altered rather than refunded - as many times as it
         takes to fit, within 30 days. This is stated on the product page before you buy, and
         it is the honest trade for having something made to your body.
       </p>
@@ -70,7 +70,7 @@ export default async function ReturnsPage({
         A commission is a scheduled process with fittings built into it, and its terms are
         agreed in the proposal before anything is cut. Fit is corrected at fitting stage,
         which is what the fittings are for. Deposits and charge schedules are set out by the
-        atelier on your commission — the storefront never calculates them for you.
+        atelier on your commission - the storefront never calculates them for you.
       </p>
 
       <h2>If something is wrong with the garment</h2>
@@ -84,7 +84,7 @@ export default async function ReturnsPage({
       <h2>Starting a return</h2>
       <p>
         <Link href={`/${market}/contact`}>Message the atelier</Link> with your order code and
-        say which pieces and why. We will send collection or return instructions — please do
+        say which pieces and why. We will send collection or return instructions - please do
         not post anything back before we have, because an unannounced parcel is hard to match
         to an order.
       </p>

@@ -4,7 +4,7 @@ import type { MeasurementValue } from '@/lib/atelier/measurements';
  * Shapes mirroring contracts/atelier-shop-api.proposal.graphql.
  *
  * Hand-written on purpose: these are NOT generated types, because the contract does not
- * exist yet. When the real resolvers land, codegen replaces this file and the fixtures —
+ * exist yet. When the real resolvers land, codegen replaces this file and the fixtures -
  * the components consuming them should not need to change.
  */
 
@@ -71,7 +71,7 @@ export type AtelierAppointment = {
   /** Offset-bearing ISO. Rendered in Africa/Lagos unless the customer is elsewhere. */
   scheduledAt: string | null;
   status: AppointmentStatus;
-  /** Server decision — never inferred from the date on the client. */
+  /** Server decision - never inferred from the date on the client. */
   isCancellable: boolean;
 };
 
@@ -81,7 +81,7 @@ export type BespokeItem = {
   stage: ItemStage;
   /**
    * The snapshot this garment is being cut to. Independently confirmed, and NOT a live
-   * view of the customer's profile — editing the profile must not change it.
+   * view of the customer's profile - editing the profile must not change it.
    */
   confirmedMeasurements: MeasurementValue[];
   confirmedAt: string | null;
@@ -114,7 +114,7 @@ export type BespokeProject = {
   appointments: AtelierAppointment[];
   /**
    * A list, not a single code. An item can link to several Order Lines and one line can
-   * fund several items — the frontend must not assume one project equals one Order.
+   * fund several items - the frontend must not assume one project equals one Order.
    */
   relatedOrderCodes: string[];
   /** Published by the backend. Never computed here. Null until a proposal is accepted. */
@@ -127,7 +127,7 @@ export type BespokeProject = {
  * A reusable measurement profile. One per customer is the active default.
  *
  * Editing or creating a profile must NOT retroactively change a commission already in
- * production — a BespokeItem holds its own independently confirmed snapshot.
+ * production - a BespokeItem holds its own independently confirmed snapshot.
  */
 export type MeasurementProfile = {
   id: string;
@@ -135,7 +135,7 @@ export type MeasurementProfile = {
   isDefault: boolean;
   measurements: MeasurementValue[];
   confirmedAt: string | null;
-  /** Customer-safe only — never a staff actor id or an override reason. */
+  /** Customer-safe only - never a staff actor id or an override reason. */
   confirmedLocation: string | null;
   updatedAt: string;
 };

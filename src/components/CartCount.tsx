@@ -12,7 +12,7 @@ import { vendureQuery } from '@/lib/vendure/transport';
  *
  * Note the cost this accepts: reading the session makes the surrounding route dynamic. The
  * catalogue fetch itself is still cached through `catalogueQuery`, so what is given up is
- * the cached HTML, not the cached data — and a storefront that shows every visitor the same
+ * the cached HTML, not the cached data - and a storefront that shows every visitor the same
  * cached bag count would be worse than one that renders per request.
  *
  * No count is shown for an empty bag. A "0" is noise.
@@ -21,7 +21,7 @@ export async function CartCount({ market }: { market: Market }) {
   // The read is wrapped, the render is not: JSX built inside a `catch`-guarded block hides
   // render-time failures from the error boundary above it, which is what the lint rule is
   // for. An unreachable store is not an empty bag, but the header is not the place to say
-  // so — the bag page itself distinguishes the two.
+  // so - the bag page itself distinguishes the two.
   const quantity = await readQuantity(market);
   if (quantity === 0) return null;
 

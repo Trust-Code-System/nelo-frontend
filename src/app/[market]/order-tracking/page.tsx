@@ -12,7 +12,7 @@ import { vendureQuery } from '@/lib/vendure/transport';
  * Indexable empty, noindex with a code.
  *
  * The bare page is a landing page people search for and it is linked from the footer, so it
- * should be indexed. A URL carrying somebody's order code should not be — not because it
+ * should be indexed. A URL carrying somebody's order code should not be - not because it
  * leaks anything (Vendure decides who may read an order) but because there is no reason for
  * one customer's lookup to end up in a search index.
  */
@@ -43,13 +43,13 @@ export const fetchCache = 'only-no-store';
 /**
  * Track an order.
  *
- * `orderByCode` with no account required — which is exactly the case the live Shopify site
+ * `orderByCode` with no account required - which is exactly the case the live Shopify site
  * had a page for and the account pages do not cover.
  *
  * Vendure's own rule is the access control, and it is worth stating plainly on the page
  * rather than surprising someone: a signed-in customer can read their own orders forever, and
  * a guest can read an order for two hours after placing it. After that the code alone is not
- * enough, and the honest answer is to ask us — not to build a lookup that would let anyone
+ * enough, and the honest answer is to ask us - not to build a lookup that would let anyone
  * enumerate order codes.
  */
 export default async function OrderTrackingPage({
@@ -90,8 +90,8 @@ export default async function OrderTrackingPage({
           <span className="lab">Who can see what</span>
           <h2>Access</h2>
           <ul>
-            <li>Signed in — every order on your account, always</li>
-            <li>Guest — the order you just placed, for two hours</li>
+            <li>Signed in - every order on your account, always</li>
+            <li>Guest - the order you just placed, for two hours</li>
             <li>After that, ask us and we will look it up</li>
           </ul>
         </>
@@ -106,7 +106,7 @@ export default async function OrderTrackingPage({
         </p>
       ) : !reachable ? (
         <div className="notice notice-error" role="alert">
-          We could not reach the store to look that up. Nothing is wrong with your order —
+          We could not reach the store to look that up. Nothing is wrong with your order -
           try again in a moment.
         </div>
       ) : !order ? (
@@ -115,7 +115,7 @@ export default async function OrderTrackingPage({
           <h2>We cannot show you that order from here</h2>
           <p>
             Either the code does not match an order, or it does but this browser is not
-            allowed to read it — a guest order can only be opened for two hours after it is
+            allowed to read it - a guest order can only be opened for two hours after it is
             placed.
           </p>
           <div className="acts-row">
@@ -131,7 +131,7 @@ export default async function OrderTrackingPage({
         <>
           <div className="notice notice-ok" role="status">
             {orderState(order.state).label}
-            {orderState(order.state).note ? ` — ${orderState(order.state).note}` : ''}
+            {orderState(order.state).note ? ` - ${orderState(order.state).note}` : ''}
           </div>
           <OrderDetailView order={order} market={market} />
         </>

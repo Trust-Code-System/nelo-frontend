@@ -27,7 +27,7 @@ import { safeReturnPath, type FormState } from './state';
  * Account Server Actions.
  *
  * Vendure is the authority for every one of these. No auth library, no password hashing
- * here, no local user record — the storefront's entire share of authentication is holding
+ * here, no local user record - the storefront's entire share of authentication is holding
  * an opaque session token in an HttpOnly cookie and knowing which mutation to call.
  *
  * Two things every action here does:
@@ -76,7 +76,7 @@ function unexpected(error: unknown): FormState {
  * the session first would throw away the guest's cart instead of merging it.
  *
  * What the merge actually produced is then re-read rather than assumed. The configured
- * strategy may merge, may keep the existing customer order, or may discard the guest lines —
+ * strategy may merge, may keep the existing customer order, or may discard the guest lines -
  * that is the backend's decision, and the storefront's job is to display the result.
  */
 export async function login(_previous: FormState, form: FormData): Promise<FormState> {
@@ -160,8 +160,8 @@ export async function logout(_previous: FormState, form: FormData): Promise<Form
 /**
  * Register.
  *
- * Success here does NOT mean signed in. With verification enabled — Vendure's default, and
- * what the harness runs — the customer must follow the emailed token to
+ * Success here does NOT mean signed in. With verification enabled - Vendure's default, and
+ * what the harness runs - the customer must follow the emailed token to
  * `verifyCustomerAccount` first. Showing "welcome back" at this point would be a lie the
  * next page load would expose.
  */
@@ -203,7 +203,7 @@ export async function register(_previous: FormState, form: FormData): Promise<Fo
     return {
       status: 'success',
       message:
-        'Check your email. We have sent a link that confirms the address belongs to you — your account is ready once you follow it.',
+        'Check your email. We have sent a link that confirms the address belongs to you - your account is ready once you follow it.',
     };
   } catch (error) {
     return unexpected(error);
@@ -269,7 +269,7 @@ export async function verifyAccount(_previous: FormState, form: FormData): Promi
  * Start a password reset.
  *
  * Vendure's `requestPasswordReset` is nullable and returns success for an unknown address on
- * purpose. The message below is the same either way for the same reason — the response must
+ * purpose. The message below is the same either way for the same reason - the response must
  * not reveal which addresses have accounts.
  */
 export async function requestPasswordReset(
@@ -336,7 +336,7 @@ export async function resetPassword(_previous: FormState, form: FormData): Promi
   redirect(`/${market}/account`);
 }
 
-/** Changes the password of a signed-in customer. Requires the current one — Vendure checks
+/** Changes the password of a signed-in customer. Requires the current one - Vendure checks
  *  it, and a session alone is not enough to take over an account. */
 export async function changePassword(_previous: FormState, form: FormData): Promise<FormState> {
   try {

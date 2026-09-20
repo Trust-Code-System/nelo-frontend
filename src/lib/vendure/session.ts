@@ -5,7 +5,7 @@ import { cookies } from 'next/headers';
  * Storefront session transport. There is no auth database here.
  *
  * Vendure is the authentication authority. This cookie carries ONLY the opaque Vendure
- * bearer session token — no account profile, no measurements, no cart JSON. A Vendure
+ * bearer session token - no account profile, no measurements, no cart JSON. A Vendure
  * session token is not a frontend-issued JWT, and a Channel token is not authentication.
  *
  * Never place this value in localStorage, a URL, analytics, client props, logs, or any
@@ -36,7 +36,7 @@ export async function readSessionToken(): Promise<string | undefined> {
  *
  * MUST be called from a Server Action or Route Handler. Next.js does not allow cookie
  * writes during Server Component rendering, and a server-side fetch does not automatically
- * install upstream cookies in the browser — so an ordinary product page render must not
+ * install upstream cookies in the browser - so an ordinary product page render must not
  * create a session it cannot persist.
  */
 export async function writeSessionToken(token: string): Promise<void> {

@@ -10,8 +10,8 @@ import { IDLE, type FormState } from './state';
  * component: a render prop would not survive the Server/Client boundary, and one bespoke
  * island per form would ship the same thirty lines six times.
  *
- * It is a real `<form action={…}>` bound to a Server Action, so it posts and works before —
- * and if — the JavaScript for this island arrives. `useActionState` adds the pending state
+ * It is a real `<form action={…}>` bound to a Server Action, so it posts and works before -
+ * and if - the JavaScript for this island arrives. `useActionState` adds the pending state
  * and the returned message; it is not what makes the form function.
  */
 
@@ -21,7 +21,7 @@ export type FieldSpec = {
   type?: 'text' | 'email' | 'password' | 'tel' | 'checkbox' | 'select';
   autoComplete?: string;
   required?: boolean;
-  /** Shown under the input, always — guidance, not an error. */
+  /** Shown under the input, always - guidance, not an error. */
   help?: string;
   defaultValue?: string;
   inputMode?: 'text' | 'email' | 'tel' | 'numeric';
@@ -41,7 +41,7 @@ export function ActionForm({
   /** Rendered above the submit button: a "forgot your password?" link, a consent note. */
   footer,
   /** Replaces the form with the success message once the action reports one. Used where
-   *  re-submitting makes no sense — registering, or asking for a reset link. */
+   *  re-submitting makes no sense - registering, or asking for a reset link. */
   replaceOnSuccess = false,
   submitClassName = 'btn submit',
 }: {
@@ -55,7 +55,7 @@ export function ActionForm({
   submitClassName?: string;
 }) {
   const [state, formAction, pending] = useActionState(action, IDLE);
-  // The address book renders this form several times on one page — once to add, once per
+  // The address book renders this form several times on one page - once to add, once per
   // saved address to edit. Unprefixed ids would collide, and a duplicate id silently breaks
   // both the label association and every aria-describedby that points at it.
   const scope = useId();
@@ -153,7 +153,7 @@ function Field({
   }
 
   // The help and error text sit OUTSIDE the label, not inside it. Nesting them made them
-  // part of the control's accessible name — "Password At least 8 characters." — which is
+  // part of the control's accessible name - "Password At least 8 characters." - which is
   // both wrong for a screen reader and the reason an exact label lookup could not find the
   // field. They are associated through aria-describedby instead, which is what describes a
   // control without renaming it.

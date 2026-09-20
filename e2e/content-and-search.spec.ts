@@ -9,7 +9,7 @@ import { catalogueIsLive, NO_CATALOGUE } from './backend';
  */
 
 const WRITTEN = [
-  ['/ng/about', /cut in lagos/i],
+  ['/ng/about', /fashion house for every version of her/i],
   ['/ng/contact', /talk to the atelier/i],
   ['/ng/shipping', /shipping and duties/i],
   ['/ng/returns', /returns and alterations/i],
@@ -76,41 +76,46 @@ test.describe('written pages', () => {
 test.describe('search', () => {
   test('distinguishes "nothing asked" from "nothing matched"', async ({ page }) => {
     await page.goto('/ng/search');
-    await expect(page.getByRole('heading', { name: /what are you looking for/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /find your piece/i })).toBeVisible();
     // Conflating the two is how a store tells a visitor it has no stock when they have not
     // asked it anything.
     await expect(page.getByText(/nothing matches/i)).toHaveCount(0);
   });
 
   test('a term with no matches says so, and offers the atelier', async ({ page }) => {
-    test.skip(!(await catalogueIsLive()), NO_CATALOGUE);
     await page.goto('/ng/search?q=zzzznotathing');
-    await expect(page.getByRole('heading', { name: /nothing matches/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /try a broader description/i })).toBeVisible();
     await expect(page.getByRole('link', { name: /ask the atelier/i })).toBeVisible();
   });
 
   test('a term returns results and stays in the URL', async ({ page }) => {
-    test.skip(!(await catalogueIsLive()), NO_CATALOGUE);
-
     await page.goto('/ng/search');
-    await page.getByRole('searchbox').fill('laptop');
-    await page.getByRole('button', { name: /^search$/i }).click();
+    await page.getByRole('searchbox').fill('Adele');
+    await page.getByRole('search').getByRole('button', { name: /^search$/i }).click();
 
     // A GET form, so the term is in the address and the result can be shared.
-    await expect(page).toHaveURL(/\/ng\/search\?q=laptop/);
-    await expect(page.locator('.card').first()).toBeVisible();
-    await expect(page.getByRole('heading', { level: 1 })).toContainText('laptop');
+    await expect(page).toHaveURL(/\/ng\/search\?q=Adele/);
+    await expect(page.locator('.nelo-product-card').first()).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('Adele');
   });
 
   test('search is reachable from the header on every width', async ({ page }) => {
     await page.goto('/ng/size-guide');
     // Below 860px the inline utilities are hidden and search lives in the disclosure, so the
     // route has to be reachable from both — a phone with no way to search is the bug here.
-    await openNavIfMobile(page);
-    await expect(page.getByRole('link', { name: /^search$/i }).first()).toHaveAttribute(
-      'href',
-      '/ng/search',
-    );
+    const menu = page.locator('.menu');
+    const menuSearch = page.getByRole('link', { name: /search/i }).first();
+    if (await menu.isVisible()) {
+      await menu.click();
+      await expect(menu).toHaveAttribute('aria-expanded', 'true');
+      await expect(menuSearch).toHaveAttribute('href', '/ng/search');
+    } else {
+      await page.getByRole('button', { name: /^search$/i }).click();
+      await expect(page.getByRole('link', { name: /open full search/i })).toHaveAttribute(
+        'href',
+        '/ng/search',
+      );
+    }
   });
 });
 
@@ -170,7 +175,7 @@ test.describe('the header reflects the bag', () => {
   test('shows a count once something is in it', async ({ page }) => {
     test.skip(!(await catalogueIsLive()), NO_CATALOGUE);
 
-    await page.goto('/ng');
+    await page.goto('/ng/collections/electronics');
     // Nothing in the bag: no count at all, because a "0" is noise.
     await expect(page.locator('.bagcount')).toHaveCount(0);
 

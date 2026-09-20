@@ -96,7 +96,7 @@ describe('stepState', () => {
 
   it('does not count an address before the details', () => {
     // Vendure will not accept an address on an order with no customer, so an order in this
-    // shape is not "further along" — it is inconsistent, and the earlier step still applies.
+    // shape is not "further along" - it is inconsistent, and the earlier step still applies.
     const state = stepState(order({ shippingAddress: address }), false);
     expect(state.furthest).toBe('details');
     expect(state.completed.has('address')).toBe(false);
@@ -149,7 +149,7 @@ describe('PAID_STATES', () => {
 
   it('does not count an unknown state as paid', () => {
     // A plugin or a backend change can introduce a state this storefront has never seen.
-    // The safe default is "not paid" — no receipt for a state we cannot vouch for.
+    // The safe default is "not paid" - no receipt for a state we cannot vouch for.
     expect(PAID_STATES.has('AwaitingFabric')).toBe(false);
     expect(PAID_STATES.has('')).toBe(false);
   });

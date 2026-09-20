@@ -34,7 +34,7 @@ describe('formatMoney', () => {
   });
 
   it('shows minor units when there are any', () => {
-    // A fixed maximumFractionDigits of 0 printed $42.99 as "$43" — a price the store would
+    // A fixed maximumFractionDigits of 0 printed $42.99 as "$43" - a price the store would
     // not charge, displayed on the page.
     expect(formatMoney(4299, 'international')).toBe('$42.99');
     expect(formatMoney(18562050, 'international')).toBe('$185,620.50');

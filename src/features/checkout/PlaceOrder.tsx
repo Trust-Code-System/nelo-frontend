@@ -12,7 +12,7 @@ import type { Market } from '@/lib/vendure/channels';
  * nothing else, and Vendure charges the order's own `totalWithTax`. There is deliberately no
  * field a browser could put a number in.
  *
- * `payable` is display only — it is the string the server formatted from the order it just
+ * `payable` is display only - it is the string the server formatted from the order it just
  * read, so the customer can see what they are agreeing to.
  */
 export function PlaceOrder({
@@ -38,13 +38,13 @@ export function PlaceOrder({
       ) : null}
 
       <button className="btn submit" type="submit" disabled={pending}>
-        {pending ? 'Placing your order…' : `Place order — ${payable}`}
+        {pending ? 'Placing your order…' : `Place order - ${payable}`}
       </button>
 
       {devPath ? (
         <p className="mnote">
           Development payment handler. No money moves and no card is asked for. The Paystack
-          path is not built yet — see contracts/paystack-shop-api.proposal.graphql.
+          path is not built yet - see contracts/paystack-shop-api.proposal.graphql.
         </p>
       ) : null}
     </form>

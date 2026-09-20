@@ -51,7 +51,7 @@ const LOCATION_LABEL = {
  *
  * What this screen does NOT do:
  *  - transition any stage (staff production control)
- *  - compute a balance, total or amount outstanding — the backend publishes the charge
+ *  - compute a balance, total or amount outstanding - the backend publishes the charge
  *    schedule and we render it
  *  - assume one project equals one Order
  *  - show a staff actor id or an override reason
@@ -73,10 +73,10 @@ export default async function CommissionPage({
     <>
       <div className="fixture">
         <span className="lab">
-          Fixture data — no Atelier Shop API exists yet. Nothing on this screen is live.
+          Fixture data - no Atelier Shop API exists yet. Nothing on this screen is live.
         </span>
       </div>
-      <SiteHeader market={market} announcement="Your commission — Nelo Atelier" />
+      <SiteHeader market={market} announcement="Your commission - Nelo Atelier" />
 
       <main className="shell">
         <div className="proj-head">
@@ -86,6 +86,9 @@ export default async function CommissionPage({
               {project.reference}
             </span>
             <h1>{project.items.length === 1 ? 'Your garment' : 'Your garments'}</h1>
+            <p className="masthead-copy">
+              Follow every atelier stage, fitting note and delivery milestone in one place.
+            </p>
           </div>
           <div className="proj-meta">
             <span>Opened {formatDate(project.createdAt)}</span>
@@ -142,7 +145,7 @@ export default async function CommissionPage({
                 </dl>
                 <p className="mnote">
                   This is a snapshot taken when the garment was confirmed. Updating your
-                  measurement profile will not change a garment already in production — ask the
+                  measurement profile will not change a garment already in production - ask the
                   atelier if something needs to be altered.
                 </p>
               </div>
@@ -172,7 +175,7 @@ export default async function CommissionPage({
             <p className="mnote">
               {outstanding.length === 0
                 ? 'Nothing outstanding. This schedule is set by the atelier.'
-                : `${outstanding.length} payment${outstanding.length === 1 ? '' : 's'} still to come. The atelier will invoice each one — amounts are set by them, not calculated here.`}
+                : `${outstanding.length} payment${outstanding.length === 1 ? '' : 's'} still to come. The atelier will invoice each one - amounts are set by them, not calculated here.`}
             </p>
             {project.relatedOrderCodes.length > 0 ? (
               <p className="mnote">

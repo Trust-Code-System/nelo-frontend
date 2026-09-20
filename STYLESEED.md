@@ -10,19 +10,19 @@
 - Reference confidence: n/a
 - Brand recipe: editorial-authority
 - Palette recipe: editorial-ink
-- Key color: #6E1A22
-- Palette character: deep
+- Key color: #050505
+- Palette character: monochrome
 - Palette mode: light
 - Palette harmony: adjacent
-- Surface temperature: warm
+- Surface temperature: neutral
 - Aesthetic profile: technical
 - Skin: custom
-- Primary action: #6E1A22
+- Primary action: #050505
 - Font: Instrument Sans
 - Radius: sharp
 - Elevation: light=hairline rules only, no shadow · dark=hairline rules only, no shadow
 - Density: comfortable
-- Motion: Snap restrained
+- Motion: spring + scroll-driven reveal (deviation 2 withdrawn 2026-09-19, see deviation 4)
 - Imagery/data role: garment photography leads; measurement data is chrome, never decoration
 - Signature move: every garment carries its measured spec — a mono measurement strip beneath the image, and the 6–30 range shown as a scale, not a dropdown
 - Locked: 2026-09-15
@@ -35,8 +35,8 @@ garment is the only saturated thing on screen.
 
 ## Non-negotiables for this project
 
-- **One accent: garnet `#6E1A22`.** Everything else is warm greyscale. Product colour
-  comes from photography, never from UI.
+- **The interface is white and black.** Neutral greys may structure secondary
+  surfaces; product colour comes from photography, never from UI.
 - **Zero border-radius, zero shadow.** Verified against Khaite, Totême, Jacquemus and
   SSENSE — luxury fashion does not use cards. Separation is hairline rules and space.
 - **Two families only.** Instrument Sans for everything human-readable, IBM Plex Mono
@@ -49,16 +49,17 @@ garment is the only saturated thing on screen.
 
 ## Palette
 
-| Role | Light | Dark |
-| --- | --- | --- |
-| Paper | `#FBFAF8` | `#141210` |
-| Ground | `#EEE2D4` (bone) | `#1C1917` |
-| Ink | `#17120D` | `#EDE7DE` |
-| Smoke | `#6B6560` | `#9A938A` |
-| Hairline | `#DBD4CA` | `#332C26` |
-| Accent (garnet) | `#6E1A22` | `#C97B7B` |
+| Role | Value |
+| --- | --- |
+| Paper | `#FFFFFF` |
+| Ground | `#F4F4F2` |
+| Ink | `#050505` |
+| Smoke | `#5F5F5B` |
+| Hairline | `#D8D8D4` |
+| Action | `#050505` |
 
-Bone and warm-black are extracted from the live nelowoman.com computed styles, not invented.
+The storefront is intentionally locked to the light monochrome shell; the live Nelo
+photography carries the saturated colour.
 
 ## Documented deviations from the compiled bundle
 
@@ -79,6 +80,51 @@ re-litigated on every screen.
    Nelo's real brand is warm — bone `#EEE2D4` and warm-black `#17120D` are extracted
    from the live site's computed styles. Warm wins; the technical coordinate is
    carried by geometry, mono type and density instead of by temperature.
+
+4. **Deviation 2 is withdrawn (2026-09-19, owner's explicit decision).** That clause
+   banned spring motion and hover lift. The owner lifted the ban directly, so it no
+   longer binds. What now applies:
+
+   - **Spring motion is in.** Three easings, solved from a mass-spring-damper and
+     sampled into CSS `linear()`: `--spring-calm` (no overshoot, for large or
+     text-bearing things), `--spring` (peak 1.044, the house curve) and
+     `--spring-snap` (peak 1.077, micro-interaction). They are real springs — a
+     cubic-bezier cannot exceed its endpoints, so a "spring" bezier never actually
+     overshoots. A spring's duration is part of its curve; shortening it truncates
+     the overshoot and it stops reading as physical.
+   - **Elevation exists now.** Two neutral-black steps, `--lift-1` and `--lift-2`.
+     Nothing outside the product card gets a shadow.
+   - **Hover lift is in** on the product card: -6px on `--spring`, `--lift-2`, and a
+     4% image scale, mirrored on `:focus-visible` so it is not a mouse-only
+     affordance.
+   - **Reveals**, from the first pass: rules draw themselves, editorial type unmasks
+     upward, garment photography resolves out of greyscale. Each is a *measuring*
+     action, which is why they belong to "The Measured".
+   - **New moments**: a pinned, scroll-scrubbed horizontal lookbook; a kinetic
+     ticker; magnetic pointer response on primary actions.
+
+   Still refused, as brand damage rather than restraint: coloured glows, blur/glass
+   panels, and any second UI accent hue.
+
+   Implementation is dependency-free. Reveals and the lookbook scrub are native CSS
+   scroll-driven animation (`animation-timeline`), which runs off the main thread —
+   a JS scroll handler doing the scrub is the classic way to make a mid-range phone
+   stutter, and most of this storefront's traffic is mobile. The grid-to-PDP morph is
+   React `<ViewTransition>`. The magnet is one ~1KB delegated island that writes two
+   custom properties and lets CSS own the transform, rather than turning every call
+   to action into a client component.
+
+   Every reveal's base state is its *finished* state, so the global
+   `prefers-reduced-motion` rule cannot strand content invisible; under reduced
+   motion the lookbook's 340vh spacer collapses to a plain horizontal scroller
+   (3060px to 806px, verified). Verified: axe clean at 1440 and 390, no animated
+   element below opacity 0.95 with reduced motion, `npm run verify` green.
+
+5. **Monochrome override (2026-09-19, owner's explicit decision).** The warm bone,
+   brown-black and garnet palette is withdrawn. The interface is white, black and
+   neutral grey at every system colour preference; the live Nelo product and bridal
+   photography is the only source of colour. Automatic dark mode is intentionally
+   disabled so a dark OS preference cannot turn the requested white storefront brown.
 
 Retained from the bundle without change: media → identity/price → variants → one
 primary action composition; imagery as evidence not decoration; neutral chrome so

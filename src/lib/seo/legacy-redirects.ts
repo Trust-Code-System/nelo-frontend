@@ -3,7 +3,7 @@ import { DEFAULT_MARKET } from '@/lib/vendure/channels';
 /**
  * The Shopify redirect map.
  *
- * This is the single largest risk in the replatform — larger than anything in the redesign.
+ * This is the single largest risk in the replatform - larger than anything in the redesign.
  * Every URL the old store had is in somebody's search index, somebody's bookmarks and
  * somebody's WhatsApp message, and a 404 there is a lost sale plus a lost ranking that takes
  * months to earn back.
@@ -14,7 +14,7 @@ import { DEFAULT_MARKET } from '@/lib/vendure/channels';
  *    A 301 is permanent: browsers and crawlers cache it and stop asking. A 301 whose target
  *    depends on a cookie would therefore be cached with one visitor's market baked in, and
  *    the preference would silently stop working. So these targets are deterministic, and a
- *    visitor who wants the other market uses the switcher in the header — which is a
+ *    visitor who wants the other market uses the switcher in the header - which is a
  *    navigation, visible in the address bar, exactly as the market rules require.
  *
  * 2. **An unmapped legacy path is NOT swept to the home page.** Redirecting everything
@@ -24,7 +24,7 @@ import { DEFAULT_MARKET } from '@/lib/vendure/channels';
  *
  * `/pages/consultation` is in this map even though it is a hard 404 on the live site today.
  * It is linked three times from the current homepage, so it is the one old URL guaranteed to
- * be receiving traffic already — and it now lands somewhere real.
+ * be receiving traffic already - and it now lands somewhere real.
  */
 
 /** Exact old path → new path. Compared after lowercasing and stripping a trailing slash. */
@@ -65,7 +65,7 @@ const EXACT: Readonly<Record<string, string>> = {
 /**
  * Old path prefix → new path prefix, for the two shapes that carry a handle.
  *
- * Shopify also serves a product nested under a collection — `/collections/x/products/y` —
+ * Shopify also serves a product nested under a collection - `/collections/x/products/y` -
  * and that collapses to the product, because the product page is the canonical one either
  * way and the collection adds nothing to it.
  */

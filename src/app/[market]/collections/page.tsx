@@ -4,118 +4,122 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { SiteFooter } from '@/components/SiteFooter';
 import { SiteHeader } from '@/components/SiteHeader';
+import { CollectionsExperience } from '@/features/collections/CollectionsExperience';
 import { marketAlternates } from '@/lib/seo/site';
-import { assetPreview } from '@/lib/vendure/assets';
 import { isMarket } from '@/lib/vendure/channels';
-import { CollectionsDocument, type CollectionsQuery } from '@/lib/vendure/generated/graphql';
-import { catalogueQuery } from '@/lib/vendure/transport';
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ market: string }>;
-}): Promise<Metadata> {
+const COLLECTIONS = [
+  {
+    number: '01',
+    title: 'Linear Summer 26',
+    note: 'The current line. Sculpted colour, long silhouettes and the precision of a Lagos cut.',
+    image: '/editorial/live/linear-tokyo-2400.jpg',
+    alt: 'A turquoise Linear Summer 26 look photographed against deep red.',
+    href: '/shop',
+    className: 'collection-story--lead',
+  },
+  {
+    number: '02',
+    title: 'The 7th Drop',
+    note: 'An anniversary capsule built around presence, movement and occasion dressing.',
+    image: '/catalogue/7th-anniversary-collection/01.jpg',
+    alt: 'The 7th Drop anniversary campaign by NELO Woman.',
+    href: '/products/7th-anniversary-collection',
+    className: '',
+  },
+  {
+    number: '03',
+    title: 'House signatures',
+    note: 'Adele, Bloom, Reign and Nova. Four silhouettes that define the house language.',
+    image: '/editorial/live/adele-02.webp',
+    alt: 'The Adele Set from the NELO Woman house signatures.',
+    href: '/shop',
+    className: '',
+  },
+  {
+    number: '04',
+    title: 'The ceremony edit',
+    note: 'Bridal and occasion pieces that begin with a conversation, never a template.',
+    image: '/catalogue/the-minimalist-bride/01.jpg',
+    alt: 'The Minimalist Bride by NELO Woman.',
+    href: '/products/the-minimalist-bride',
+    className: 'collection-story--wide',
+  },
+] as const;
+
+export async function generateMetadata({ params }: { params: Promise<{ market: string }> }): Promise<Metadata> {
   const { market } = await params;
   if (!isMarket(market)) return {};
   return {
     title: 'Collections',
-    description:
-      'Every Nelo Woman collection, cut in Lagos in UK 6 to 30. Ready to wear, plus bespoke and bridal by commission.',
+    description: 'Explore the NELO Woman campaign archive and current collection stories.',
     alternates: marketAlternates(market, '/collections'),
   };
 }
 
-/** All collections. Top-level only — child collections belong inside their parent. */
-export default async function CollectionsPage({
-  params,
-}: {
-  params: Promise<{ market: string }>;
-}) {
+export default async function CollectionsPage({ params }: { params: Promise<{ market: string }> }) {
   const { market } = await params;
   if (!isMarket(market)) notFound();
 
-  let collections: CollectionsQuery['collections']['items'] = [];
-  let unreachable = false;
-  try {
-    const { data } = await catalogueQuery(CollectionsDocument, {}, market);
-    // Vendure nests every collection under a synthetic root; only top-level ones belong here.
-    collections = data.collections.items.filter(
-      (item) => !item.parent || item.parent.slug === '__root_collection__',
-    );
-  } catch {
-    unreachable = true;
-  }
-
   return (
-    <>
-      <SiteHeader market={market} announcement="Complimentary shipping within Nigeria over ₦150,000" />
-
-      <main className="shell">
-        <div className="phead">
-          <div>
-            <span className="lab">Shop</span>
+    <CollectionsExperience>
+      <SiteHeader market={market} announcement="The NELO Woman collection archive" />
+      <main className="shell collections-page">
+        <header className="collections-intro">
+          <div className="collections-intro__copy">
+            <span className="lab">Campaigns, chapters and house signatures</span>
             <h1>Collections</h1>
+            <p>
+              Shop is where every piece lives. Collections is where each chapter is given its world,
+              its pace and its point of view.
+            </p>
+            <Link href={`/${market}/shop`}>Go straight to the shop <span aria-hidden="true">↗</span></Link>
           </div>
-          {!unreachable ? (
-            <span className="count">
-              {collections.length} {collections.length === 1 ? 'collection' : 'collections'}
-            </span>
-          ) : null}
+          <div className="collections-intro__film" aria-hidden="true">
+            <figure><Image src="/editorial/live/linear-tokyo-2400.jpg" alt="" fill sizes="20vw" priority /></figure>
+            <figure><Image src="/editorial/live/adele-02.webp" alt="" fill sizes="20vw" priority /></figure>
+            <figure><Image src="/editorial/live/bloom-02.webp" alt="" fill sizes="20vw" priority /></figure>
+          </div>
+          <span className="collections-intro__edition num">ARCHIVE / 01—04</span>
+        </header>
+
+        <div className="collections-index" aria-hidden="true">
+          <span className="lab">The archive</span>
+          <span className="num">04 chapters / Lagos</span>
         </div>
 
-        <section style={{ paddingBlock: 'var(--s7)' }}>
-          {unreachable ? (
-            <div className="empty">
-              <span className="lab">Temporarily unavailable</span>
-              <h2>We cannot load the collections right now</h2>
-              <p>This is our side, not yours. The atelier is unaffected.</p>
-              <Link className="btn-q" href={`/${market}/atelier`}>
-                Visit the atelier
+        <div className="collections-grid">
+          {COLLECTIONS.map((collection) => (
+            <article className={`collection-story ${collection.className}`} key={collection.title}>
+              <Link href={`/${market}${collection.href}`}>
+                <div className="collection-story__image">
+                  <Image
+                    src={collection.image}
+                    alt={collection.alt}
+                    fill
+                    sizes={collection.className.includes('lead') ? '(max-width: 760px) 100vw, 66vw' : '(max-width: 760px) 100vw, 40vw'}
+                  />
+                  <span className="collection-story__number num">{collection.number}</span>
+                  <span className="collection-story__action">Explore <span aria-hidden="true">↗</span></span>
+                </div>
+                <div className="collection-story__copy">
+                  <span className="lab">Chapter {collection.number}</span>
+                  <h2>{collection.title}</h2>
+                  <p>{collection.note}</p>
+                  <span className="collection-story__text-link">Enter the chapter <span aria-hidden="true">↗</span></span>
+                </div>
               </Link>
-            </div>
-          ) : (
-            <div className="grid g4">
-              {collections.map((collection) => (
-                <Link
-                  className="card"
-                  key={collection.id}
-                  href={`/${market}/collections/${collection.slug}`}
-                >
-                  <figure>
-                    <div className="ph framed">
-                      {collection.featuredAsset ? (
-                        <Image
-                          src={assetPreview(collection.featuredAsset.preview, {
-                            width: 700,
-                            height: 933,
-                          })}
-                          // Deliberately empty. The collection's name is the link text
-                          // directly beneath, so alt text would make a screen reader read
-                          // the same words twice — the image is decorative here even though
-                          // it is the visual point of the card.
-                          alt=""
-                          width={700}
-                          height={933}
-                          sizes="(max-width: 760px) 50vw, 25vw"
-                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                        />
-                      ) : null}
-                    </div>
-                    <figcaption>
-                      <div className="meta">
-                        <h2>{collection.name}</h2>
-                      </div>
-                    </figcaption>
-                  </figure>
-                </Link>
-              ))}
-            </div>
-          )}
+            </article>
+          ))}
+        </div>
+
+        <section className="collections-coda">
+          <span className="lab">The complete wardrobe</span>
+          <h2>Every chapter, in one index.</h2>
+          <Link className="btn" href={`/${market}/shop`}>Shop all 77 pieces</Link>
         </section>
-
       </main>
-
       <SiteFooter market={market} />
-    </>
+    </CollectionsExperience>
   );
 }

@@ -1,4 +1,4 @@
-# Cart — Vendure Shop API.
+# Cart - Vendure Shop API.
 #
 # Every mutation here returns a union. `__typename` and the ErrorResult members are selected
 # deliberately so the generated types force an exhaustive branch: HTTP 200 is not success,

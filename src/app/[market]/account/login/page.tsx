@@ -36,8 +36,12 @@ export default async function LoginPage({
   if (customer) redirect(next);
 
   return (
-    <AccountShell market={market} title="Sign in" eyebrow="Account" showNav={false}>
+    <AccountShell market={market} title="Sign in" eyebrow="Account" showNav={false} variant="auth">
       <AuthLayout
+        market={market}
+        mode="login"
+        title="Welcome back"
+        intro="Return to your measurements, fittings and orders."
         aside={
           <>
             <span className="lab">Do you need an account?</span>

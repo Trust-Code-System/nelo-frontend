@@ -1,7 +1,7 @@
 /**
  * Account boundary.
  *
- * Everything below this segment is customer data — orders, addresses, measurements,
+ * Everything below this segment is customer data - orders, addresses, measurements,
  * appointments. The backend context requires it to stay private and uncached across users,
  * and never to appear in static rendering output.
  *

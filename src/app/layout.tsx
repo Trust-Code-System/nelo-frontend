@@ -1,6 +1,9 @@
 import type { Metadata } from 'next';
 import { Instrument_Sans, IBM_Plex_Mono } from 'next/font/google';
 import { siteUrl } from '@/lib/seo/site';
+import { AdaptiveCursor } from '@/components/AdaptiveCursor';
+import { MotionProvider } from '@/components/motion/MotionProvider';
+import 'lenis/dist/lenis.css';
 import './globals.css';
 
 // Two families only, per STYLESEED.md. Inter is banned: the outgoing Shopify site used it
@@ -24,7 +27,7 @@ export const metadata: Metadata = {
   // NELO_SITE_URL per environment; the fallback is localhost, deliberately, because a
   // canonical pointing at the wrong host is worse than one pointing at an obvious local one.
   metadataBase: new URL(siteUrl()),
-  title: { default: 'NELO WOMAN', template: '%s — NELO WOMAN' },
+  title: { default: 'NELO WOMAN', template: '%s - NELO WOMAN' },
   description: 'Statement femininity for the modern woman. Cut in Lagos, sizes 6 to 30.',
   openGraph: {
     siteName: 'NELO WOMAN',
@@ -41,7 +44,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${sans.variable} ${mono.variable}`}>
-      <body>{children}</body>
+      <body>
+        <MotionProvider>{children}</MotionProvider>
+        <AdaptiveCursor />
+      </body>
     </html>
   );
 }

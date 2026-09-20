@@ -11,7 +11,7 @@
  *
  * A USD catalogue proves the Channel prices in USD. It does NOT prove the Paystack account
  * is able to accept USD. Until someone confirms that with the payment provider, taking an
- * international order would mean either failing at the payment step or — far worse —
+ * international order would mean either failing at the payment step or - far worse -
  * charging the naira figure against a dollar price.
  *
  * So international checkout is gated by default. The catalogue, the bag and the atelier all
@@ -29,7 +29,7 @@ export function internationalCheckoutEnabled(): boolean {
  *
  * `../vendure-dev` runs Vendure's `dummy-payment-handler`, which authorises without taking
  * money. Wiring `addPaymentToOrder` to it is what makes the whole checkout testable today,
- * before the Paystack contract exists — but it must never be reachable in a deployment that
+ * before the Paystack contract exists - but it must never be reachable in a deployment that
  * faces customers, so it is off unless explicitly switched on.
  *
  * Set `NELO_DEV_PAYMENT=enabled` in `.env.local` only. Every screen that can reach this path

@@ -24,7 +24,7 @@ export const metadata: Metadata = { title: 'Your addresses' };
  *
  * Every control here is a real form posting to a Server Action, and the list is
  * server-rendered from Vendure after each one. There is no client-side copy of the address
- * list to drift out of date, and an address saved here is the same record checkout reads —
+ * list to drift out of date, and an address saved here is the same record checkout reads -
  * which is the actual acceptance criterion, not that the form submits.
  */
 export default async function AddressesPage({

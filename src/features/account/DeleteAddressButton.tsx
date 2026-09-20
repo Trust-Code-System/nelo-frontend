@@ -9,7 +9,7 @@ import type { Market } from '@/lib/vendure/channels';
  *
  * The confirmation is local state in this island rather than a dialog: a two-step button is
  * enough to stop a mis-click, and it needs no focus trap to get right. Without JavaScript
- * the form still posts — the first click submits directly, which is the correct fallback
+ * the form still posts - the first click submits directly, which is the correct fallback
  * for a control the customer deliberately pressed.
  */
 export function DeleteAddressButton({

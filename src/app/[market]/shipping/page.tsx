@@ -32,10 +32,10 @@ export default async function ShippingPage({
           <span className="lab">Indicative times</span>
           <h2>From dispatch</h2>
           <ul>
-            <li>Lagos — 2 to 3 days</li>
-            <li>Rest of Nigeria — 4 to 6 days</li>
-            <li>International — 7 to 12 days</li>
-            <li>Cut to measure — add 10 to 14 days before dispatch</li>
+            <li>Lagos - 2 to 3 days</li>
+            <li>Rest of Nigeria - 4 to 6 days</li>
+            <li>International - 7 to 12 days</li>
+            <li>Cut to measure - add 10 to 14 days before dispatch</li>
           </ul>
         </>
       }
@@ -51,7 +51,7 @@ export default async function ShippingPage({
       <h2>In stock versus cut to measure</h2>
       <p>
         A piece shown as ready to ship leaves us within one working day. A piece cut to
-        measure — either because your size is not in stock or because you asked for it — takes
+        measure - either because your size is not in stock or because you asked for it - takes
         10 to 14 days in the atelier before the delivery times alongside start. The product
         page tells you which you are buying before you add it to your bag.
       </p>
@@ -65,7 +65,7 @@ export default async function ShippingPage({
       <p>
         International orders may attract import duty in the destination country. Where we can
         collect it at checkout we do, and it appears in the total before you pay. Where we
-        cannot, it is charged by the carrier on delivery and is the recipient&rsquo;s — that is
+        cannot, it is charged by the carrier on delivery and is the recipient&rsquo;s - that is
         set by your country, not by us.
       </p>
 

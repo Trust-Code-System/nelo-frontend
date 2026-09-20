@@ -4,7 +4,7 @@ import type { SearchInput, SortOrder } from '@/lib/vendure/generated/graphql';
  * Filters, sort and pagination live in the URL.
  *
  * That is deliberate: a filtered view is shareable, survives a refresh, and the back button
- * behaves. It also keeps this state out of the client bundle entirely — the grid stays a
+ * behaves. It also keeps this state out of the client bundle entirely - the grid stays a
  * Server Component and only the controls are links.
  */
 

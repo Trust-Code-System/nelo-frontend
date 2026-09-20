@@ -1,9 +1,9 @@
 /**
- * Fig. 01 — where the seven recorded measurements are taken.
+ * Fig. 01 - where the seven recorded measurements are taken.
  *
  * Lifted from `design/mockups/home.html` so the size guide and the home page draw the same
- * figure rather than two drawings that drift apart. `currentColor` throughout, so it inverts
- * correctly in dark mode without a second copy.
+ * figure rather than two drawings that drift apart. `currentColor` throughout, so it inherits
+ * the surface colour and can move between the paper homepage panel and dark care-page cards.
  *
  * The `aria-label` carries the whole point of the image for anyone who cannot see it; the
  * size guide's own table then states each measurement in words, so the figure is support
@@ -15,7 +15,7 @@ export function MeasurementDiagram() {
       viewBox="0 0 340 258"
       role="img"
       aria-label="Front-view garment block showing where each of the seven recorded measurements is taken: shoulder across the back, bust at the fullest point, waist at the narrowest, hip at the fullest, sleeve from shoulder to wrist, inseam from crotch to ankle, and height from crown to floor."
-      style={{ width: '100%', height: 'auto', color: 'var(--ink)' }}
+      style={{ width: '100%', height: 'auto' }}
     >
       <g fill="none" stroke="currentColor" strokeWidth="1">
         {/* block: head, shoulders, bodice, skirt */}
@@ -30,7 +30,7 @@ export function MeasurementDiagram() {
         <path d="M40 16v226M35 16h10M35 242h10" />
       </g>
       {/* A `font-family` presentation attribute does not resolve a CSS custom property, so
-          the mono family comes through `style` instead — otherwise these labels silently
+          the mono family comes through `style` instead - otherwise these labels silently
           render in the sans and the drawing stops matching the rest of the chrome. */}
       <g
         fill="currentColor"

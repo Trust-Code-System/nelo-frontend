@@ -8,7 +8,7 @@
  *   http://localhost:3000/assets/preview\71\derick-david__preview.jpg
  *
  * A backslash is not a path separator in a URL, so the request 404s. This is a development
- * artifact — production Vendure runs on Linux and returns forward slashes — but a malformed
+ * artifact - production Vendure runs on Linux and returns forward slashes - but a malformed
  * URL is worth normalising rather than rendering a broken image either way.
  *
  * Nothing else about the URL is rewritten: the host stays whatever Vendure reports, so

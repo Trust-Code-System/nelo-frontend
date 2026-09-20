@@ -8,7 +8,7 @@
  * Never blindly retry a mutation after an ambiguous response.
  */
 
-/** 1 — network / HTTP. Safe reads may be retried with a timeout; mutations may not. */
+/** 1 - network / HTTP. Safe reads may be retried with a timeout; mutations may not. */
 export class VendureTransportError extends Error {
   readonly retryableForReads = true;
   constructor(
@@ -21,7 +21,7 @@ export class VendureTransportError extends Error {
   }
 }
 
-/** 2 — GraphQL top-level `errors`. Usually our bug: a malformed document or bad variables.
+/** 2 - GraphQL top-level `errors`. Usually our bug: a malformed document or bad variables.
  *  Not actionable by the customer; log it, show a generic recovery. */
 export class VendureGraphQLError extends Error {
   readonly retryableForReads = false;
@@ -40,7 +40,7 @@ export type GraphQLErrorShape = {
   extensions?: Record<string, unknown>;
 };
 
-/** 3 — a typed result union from Vendure. This IS actionable: show the business message. */
+/** 3 - a typed result union from Vendure. This IS actionable: show the business message. */
 export class VendureResultError extends Error {
   readonly retryableForReads = false;
   constructor(
@@ -55,7 +55,7 @@ export class VendureResultError extends Error {
 
 /**
  * Narrow a Vendure union result. Select `__typename` on every union member so this can
- * branch exhaustively — a result whose `__typename` is missing is a query bug, not a
+ * branch exhaustively - a result whose `__typename` is missing is a query bug, not a
  * reason to assume success.
  */
 export type VendureResult<TSuccess extends { __typename?: string }> =

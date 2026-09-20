@@ -6,7 +6,7 @@ import type { BespokeProject, MeasurementProfile } from './types';
  * These exist so the Atelier UI can be built and reviewed before the customer-facing
  * resolvers are written. Every screen consuming them must show the fixture banner. When the
  * real contract lands (see contracts/atelier-shop-api.proposal.graphql), this file is
- * deleted — not adapted.
+ * deleted - not adapted.
  */
 
 /** Steps shown on the public intake page. */
@@ -23,7 +23,7 @@ export const PROJECT_STAGES = [
  * A bridal commission mid-production: two garments at different stages, which is the whole
  * reason the tracker needs two levels rather than one progress bar.
  *
- * Measurements are real conversions — 34.00 in is 863.60 mm.
+ * Measurements are real conversions - 34.00 in is 863.60 mm.
  */
 const BRIDAL: BespokeProject = {
   id: 'proj_8fa21c',
@@ -73,7 +73,7 @@ const BRIDAL: BespokeProject = {
       purpose: 'consultation',
       context: 'bridal',
       locationMode: 'inStore',
-      location: 'Lagos atelier — Victoria Island',
+      location: 'Lagos atelier - Victoria Island',
       scheduledAt: '2026-03-11T10:00:00+01:00',
       status: 'completed',
       isCancellable: false,
@@ -83,7 +83,7 @@ const BRIDAL: BespokeProject = {
       purpose: 'fitting',
       context: 'bridal',
       locationMode: 'inStore',
-      location: 'Lagos atelier — Victoria Island',
+      location: 'Lagos atelier - Victoria Island',
       scheduledAt: '2026-05-14T11:00:00+01:00',
       status: 'completed',
       isCancellable: false,
@@ -93,7 +93,7 @@ const BRIDAL: BespokeProject = {
       purpose: 'fitting',
       context: 'bridal',
       locationMode: 'inStore',
-      location: 'Lagos atelier — Victoria Island',
+      location: 'Lagos atelier - Victoria Island',
       scheduledAt: '2026-09-29T14:30:00+01:00',
       status: 'confirmed',
       isCancellable: true,

@@ -8,7 +8,7 @@ import type { Market } from '@/lib/vendure/channels';
 /**
  * Delivery method.
  *
- * The options are Vendure's `eligibleShippingMethods` for this order as it stands — not a
+ * The options are Vendure's `eligibleShippingMethods` for this order as it stands - not a
  * list this storefront keeps. Eligibility is recalculated by Vendure against the address and
  * the contents, so an option that was there before the address changed may be gone now, and
  * that is correct rather than a bug to paper over.
@@ -63,7 +63,7 @@ export function ShippingChoice({
               />
               <span>
                 <span className="t">
-                  {method.name} — <span className="num">{method.price}</span>
+                  {method.name} - <span className="num">{method.price}</span>
                 </span>
                 {method.description ? <span className="d">{method.description}</span> : null}
               </span>

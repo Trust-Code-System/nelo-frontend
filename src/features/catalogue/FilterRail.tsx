@@ -11,7 +11,7 @@ type FacetValueResult = SearchCatalogueQuery['search']['facetValues'][number];
 /**
  * Facet rail.
  *
- * Every control is a link, so this stays a Server Component — no filter state reaches the
+ * Every control is a link, so this stays a Server Component - no filter state reaches the
  * browser, and a filtered view can be shared or bookmarked. Counts come from Vendure's own
  * facet aggregation rather than being counted here.
  */

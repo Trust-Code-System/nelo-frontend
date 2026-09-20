@@ -1,4 +1,4 @@
-# Checkout and order history — Vendure Shop API.
+# Checkout and order history - Vendure Shop API.
 #
 # The order of operations is Vendure's, not ours: set the customer, set the shipping address,
 # read ELIGIBLE shipping methods (never a hardcoded list), set one, transition to
@@ -8,11 +8,11 @@
 #
 #   1. Every mutation re-reads the Order it returns through the `OrderDetail` fragment, so
 #      the storefront always renders Vendure's totals rather than its own arithmetic. The
-#      browser never supplies a payable amount — `addPaymentToOrder` takes no amount at all,
+#      browser never supplies a payable amount - `addPaymentToOrder` takes no amount at all,
 #      which is the correct design.
 #   2. Every union selects `__typename` and its ErrorResult members. `transitionOrderToState`
 #      is the sharpest example: it is NULLABLE, and a null result means the order was already
-#      in the requested state — which is not the same as the transition having succeeded now.
+#      in the requested state - which is not the same as the transition having succeeded now.
 
 fragment OrderDetailLine on OrderLine {
   id
@@ -241,7 +241,7 @@ mutation TransitionOrderToState($state: String!) {
 }
 
 # No amount is passed, and none could be: Vendure charges its own `totalWithTax`. `metadata`
-# is handler-specific — for the development dummy handler it is the decline/error switches,
+# is handler-specific - for the development dummy handler it is the decline/error switches,
 # and for Paystack it will be whatever that contract specifies once it exists.
 mutation AddPaymentToOrder($input: PaymentInput!) {
   addPaymentToOrder(input: $input) {

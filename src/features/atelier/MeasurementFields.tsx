@@ -11,7 +11,7 @@ import {
 } from '@/lib/atelier/measurements';
 
 /**
- * Measurement intake. A client island — the rest of the page is server-rendered.
+ * Measurement intake. A client island - the rest of the page is server-rendered.
  *
  * What the customer types is preserved verbatim and submitted as a decimal STRING with an
  * explicit unit. The millimetre figure shown beneath each row is a preview of what the
@@ -58,7 +58,7 @@ export function MeasurementFields({ initial }: { initial?: MeasurementInitial })
                 inputMode="decimal"
                 autoComplete="off"
                 value={row.value}
-                placeholder="—"
+                placeholder="-"
                 aria-describedby={describedBy}
                 aria-invalid={result.state === 'invalid' || result.state === 'implausible'}
                 onChange={(event) => update(code, { value: event.target.value })}
@@ -96,7 +96,7 @@ export function MeasurementFields({ initial }: { initial?: MeasurementInitial })
       </div>
 
       <p className="mnote">
-        Enter quarter and eighth inches as decimals — 23.25, not 23¼. We record to 0.01 mm, so
+        Enter quarter and eighth inches as decimals - 23.25, not 23¼. We record to 0.01 mm, so
         a quarter inch is stored as 6.35 mm and never rounded. Leave a field blank if you are
         not sure: blank means not confirmed, not zero.
       </p>

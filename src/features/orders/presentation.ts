@@ -3,12 +3,12 @@ import { channelFor, type Market } from '@/lib/vendure/channels';
 /**
  * Turning Vendure's order state into something a customer can read.
  *
- * Vendure's state machine is the authority and is never re-derived here — no inferring
+ * Vendure's state machine is the authority and is never re-derived here - no inferring
  * "shipped" from a fulfilment count, no computing a payment state from a payment record.
  * This maps the state Vendure reports onto words, and nothing else.
  *
  * An unrecognised state falls through to the raw value rather than to a friendly guess. If
- * the backend adds a state — or a plugin introduces one — showing `AwaitingFabric` is
+ * the backend adds a state - or a plugin introduces one - showing `AwaitingFabric` is
  * honest; showing "Processing" because the map had no entry is not.
  */
 
@@ -79,9 +79,9 @@ export function isSettledState(state: string): boolean {
  * being explicit about which clock the date belongs to.
  */
 export function formatOrderDate(iso: string | null | undefined, market: Market): string {
-  if (!iso) return '—';
+  if (!iso) return '-';
   const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return '—';
+  if (Number.isNaN(date.getTime())) return '-';
   return new Intl.DateTimeFormat(channelFor(market).locale, {
     day: '2-digit',
     month: 'short',

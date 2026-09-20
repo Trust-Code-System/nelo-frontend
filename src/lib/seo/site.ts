@@ -7,7 +7,7 @@ import { MARKETS, type Market } from '@/lib/vendure/channels';
  * the browser needs it, and every public env var is one more thing to audit.
  *
  * The fallback is localhost rather than a guess at the production domain. A canonical tag
- * pointing at the wrong host is worse than one pointing at an obviously local address — the
+ * pointing at the wrong host is worse than one pointing at an obviously local address - the
  * first quietly hands your ranking to a domain you do not control, the second is caught the
  * first time anyone looks.
  */
@@ -23,7 +23,7 @@ export function absolute(path: string): string {
 /**
  * The `alternates` block for a page that exists in both markets.
  *
- * `canonical` is the market's own URL — the two markets are genuinely different pages, with
+ * `canonical` is the market's own URL - the two markets are genuinely different pages, with
  * different currencies and different eligibility, so neither should claim to be the other.
  * `languages` then declares them as alternates of each other so a crawler can serve the
  * right one instead of picking.

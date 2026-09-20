@@ -47,7 +47,7 @@ type RequestOptions = {
 export type VendureResponse<TData> = {
   data: TData;
   /** Present when Vendure created or rotated the session. Persist it in a Server Action or
-   *  Route Handler — never during Server Component render. */
+   *  Route Handler - never during Server Component render. */
   authToken?: string;
 };
 
@@ -64,7 +64,7 @@ export async function vendureRequest<TData, TVariables extends object = object>(
     'vendure-token': channelToken(market),
   };
 
-  // An anonymous read must never attach session credentials — that is what makes it
+  // An anonymous read must never attach session credentials - that is what makes it
   // cacheable without leaking one customer's response to another.
   if (!anonymous) {
     const session = await readSessionToken();

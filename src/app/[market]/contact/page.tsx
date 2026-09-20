@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ContentPage } from '@/features/content/ContentPage';
 import { contentMetadata } from '@/features/content/metadata';
+import { STORE_CONTACT } from '@/lib/contact';
 import { isMarket } from '@/lib/vendure/channels';
 
 export function generateMetadata({ params }: { params: Promise<{ market: string }> }) {
@@ -13,13 +14,6 @@ export function generateMetadata({ params }: { params: Promise<{ market: string 
   });
 }
 
-/**
- * Contact.
- *
- * The real email address, phone number and street address are deliberately absent. They are
- * Nelo's to supply, and a plausible-looking placeholder on a published page is worse than an
- * obvious gap — somebody will try to use it. The gap is marked so it cannot ship unnoticed.
- */
 export default async function ContactPage({
   params,
 }: {
@@ -38,27 +32,32 @@ export default async function ContactPage({
       aside={
         <>
           <span className="lab">Direct</span>
-          <h2>Details to confirm</h2>
+          <h2>Contact details</h2>
           <ul>
-            <li>
-              Email, phone and the atelier address are not published here yet — see the note
-              on this page.
-            </li>
+            <li><a href={`mailto:${STORE_CONTACT.email}`}>{STORE_CONTACT.email}</a></li>
+            <li><a href={`tel:${STORE_CONTACT.phoneHref}`}>{STORE_CONTACT.phoneDisplay}</a></li>
+            <li>{STORE_CONTACT.streetAddress}, {STORE_CONTACT.area}, {STORE_CONTACT.city}</li>
             <li>Consultations: in the atelier, at your address, or by video</li>
             <li>Order questions: have your order code ready</li>
           </ul>
         </>
       }
     >
-      <p className="notice notice-error">
-        This page is missing its real contact details. The email address, phone number,
-        opening hours and the atelier&rsquo;s street address have to come from Nelo. They are
-        left blank on purpose rather than filled with something that looks right.
-      </p>
+      <h2>Visit the Lagos store</h2>
+      <address className="contact-details">
+        <strong>{STORE_CONTACT.name}</strong>
+        <span>{STORE_CONTACT.streetAddress}</span>
+        <span>{STORE_CONTACT.area}, {STORE_CONTACT.city}, {STORE_CONTACT.country}</span>
+        <a href={`tel:${STORE_CONTACT.phoneHref}`}>{STORE_CONTACT.phoneDisplay}</a>
+        <a href={`mailto:${STORE_CONTACT.email}`}>{STORE_CONTACT.email}</a>
+        <a href={STORE_CONTACT.instagram} rel="noreferrer" target="_blank">
+          Follow @nelowoman on Instagram ↗
+        </a>
+      </address>
 
       <h2>About an order</h2>
       <p>
-        Have your order code ready — it is on your confirmation email and at the top of the
+        Have your order code ready - it is on your confirmation email and at the top of the
         order in <Link href={`/${market}/account/orders`}>your account</Link>. If you checked
         out as a guest, the code is all we need.
       </p>
@@ -80,7 +79,7 @@ export default async function ContactPage({
       <h2>Alterations and returns</h2>
       <p>
         Alterations are free within 30 days of delivery. Cut-to-measure pieces are returnable
-        for alteration rather than refund — <Link href={`/${market}/returns`}>returns</Link>{' '}
+        for alteration rather than refund - <Link href={`/${market}/returns`}>returns</Link>{' '}
         explains where the line is and why.
       </p>
 

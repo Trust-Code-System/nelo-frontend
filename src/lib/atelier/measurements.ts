@@ -2,7 +2,7 @@
  * Measurement handling.
  *
  * The backend stores DECIMAL MILLIMETRES TO TWO PLACES. Not integers.
- * A quarter inch is 6.35 mm — rounding it to 6 mm destroys approved precision, and mapping
+ * A quarter inch is 6.35 mm - rounding it to 6 mm destroys approved precision, and mapping
  * these values to GraphQL `Int` would do the same.
  *
  * So the frontend never converts-and-submits a number. It captures the typed decimal as a
@@ -30,12 +30,12 @@ export type MeasurementUnit = 'inch' | 'centimetre';
 /** What the customer typed, preserved verbatim. This is what gets submitted. */
 export type MeasurementInput = {
   code: MeasurementCode;
-  /** Decimal string exactly as entered — "23.25", never a float. */
+  /** Decimal string exactly as entered - "23.25", never a float. */
   value: string;
   unit: MeasurementUnit;
 };
 
-/** What the backend returns. `null` means NOT CONFIRMED — it does not mean zero. */
+/** What the backend returns. `null` means NOT CONFIRMED - it does not mean zero. */
 export type MeasurementValue = {
   code: MeasurementCode;
   millimetres: string | null;
@@ -69,7 +69,7 @@ const MM_PER_CM = 10;
  *
  * A float round-trip loses the contract: `0.5005 * 10` is 5.004999999999999 in IEEE754,
  * which rounds half-up to 5.00 instead of the correct 5.01. Since these values ARE decimals
- * — that is the whole point of the backend storing decimal millimetres — the conversion is
+ * - that is the whole point of the backend storing decimal millimetres - the conversion is
  * done on the digits with BigInt and only rendered as a string.
  *
  * 1 inch = 25.4 mm is applied as the exact rational 254/10; 1 cm = 10 mm as 10/1.
@@ -114,7 +114,7 @@ function toFixed2(numerator: bigint, scale: number): string {
 }
 
 /**
- * Display only — converts stored millimetres back into the customer's unit.
+ * Display only - converts stored millimetres back into the customer's unit.
  * Float division is acceptable here because the result is immediately rendered to two
  * decimals and is never submitted. The stored value remains authoritative.
  */
@@ -146,7 +146,7 @@ export type ValidationResult =
 
 /**
  * Plausible ranges are GUIDANCE, not frontend authority. An out-of-range value is offered
- * for correction or staff review — it is never silently clamped, and the backend remains
+ * for correction or staff review - it is never silently clamped, and the backend remains
  * the validator.
  */
 const PLAUSIBLE_MM: Readonly<Record<MeasurementCode, readonly [number, number]>> = {
@@ -166,7 +166,7 @@ export function validate(code: MeasurementCode, value: string, unit: Measurement
   if (parsed === null) {
     return {
       state: 'invalid',
-      reason: 'Enter a number, using a decimal point for part inches — 23.25, not 23¼.',
+      reason: 'Enter a number, using a decimal point for part inches - 23.25, not 23¼.',
     };
   }
 

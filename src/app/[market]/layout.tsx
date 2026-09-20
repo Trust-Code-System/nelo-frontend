@@ -4,7 +4,7 @@ import { isMarket, MARKETS, type Market } from '@/lib/vendure/channels';
 /**
  * Market boundary.
  *
- * An unrecognised segment is a 404 — never a silent redirect to the default Channel.
+ * An unrecognised segment is a 404 - never a silent redirect to the default Channel.
  * Geographic detection may suggest a market elsewhere; it never resolves one here.
  */
 

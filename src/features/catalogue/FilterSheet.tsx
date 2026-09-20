@@ -10,7 +10,7 @@ import { useEffect, useId, useRef, useState } from 'react';
  * rail's breakpoint this becomes a disclosure: one button, and a panel over the page.
  *
  * The rail itself stays a Server Component and is passed in as children. This island owns
- * open/closed and nothing else — no filter state reaches the browser, and the links inside
+ * open/closed and nothing else - no filter state reaches the browser, and the links inside
  * are still ordinary links, so a filtered view remains shareable.
  *
  * Above the breakpoint the button is hidden by CSS and the panel is the static rail, so
@@ -39,7 +39,7 @@ export function FilterSheet({
     }
     document.addEventListener('keydown', onKeyDown);
 
-    // The panel covers the page, so the page behind it must not scroll — otherwise closing
+    // The panel covers the page, so the page behind it must not scroll - otherwise closing
     // the sheet returns you somewhere you did not navigate to.
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';

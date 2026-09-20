@@ -149,7 +149,7 @@ export default async function CheckoutPage({
   }
 
   // What Vendure will actually accept as payment for THIS order. Read only on review, and
-  // read rather than assumed — an eligibility checker can rule a method out per order.
+  // read rather than assumed - an eligibility checker can rule a method out per order.
   let paymentMethods: { code: string; name: string; isEligible: boolean; message: string | null }[] =
     [];
   if (step === 'review') {
@@ -204,7 +204,7 @@ export default async function CheckoutPage({
             <>
               <h2 className="ordsub">Your details</h2>
               <p className="lead">
-                We need an email address to send your receipt to. You do not need an account —{' '}
+                We need an email address to send your receipt to. You do not need an account -{' '}
                 <Link href={`/${market}/account/login?next=${encodeURIComponent(`/${market}/checkout`)}`}>
                   sign in
                 </Link>{' '}
@@ -257,7 +257,7 @@ export default async function CheckoutPage({
               {defaultAddress ? (
                 <p className="lead">
                   Your saved address is filled in below. Changing it here changes this order
-                  only — your address book is edited from{' '}
+                  only - your address book is edited from{' '}
                   <Link href={`/${market}/account/addresses`}>your account</Link>.
                 </p>
               ) : null}
@@ -362,7 +362,7 @@ export default async function CheckoutPage({
 
           <p className="mnote">
             Every figure here is calculated by the store. Your browser never sends a total,
-            and it could not — the payment call has no amount field.
+            and it could not - the payment call has no amount field.
           </p>
 
           <Link className="btn-q" href={`/${market}/cart`} style={{ marginTop: 'var(--s4)' }}>
@@ -403,18 +403,18 @@ function ReviewStep({
       <dl className="ordmeta">
         <div className="spec">
           <dt>Email</dt>
-          <dd>{order.customer?.emailAddress ?? '—'}</dd>
+          <dd>{order.customer?.emailAddress ?? '-'}</dd>
         </div>
         <div className="spec">
           <dt>Deliver to</dt>
           <dd>
             {[address?.streetLine1, address?.city, address?.country].filter(Boolean).join(', ') ||
-              '—'}
+              '-'}
           </dd>
         </div>
         <div className="spec">
           <dt>Method</dt>
-          <dd>{order.shippingLines[0]?.shippingMethod.name ?? '—'}</dd>
+          <dd>{order.shippingLines[0]?.shippingMethod.name ?? '-'}</dd>
         </div>
       </dl>
 
@@ -483,12 +483,15 @@ function ReviewStep({
 function Frame({ market, children }: { market: Market; children: React.ReactNode }) {
   return (
     <>
-      <SiteHeader market={market} announcement="Checkout — every total is calculated by the store" />
+      <SiteHeader market={market} announcement="Checkout - every total is calculated by the store" />
       <main className="shell">
         <div className="proj-head">
           <div>
             <span className="lab">Checkout</span>
             <h1>Complete your order</h1>
+            <p className="masthead-copy">
+              Confirm your delivery details and payment in a few considered steps.
+            </p>
           </div>
         </div>
         <section className="section-gap">{children}</section>
@@ -515,7 +518,7 @@ function Gated({ market }: { market: Market }) {
         <p>
           You can browse and price everything in US dollars, and the atelier takes
           international commissions today. What we have not yet confirmed is that our payment
-          provider can settle in dollars — so rather than charge you in naira without saying
+          provider can settle in dollars - so rather than charge you in naira without saying
           so, we have left this closed.
         </p>
         <div className="acts-row">

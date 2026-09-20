@@ -4,12 +4,20 @@ import { notFound } from 'next/navigation';
 import { SiteFooter } from '@/components/SiteFooter';
 import { SiteHeader } from '@/components/SiteHeader';
 import { ProductGallery, type GalleryImage } from '@/features/catalogue/ProductGallery';
+import { garmentTransitionName, ProductGrid } from '@/features/catalogue/ProductGrid';
+import { NeloProductProfile } from '@/features/catalogue/NeloProductProfile';
+import { findNeloProduct } from '@/features/catalogue/nelo';
 import { VariantSelector } from '@/features/catalogue/VariantSelector';
 import { marketAlternates } from '@/lib/seo/site';
 import { breadcrumbJsonLd, jsonLdScript, productJsonLd } from '@/lib/seo/structured-data';
 import { assetPreview, assetUrl } from '@/lib/vendure/assets';
 import { formatMoney, isMarket, type Market } from '@/lib/vendure/channels';
-import { ProductBySlugDocument, type ProductBySlugQuery } from '@/lib/vendure/generated/graphql';
+import {
+  ProductBySlugDocument,
+  SearchCatalogueDocument,
+  type ProductBySlugQuery,
+  type SearchCatalogueQuery,
+} from '@/lib/vendure/generated/graphql';
 import { catalogueQuery } from '@/lib/vendure/transport';
 import { display, LABELS } from '@/lib/atelier/measurements';
 import { PROFILES } from '@/features/atelier/fixtures';
@@ -25,6 +33,22 @@ async function loadProduct(slug: string, market: Market): Promise<Product | null
   }
 }
 
+async function loadRecommendations(
+  currentSlug: string,
+  market: Market,
+): Promise<SearchCatalogueQuery['search']['items']> {
+  try {
+    const { data } = await catalogueQuery(
+      SearchCatalogueDocument,
+      { input: { groupByProduct: true, take: 8, skip: 0 } },
+      market,
+    );
+    return data.search.items.filter((item) => item.slug !== currentSlug).slice(0, 4);
+  } catch {
+    return [];
+  }
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -32,12 +56,29 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { market, slug } = await params;
   if (!isMarket(market)) return {};
+  const neloProduct = findNeloProduct(slug);
+  if (neloProduct) {
+    return {
+      title: neloProduct.title,
+      description:
+        neloProduct.description ||
+        `${neloProduct.title}, designed and cut in Lagos by NELO Woman.`,
+      alternates: marketAlternates(market, `/products/${slug}`),
+      openGraph: {
+        title: neloProduct.title,
+        description:
+          neloProduct.description || `${neloProduct.title}, designed and cut in Lagos.`,
+        type: 'website',
+        images: neloProduct.images[0] ? [{ url: neloProduct.images[0].src }] : [],
+      },
+    };
+  }
   const product = await loadProduct(slug, market);
   if (!product) return {};
 
   const description = product.description
     ? product.description.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 300)
-    : `${product.name} — cut in Lagos, UK 6 to 30.`;
+    : `${product.name} - cut in Lagos, UK 6 to 30.`;
   const image = product.featuredAsset ?? product.assets[0];
 
   return {
@@ -62,7 +103,7 @@ export async function generateMetadata({
  * Composition follows the commerce grammar: media, then identity and price, then variants,
  * then one primary action, then the detail. There is exactly one CTA on this page.
  *
- * The measurement panel is the differentiator and is still FIXTURE-backed — there is no
+ * The measurement panel is the differentiator and is still FIXTURE-backed - there is no
  * Atelier API to read a real profile from, so it is labelled as such rather than implied to
  * be the customer's own data.
  */
@@ -74,7 +115,13 @@ export default async function ProductPage({
   const { market, slug } = await params;
   if (!isMarket(market)) notFound();
 
-  const product = await loadProduct(slug, market);
+  const neloProduct = findNeloProduct(slug);
+  if (neloProduct) return <NeloProductProfile product={neloProduct} market={market} />;
+
+  const [product, recommendations] = await Promise.all([
+    loadProduct(slug, market),
+    loadRecommendations(slug, market),
+  ]);
   if (!product) notFound();
 
   // Formatted on the server: the client island receives strings, not currency logic.
@@ -109,7 +156,7 @@ export default async function ProductPage({
           __html: jsonLdScript(
             breadcrumbJsonLd([
               { name: 'Nelo Woman', path: `/${market}` },
-              { name: 'Collections', path: `/${market}/collections` },
+              { name: 'Shop', path: `/${market}/shop` },
               { name: product.name, path: `/${market}/products/${product.slug}` },
             ]),
           ),
@@ -121,12 +168,18 @@ export default async function ProductPage({
       <main className="shell">
         <nav className="crumb" aria-label="Breadcrumb">
           <Link href={`/${market}`}>Nelo</Link> /{' '}
-          <Link href={`/${market}/collections`}>Collections</Link> / {product.name}
+          <Link href={`/${market}/shop`}>Shop</Link> / {product.name}
         </nav>
 
         <div className="pdp">
           <div className="gallery">
-            <ProductGallery images={images} productName={product.name} />
+            <ProductGallery
+              images={images}
+              productName={product.name}
+              // Pairs with the card the visitor clicked, so the photograph morphs into
+              // place instead of the page cutting to a new one.
+              transitionName={garmentTransitionName(slug)}
+            />
           </div>
 
           <div className="panel">
@@ -161,7 +214,7 @@ export default async function ProductPage({
                   ))}
                 </dl>
                 <p className="mnote">
-                  Fixture profile — the Atelier API does not exist yet, so these are not your
+                  Fixture profile - the Atelier API does not exist yet, so these are not your
                   real measurements. <Link href={`/${market}/size-guide`}>How we measure</Link>
                   .
                 </p>
@@ -189,7 +242,7 @@ export default async function ProductPage({
             <details>
               <summary>Delivery &amp; returns</summary>
               <div className="body">
-                Lagos 2—3 days. Rest of Nigeria 4—6 days. International 7—12 days, duties
+                Lagos 2-3 days. Rest of Nigeria 4-6 days. International 7-12 days, duties
                 included at checkout. Cut-to-measure pieces are returnable for alteration,
                 not refund. <Link href={`/${market}/shipping`}>Shipping</Link> ·{' '}
                 <Link href={`/${market}/returns`}>Returns</Link>
@@ -197,6 +250,19 @@ export default async function ProductPage({
             </details>
           </div>
         </div>
+
+        {recommendations.length > 0 ? (
+          <section className="recommendations" aria-labelledby="recommendations-title">
+            <div className="recommendations__head">
+              <div>
+                <span className="lab">Selected for you</span>
+                <h2 id="recommendations-title">You may also like</h2>
+              </div>
+              <Link href={`/${market}/shop`}>View the full shop ↗</Link>
+            </div>
+            <ProductGrid items={recommendations} market={market} />
+          </section>
+        ) : null}
 
       </main>
 

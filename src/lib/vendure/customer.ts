@@ -7,7 +7,7 @@ import { vendureQuery } from './transport';
  * Who is signed in, according to Vendure.
  *
  * There is no local notion of "logged in". The cookie holds an opaque Vendure session token
- * and this query is the only thing that says whether it still corresponds to a customer —
+ * and this query is the only thing that says whether it still corresponds to a customer -
  * which is why an expired session shows up here as `null` rather than as an error.
  *
  * `reachable: false` is a third state and is kept distinct on purpose. "We could not ask"

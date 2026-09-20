@@ -1,14 +1,20 @@
 import Link from 'next/link';
 import { Suspense } from 'react';
-import { CartCount } from './CartCount';
+import { BagDrawer } from './BagDrawer';
+import { BagDrawerClient } from './BagDrawerClient';
 import { MobileMenu } from './MobileMenu';
-import { MARKETS, type Market } from '@/lib/vendure/channels';
+import { BrandMark } from './BrandMark';
+import { HeaderSearch } from './HeaderSearch';
+import { MarketSelector } from './MarketSelector';
+import { ScrollHeader } from './ScrollHeader';
+import { RollText } from './motion/RollText';
+import type { Market } from '@/lib/vendure/channels';
 
-/** Server component. The market switcher is a set of links, not client state — changing
+/** Server component. The market switcher is a set of links, not client state - changing
  *  market is a navigation, and it must never silently alter a checkout in flight. */
 export function SiteHeader({ market, announcement }: { market: Market; announcement: string }) {
   return (
-    <>
+    <ScrollHeader>
       {/* A labelled landmark rather than a bare div: it sits above the <header>, so without
           a role of its own it is page content outside every landmark, and a screen-reader
           user skipping by landmark never reaches it. */}
@@ -18,49 +24,36 @@ export function SiteHeader({ market, announcement }: { market: Market; announcem
       <header className="hdr">
         <div className="hdr-in">
           <MobileMenu market={market} />
-          <nav className="lab nav-links" aria-label="Primary">
-            <Link href={`/${market}`}>Shop</Link>
-            <Link href={`/${market}/collections`}>Collections</Link>
-            <Link href={`/${market}/atelier`}>Atelier</Link>
+          <div className="hdr-identity">
+            <BrandMark href={`/${market}`} />
+            <span className="hdr-context" aria-hidden="true">
+              <span>Lagos</span>
+              <span>Linear / 26</span>
+            </span>
+          </div>
+          <nav className="nav-links" aria-label="Primary">
+            <Link href={`/${market}/shop`} aria-label="Shop" data-index="01">
+              <RollText text="Shop" />
+            </Link>
+            <Link href={`/${market}/collections`} aria-label="Collections" data-index="02">
+              <RollText text="Collections" />
+            </Link>
+            <Link href={`/${market}/atelier`} aria-label="Atelier" data-index="03">
+              <RollText text="Atelier" />
+            </Link>
           </nav>
-          <Link className="wordmark" href={`/${market}`}>
-            NELO<small>Woman</small>
-          </Link>
           <div className="hdr-r">
-            <div className="mkt u-hide" role="group" aria-label="Market">
-              {MARKETS.map((m) => (
-                <Link
-                  key={m}
-                  href={`/${m}`}
-                  aria-current={m === market ? 'true' : undefined}
-                  style={
-                    m === market
-                      ? { background: 'var(--ink)', color: 'var(--paper)', padding: '5px 9px' }
-                      : { padding: '5px 9px' }
-                  }
-                >
-                  {m === 'ng' ? 'NG ₦' : 'INT $'}
-                </Link>
-              ))}
-            </div>
-            <Link className="lab u-hide" href={`/${market}/search`}>
-              Search
+            <MarketSelector market={market} />
+            <HeaderSearch market={market} />
+            <Link className="header-link u-hide" href={`/${market}/account`} aria-label="Account">
+              <RollText text="Account" />
             </Link>
-            <Link className="lab u-hide" href={`/${market}/account`}>
-              Account
-            </Link>
-            <Link className="lab bag" href={`/${market}/cart`}>
-              Bag
-              {/* Suspended so the header does not block on a session-bearing read. The
-                  fallback is the absence of a number, which is also the empty-bag state —
-                  so nothing flashes a wrong count on its way to the right one. */}
-              <Suspense fallback={null}>
-                <CartCount market={market} />
-              </Suspense>
-            </Link>
+            <Suspense fallback={<BagDrawerClient market={market} loading />}>
+              <BagDrawer market={market} />
+            </Suspense>
           </div>
         </div>
       </header>
-    </>
+    </ScrollHeader>
   );
 }

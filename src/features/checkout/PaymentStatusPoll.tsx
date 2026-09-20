@@ -6,12 +6,12 @@ import { useEffect, useRef, useState } from 'react';
 import type { Market } from '@/lib/vendure/channels';
 
 /**
- * "Confirming payment" — never "thank you".
+ * "Confirming payment" - never "thank you".
  *
  * After a hosted payment redirect the only thing the browser knows is what the provider put
  * in the return URL, and that is an untrusted hint: it can be replayed, edited, or simply
  * arrive before the provider has told the backend anything. So this screen states what is
- * true — we are waiting for the store to confirm — and a receipt is rendered only once
+ * true - we are waiting for the store to confirm - and a receipt is rendered only once
  * Vendure itself reports a paid state.
  *
  * The polling is bounded on purpose. An unbounded poller becomes a load generator against
@@ -20,7 +20,7 @@ import type { Market } from '@/lib/vendure/channels';
  * customer a manual refresh and a way to reach a human.
  */
 
-// Roughly 2s, 3s, 4s, 6s, 8s, 12s, 16s, 20s, 20s, 20s — about 110 seconds in total.
+// Roughly 2s, 3s, 4s, 6s, 8s, 12s, 16s, 20s, 20s, 20s - about 110 seconds in total.
 const BACKOFF_MS = [2000, 3000, 4000, 6000, 8000, 12000, 16000, 20000, 20000, 20000];
 
 type Status = 'waiting' | 'paid' | 'failed' | 'timeout' | 'unknown';
@@ -28,7 +28,7 @@ type Status = 'waiting' | 'paid' | 'failed' | 'timeout' | 'unknown';
 export function PaymentStatusPoll({
   market,
   code,
-  /** True when the server render already saw a paid state — the poll then never starts. */
+  /** True when the server render already saw a paid state - the poll then never starts. */
   alreadyPaid,
 }: {
   market: Market;
@@ -116,7 +116,7 @@ export function PaymentStatusPoll({
           <h2>We are confirming your payment</h2>
           <p aria-live="polite">
             Your order is saved as <span className="num">{code}</span>. We are waiting for the
-            payment provider to confirm it with us — that is the only thing we will treat as
+            payment provider to confirm it with us - that is the only thing we will treat as
             paid. Do not pay again.
           </p>
           <p className="mnote">
@@ -140,7 +140,7 @@ export function PaymentStatusPoll({
           <h2>We cannot see that order</h2>
           <p aria-live="polite">
             Order <span className="num">{code}</span> is not one we can show you from this
-            browser. If you checked out as a guest, the link works for two hours — after that
+            browser. If you checked out as a guest, the link works for two hours - after that
             we can look it up for you.
           </p>
         </>

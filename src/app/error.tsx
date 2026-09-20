@@ -29,7 +29,7 @@ export default function Error({
         We could not load this page
       </h1>
       <p style={{ color: 'var(--smoke)', maxWidth: '48ch' }}>
-        This is our fault, not yours. Try again — if it keeps happening, the atelier can help
+        This is our fault, not yours. Try again - if it keeps happening, the atelier can help
         directly.
       </p>
       <div className="acts-row">

@@ -6,7 +6,7 @@ import { IDLE } from './state';
 import type { Market } from '@/lib/vendure/channels';
 
 /**
- * Signing out is a state change, so it is a POST — never a link.
+ * Signing out is a state change, so it is a POST - never a link.
  *
  * A GET `/account/logout` can be triggered by any third-party image tag or prefetch, which
  * means a customer can be signed out by a page they merely visited.
