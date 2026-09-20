@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useEffect, useId, useRef, useState, useSyncExternalStore, type CSSProperties } from 'react';
 import { createPortal } from 'react-dom';
+import { DirectLinkMark } from '@/components/DirectLinkMark';
 import { MARKETS, type Market } from '@/lib/vendure/channels';
 
 const subscribeToMount = () => () => {};
@@ -105,7 +106,7 @@ export function MobileMenu({ market }: { market: Market }) {
                   <span className="lab">Now showing</span>
                   <strong>Linear Summer 26</strong>
                   <Link href={`/${market}/collections`} onClick={() => setOpen(false)}>
-                    Enter the collection ↗
+                    Enter the collection <DirectLinkMark />
                   </Link>
                 </div>
               </aside>

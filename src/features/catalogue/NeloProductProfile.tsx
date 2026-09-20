@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { DirectLinkMark } from '@/components/DirectLinkMark';
 import { SiteFooter } from '@/components/SiteFooter';
 import { SiteHeader } from '@/components/SiteHeader';
 import { ProductGallery, type GalleryImage } from './ProductGallery';
@@ -79,7 +80,7 @@ export function NeloProductProfile({ product, market }: { product: NeloProduct; 
               <span className="lab">The next look</span>
               <h2 id="recommendations-title">You may also like</h2>
             </div>
-            <Link href={`/${market}/shop`}>View all pieces ↗</Link>
+            <Link href={`/${market}/shop`}>View all pieces <DirectLinkMark /></Link>
           </div>
           <NeloProductGrid products={recommendations} market={market} priorityCount={0} />
         </section>

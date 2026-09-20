@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { DirectLinkMark } from '@/components/DirectLinkMark';
 import { BRIDAL_STAGES, CAMPAIGN, FEATURED_LOOKS, GARMENT_STAGES, TICKER } from './campaign';
 import type { Market } from '@/lib/vendure/channels';
 
@@ -143,7 +144,7 @@ export function Thesis({ market }: { market: Market }) {
           </p>
           <div className="acts">
             <Link className="btn-q" href={`/${market}/account/measurements`}>
-              Create your profile <span aria-hidden="true">↗</span>
+              Create your profile <DirectLinkMark />
             </Link>
           </div>
         </div>
@@ -176,16 +177,13 @@ export function Thesis({ market }: { market: Market }) {
 
 /**
  * The lookbook - a pinned frame whose track is scrubbed sideways by the page's
- * own vertical scroll.
+ * own vertical scroll, on phone and desktop.
  *
- * The scrub is a native scroll-driven animation (see globals.css), so it runs
- * off the main thread. Doing this with a scroll event handler is the classic
- * way to make a phone stutter, and most of this storefront's traffic is mobile.
- *
- * Without scroll-driven support, or under reduced motion, the CSS collapses the
- * tall spacer and the track becomes an ordinary horizontal scroller - the
- * content is reachable either way, which is why the frames are real figures
- * rather than background images.
+ * HomeExperience owns the pin once JavaScript is in. Without it, or under
+ * reduced motion, the CSS either keeps a native scroll-driven scrub or
+ * collapses the tall spacer into an ordinary horizontal scroller. The frames
+ * are real figures rather than background images so the looks stay reachable
+ * either way.
  */
 export function Filmstrip() {
   return (

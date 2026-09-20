@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { DirectLinkMark } from '@/components/DirectLinkMark';
 import { SiteFooter } from '@/components/SiteFooter';
 import { SiteHeader } from '@/components/SiteHeader';
 import { CollectionsExperience } from '@/features/collections/CollectionsExperience';
@@ -73,7 +74,7 @@ export default async function CollectionsPage({ params }: { params: Promise<{ ma
               Shop is where every piece lives. Collections is where each chapter is given its world,
               its pace and its point of view.
             </p>
-            <Link href={`/${market}/shop`}>Go straight to the shop <span aria-hidden="true">↗</span></Link>
+            <Link href={`/${market}/shop`}>Go straight to the shop <DirectLinkMark /></Link>
           </div>
           <div className="collections-intro__film" aria-hidden="true">
             <figure><Image src="/editorial/live/linear-tokyo-2400.jpg" alt="" fill sizes="20vw" priority /></figure>
@@ -100,13 +101,13 @@ export default async function CollectionsPage({ params }: { params: Promise<{ ma
                     sizes={collection.className.includes('lead') ? '(max-width: 760px) 100vw, 66vw' : '(max-width: 760px) 100vw, 40vw'}
                   />
                   <span className="collection-story__number num">{collection.number}</span>
-                  <span className="collection-story__action">Explore <span aria-hidden="true">↗</span></span>
+                  <span className="collection-story__action">Explore <DirectLinkMark /></span>
                 </div>
                 <div className="collection-story__copy">
                   <span className="lab">Chapter {collection.number}</span>
                   <h2>{collection.title}</h2>
                   <p>{collection.note}</p>
-                  <span className="collection-story__text-link">Enter the chapter <span aria-hidden="true">↗</span></span>
+                  <span className="collection-story__text-link">Enter the chapter <DirectLinkMark /></span>
                 </div>
               </Link>
             </article>

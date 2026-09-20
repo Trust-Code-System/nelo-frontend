@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { DirectLinkMark } from '@/components/DirectLinkMark';
 import { ContentPage } from '@/features/content/ContentPage';
 import { contentMetadata } from '@/features/content/metadata';
 import { STORE_CONTACT } from '@/lib/contact';
@@ -51,7 +52,7 @@ export default async function ContactPage({
         <a href={`tel:${STORE_CONTACT.phoneHref}`}>{STORE_CONTACT.phoneDisplay}</a>
         <a href={`mailto:${STORE_CONTACT.email}`}>{STORE_CONTACT.email}</a>
         <a href={STORE_CONTACT.instagram} rel="noreferrer" target="_blank">
-          Follow @nelowoman on Instagram ↗
+          Follow @nelowoman on Instagram <DirectLinkMark />
         </a>
       </address>
 

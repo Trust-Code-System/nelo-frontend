@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useId, useRef, useState } from 'react';
+import { DirectLinkMark } from '@/components/DirectLinkMark';
 import type { Market } from '@/lib/vendure/channels';
 
 export function HeaderSearch({ market }: { market: Market }) {
@@ -57,7 +58,7 @@ export function HeaderSearch({ market }: { market: Market }) {
         <div className="header-search__foot">
           <span>Try Adele, Reign or bridal</span>
           <Link href={`/${market}/search`} tabIndex={open ? 0 : -1} onClick={() => setOpen(false)}>
-            Open full search ↗
+            Open full search <DirectLinkMark />
           </Link>
         </div>
       </div>

@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { BrandMark } from './BrandMark';
+import { DirectLinkMark } from './DirectLinkMark';
 import type { Market } from '@/lib/vendure/channels';
 import { STORE_CONTACT } from '@/lib/contact';
 
@@ -23,7 +24,7 @@ export function SiteFooter({ market }: { market: Market }) {
             <BrandMark href={`/${market}`} footer />
             <p>Clothing with presence, cut in Lagos and made to remember you.</p>
             <Link className="footer-lead__cta" href={`/${market}/collections`}>
-              Enter the collection <span aria-hidden="true">↗</span>
+              Enter the collection <DirectLinkMark />
             </Link>
           </div>
 
@@ -43,7 +44,7 @@ export function SiteFooter({ market }: { market: Market }) {
                 autoComplete="email"
                 required
               />
-              <button type="submit">Join the list <span aria-hidden="true">↗</span></button>
+              <button type="submit">Join the list <DirectLinkMark /></button>
             </form>
             <p>Occasional notes only. No noise, and you can leave at any time.</p>
           </section>
@@ -69,7 +70,7 @@ export function SiteFooter({ market }: { market: Market }) {
               rel="noreferrer"
               target="_blank"
             >
-              Instagram <span aria-hidden="true">↗</span>
+              Instagram <DirectLinkMark />
             </a>
           </section>
 
@@ -96,7 +97,7 @@ export function SiteFooter({ market }: { market: Market }) {
               <ul>
                 <li><Link href={`/${market}/about`}>About NELO</Link></li>
                 <li><Link href={`/${market}/contact`}>Contact</Link></li>
-                <li><a href={STORE_CONTACT.instagram} rel="noreferrer" target="_blank">Instagram ↗</a></li>
+                <li><a href={STORE_CONTACT.instagram} rel="noreferrer" target="_blank">Instagram <DirectLinkMark /></a></li>
               </ul>
             </div>
             <div>

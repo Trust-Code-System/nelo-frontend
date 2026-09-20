@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
+import { DirectLinkMark } from '@/components/DirectLinkMark';
 import type { CSSProperties } from 'react';
 import { formatNaira, type NeloProduct } from './nelo';
 import type { Market } from '@/lib/vendure/channels';
@@ -131,7 +132,7 @@ export function NeloVariantPicker({ product, market }: { product: NeloProduct; m
         <legend>Your measurements</legend>
         <div className="nelo-measurements__heading">
           <p>Optional, but useful when you want the atelier to refine the selected size.</p>
-          <Link href={`/${market}/size-guide`}>How to measure ↗</Link>
+          <Link href={`/${market}/size-guide`}>How to measure <DirectLinkMark /></Link>
         </div>
         <div className="nelo-measurements__grid">
           {(Object.keys(MEASUREMENT_OPTIONS) as Array<keyof typeof MEASUREMENT_OPTIONS>).map((key) => (

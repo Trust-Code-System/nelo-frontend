@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { DirectLinkMark } from '@/components/DirectLinkMark';
 import { SiteFooter } from '@/components/SiteFooter';
 import { SiteHeader } from '@/components/SiteHeader';
 import { ProductGallery, type GalleryImage } from '@/features/catalogue/ProductGallery';
@@ -258,7 +259,7 @@ export default async function ProductPage({
                 <span className="lab">Selected for you</span>
                 <h2 id="recommendations-title">You may also like</h2>
               </div>
-              <Link href={`/${market}/shop`}>View the full shop ↗</Link>
+              <Link href={`/${market}/shop`}>View the full shop <DirectLinkMark /></Link>
             </div>
             <ProductGrid items={recommendations} market={market} />
           </section>
