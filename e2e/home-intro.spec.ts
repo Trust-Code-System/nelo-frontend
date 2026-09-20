@@ -8,7 +8,7 @@ test.describe('home introduction', () => {
     const skip = page.getByRole('button', { name: 'Skip intro' });
     await expect(intro).toHaveAttribute('aria-modal', 'true');
     await expect(skip).toBeFocused();
-    await expect(intro).toBeHidden({ timeout: 4_500 });
+    await expect(intro).toBeHidden({ timeout: 3_000 });
   });
 
   test('does not mount for reduced-motion visitors', async ({ page }) => {
