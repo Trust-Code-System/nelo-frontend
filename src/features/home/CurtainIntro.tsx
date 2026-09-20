@@ -3,28 +3,33 @@
 import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { NeloWord } from '@/components/NeloWord';
-
-const INTRO_KEY = 'nelo-couture-intro-v1';
+import { INTRO_STORAGE_KEY } from '@/lib/intro';
 
 export function CurtainIntro() {
-  // Closed by default so a failed or disabled script can never cover the store.
-  // useLayoutEffect opens it before the first client paint for eligible visitors.
-  const [visible, setVisible] = useState(false);
+  // Rendered closed on the server so the first HTML already covers the
+  // storefront. A head script decides before paint whether to play or skip.
+  // Without JavaScript the overlay stays hidden (see globals.css).
+  const [mounted, setMounted] = useState(true);
   const root = useRef<HTMLDivElement>(null);
   const skipButton = useRef<HTMLButtonElement>(null);
   const timeline = useRef<gsap.core.Timeline | null>(null);
   const forced = useRef(false);
 
-  const finish = useCallback(() => {
+  const releaseDocument = useCallback(() => {
+    document.documentElement.setAttribute('data-intro', 'done');
     document.body.classList.remove('intro-locked');
+  }, []);
+
+  const finish = useCallback(() => {
+    releaseDocument();
     try {
-      if (!forced.current) sessionStorage.setItem(INTRO_KEY, 'seen');
+      if (!forced.current) sessionStorage.setItem(INTRO_STORAGE_KEY, 'seen');
     } catch {
       // Storage can be unavailable in locked-down browser contexts. The intro
       // still completes normally; it may simply replay on a later visit.
     }
-    setVisible(false);
-  }, []);
+    setMounted(false);
+  }, [releaseDocument]);
 
   const skip = useCallback(() => {
     const element = root.current;
@@ -38,27 +43,32 @@ export function CurtainIntro() {
 
   useLayoutEffect(() => {
     forced.current = new URLSearchParams(window.location.search).has('intro');
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      try {
-        sessionStorage.setItem(INTRO_KEY, 'seen');
-      } catch {
-        // See the storage note in finish().
-      }
-      return;
-    }
-
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     let seen = false;
     try {
-      seen = sessionStorage.getItem(INTRO_KEY) === 'seen';
+      seen = sessionStorage.getItem(INTRO_STORAGE_KEY) === 'seen';
     } catch {
       // Treat unavailable session storage as a first visit.
     }
-    if (forced.current || !seen) setVisible(true);
-  }, []);
 
-  useLayoutEffect(() => {
-    if (!visible) return;
+    if (reduced) {
+      try {
+        sessionStorage.setItem(INTRO_STORAGE_KEY, 'seen');
+      } catch {
+        // See the storage note in finish().
+      }
+      releaseDocument();
+      setMounted(false);
+      return;
+    }
 
+    if (!forced.current && seen) {
+      releaseDocument();
+      setMounted(false);
+      return;
+    }
+
+    document.documentElement.setAttribute('data-intro', 'play');
     const element = root.current;
     if (!element) return;
     document.body.classList.add('intro-locked');
@@ -117,9 +127,9 @@ export function CurtainIntro() {
       background.forEach((item) => { item.inert = false; });
       document.body.classList.remove('intro-locked');
     };
-  }, [finish, skip, visible]);
+  }, [finish, releaseDocument, skip]);
 
-  if (!visible) return null;
+  if (!mounted) return null;
 
   return (
     <div

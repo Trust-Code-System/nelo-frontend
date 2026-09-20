@@ -1,8 +1,10 @@
 import type { Metadata } from 'next';
+import Script from 'next/script';
 import { Instrument_Sans, IBM_Plex_Mono } from 'next/font/google';
 import { siteUrl } from '@/lib/seo/site';
 import { AdaptiveCursor } from '@/components/AdaptiveCursor';
 import { MotionProvider } from '@/components/motion/MotionProvider';
+import { INTRO_BOOT_SCRIPT } from '@/lib/intro';
 import 'lenis/dist/lenis.css';
 import './globals.css';
 
@@ -49,6 +51,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${sans.variable} ${mono.variable}`}>
       <body>
+        <Script id="nelo-intro-boot" strategy="beforeInteractive">
+          {INTRO_BOOT_SCRIPT}
+        </Script>
         <MotionProvider>{children}</MotionProvider>
         <AdaptiveCursor />
       </body>
