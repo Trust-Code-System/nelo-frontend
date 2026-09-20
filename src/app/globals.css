@@ -1212,13 +1212,13 @@ details .body{padding-bottom:var(--s5); color:var(--smoke); font-size:var(--t-sm
   /* A 4/5 frame at phone width is only ~360px tall inside an 844px pinned
      frame, which leaves the ink ground empty above and below it. A taller
      crop fills the pin instead of floating in it. */
-  .film-track figure{width:min(88vw, calc((100svh - 128px) * 2 / 3))}
+  .film-track figure{width:min(88vw, calc((100svh - 160px) * 2 / 3))}
   .film-track .ph{aspect-ratio:2/3}
-  .film-head{top:clamp(14px, 2.4vh, 22px)}
+  .film-head{top:clamp(18px, 3vh, 28px)}
   .film-sticky,
   .motion-enhanced .film-sticky{
     align-items:flex-start;
-    padding-top:clamp(56px, 10vh, 76px);
+    padding-top:clamp(72px, 12vh, 96px);
   }
   .motion-enhanced .film-head{padding-block:0}
 }
@@ -1323,8 +1323,23 @@ details .body{padding-bottom:var(--s5); color:var(--smoke); font-size:var(--t-sm
 .motion-enhanced .hero-seq .hero-foot,
 .motion-enhanced .hero-seq .ph img{animation:none}
 .motion-enhanced .film{height:auto}
-.motion-enhanced .film-sticky{position:relative;top:auto;height:100svh;overflow:hidden}
-.motion-enhanced .film-track{animation:none;overflow-x:hidden;scroll-snap-type:none}
+.motion-enhanced .film-sticky{
+  position:relative;top:auto;height:100svh;overflow:hidden;
+  flex-direction:column;justify-content:center;
+}
+.motion-enhanced .film-track{
+  /* Visible, not hidden: overflow-x:hidden on this flex row makes min-width
+     compute to 0, the track shrinks to the viewport, and GSAP then translates
+     an empty clipped box - the pin goes black after the first frame. */
+  animation:none;
+  animation-timeline:auto;
+  animation-range:normal;
+  overflow:visible;
+  scroll-snap-type:none;
+  flex:0 0 auto;
+  width:max-content;
+  max-width:none;
+}
 .motion-enhanced .film-head{position:absolute}
 
 @media (max-width:980px){
@@ -2607,6 +2622,13 @@ details summary{font-family:var(--sans);font-size:12px;font-weight:700;letter-sp
     transition:opacity 170ms ease,transform 360ms cubic-bezier(.32,.72,0,1),clip-path 440ms cubic-bezier(.32,.72,0,1),visibility 440ms;
   }
   .menu-panel[data-open="true"]{z-index:240;opacity:1;visibility:visible;pointer-events:auto;clip-path:inset(0 round var(--r-md));transform:none}
+  .menu-panel__close{
+    position:absolute;z-index:5;top:14px;right:14px;
+    display:grid;place-items:center;width:44px;height:44px;padding:0;
+    border:1px solid var(--ink);border-radius:50%;background:var(--paper);color:var(--ink);
+    font-size:28px;line-height:1;cursor:pointer;
+  }
+  .menu-panel__close:hover,.menu-panel__close:focus-visible{background:var(--ink);color:var(--paper);outline:0}
   .menu-panel__heading{grid-column:1;align-self:start}
   .menu-panel__heading p{max-width:30ch;margin:10px 0 0;color:var(--smoke);font-size:13px}
   .menu-panel-nav{grid-column:1;gap:0;align-self:center}
@@ -2663,6 +2685,7 @@ details summary{font-family:var(--sans);font-size:12px;font-weight:700;letter-sp
 
 @media (max-width:560px){
   .menu-panel{inset:66px 8px 8px;grid-template-columns:1fr;padding:52px 22px 24px}
+  .menu-panel__close{top:10px;right:10px}
   .menu-panel__editorial{display:none}
   .menu-panel-nav a{font-size:clamp(1.55rem,8vw,2.5rem)}
   .menu-panel-markets{grid-column:1}

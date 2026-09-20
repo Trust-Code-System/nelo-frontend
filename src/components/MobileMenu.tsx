@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useEffect, useId, useRef, useState, useSyncExternalStore, type CSSProperties } from 'react';
+import { useCallback, useEffect, useId, useRef, useState, useSyncExternalStore, type CSSProperties } from 'react';
 import { createPortal } from 'react-dom';
 import { DirectLinkMark } from '@/components/DirectLinkMark';
 import { MARKETS, type Market } from '@/lib/vendure/channels';
@@ -27,24 +27,31 @@ export function MobileMenu({ market }: { market: Market }) {
   const [open, setOpen] = useState(false);
   const panelId = useId();
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
   const mounted = useSyncExternalStore(subscribeToMount, () => true, () => false);
+
+  const dismiss = useCallback(() => {
+    setOpen(false);
+    buttonRef.current?.focus();
+  }, []);
 
   useEffect(() => {
     if (!open) return;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
+    const focusFrame = window.requestAnimationFrame(() => {
+      closeRef.current?.focus({ preventScroll: true });
+    });
     function onKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') {
-        setOpen(false);
-        buttonRef.current?.focus();
-      }
+      if (event.key === 'Escape') dismiss();
     }
     document.addEventListener('keydown', onKeyDown);
     return () => {
+      window.cancelAnimationFrame(focusFrame);
       document.removeEventListener('keydown', onKeyDown);
       document.body.style.overflow = previousOverflow;
     };
-  }, [open]);
+  }, [dismiss, open]);
 
   return (
     <>
@@ -56,7 +63,7 @@ export function MobileMenu({ market }: { market: Market }) {
         aria-controls={panelId}
         onClick={() => setOpen((value) => !value)}
       >
-        {open ? 'Close' : 'Menu'}
+        Menu
       </button>
 
       {mounted
@@ -68,6 +75,15 @@ export function MobileMenu({ market }: { market: Market }) {
               aria-hidden={!open}
               inert={!open}
             >
+              <button
+                ref={closeRef}
+                className="menu-panel__close"
+                type="button"
+                aria-label="Close menu"
+                onClick={dismiss}
+              >
+                <span aria-hidden="true">×</span>
+              </button>
               <div className="menu-panel__heading">
                 <span className="lab">NELO Woman</span>
                 <p>Statement silhouettes, measured for the woman wearing them.</p>
