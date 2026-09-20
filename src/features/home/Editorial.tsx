@@ -202,10 +202,10 @@ export function Filmstrip() {
                   alt={frame.alt}
                   width={900}
                   height={1125}
-                  sizes="(max-width: 980px) 74vw, 38vw"
-                  // The first two frames are on screen the moment the section
-                  // pins; the rest are scrolled to, so they can wait.
-                  loading={i < 2 ? 'eager' : 'lazy'}
+                  sizes="(max-width: 980px) 88vw, 38vw"
+                  // The pin holds one viewport while every frame is scrubbed
+                  // through, so waiting to lazy-load leaves empty ink.
+                  loading={i < 4 ? 'eager' : 'lazy'}
                 />
               </div>
               <figcaption>

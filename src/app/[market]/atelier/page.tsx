@@ -74,7 +74,10 @@ export default async function AtelierPage({
         <section className="ahero ahero--atelier">
           <div className="atelier-hero__copy">
             <span className="lab">The Atelier</span>
-            <h1>Commission a garment</h1>
+            <h1>
+              Commission
+              <span className="atelier-hero__break">a garment</span>
+            </h1>
             <p>
               Bespoke and bridal begin with a conversation, not a checkout. Tell us what you
               need and we will propose a plan, a schedule and a price before anything is agreed.

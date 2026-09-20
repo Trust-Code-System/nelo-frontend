@@ -2570,6 +2570,17 @@ details summary{font-family:var(--sans);font-size:12px;font-weight:700;letter-sp
 
 .search-page{padding-bottom:40px}
 .searchform--full{width:min(880px,100%);margin:clamp(28px,4vw,48px) auto clamp(52px,7vw,94px)}
+@media (max-width:900px){
+  .search-page .phead--search{
+    height:auto;
+    min-height:0;
+    margin-top:16px;
+    padding:28px 22px 12px;
+  }
+  .search-page .phead--search::after{display:none}
+  .search-page .phead--search>div:first-child{flex:0 1 auto}
+  .search-page .searchform--full{margin:8px 0 28px}
+}
 .searchform--full input[type="search"]{min-height:62px;padding-inline:22px;font-size:clamp(1rem,1.4vw,1.2rem)}
 .searchform--full .btn{min-width:132px;background:var(--ink)}
 .search-prompts{max-width:880px;margin:0 auto;padding:26px 0;border-top:1px solid var(--hair)}
@@ -2914,12 +2925,26 @@ details summary{font-family:var(--sans);font-size:12px;font-weight:700;letter-sp
   .shop-index-intro__copy h1{font-size:clamp(4rem,20vw,6.5rem)}
   .shop-index-intro__film{position:absolute;inset:0 0 42%;grid-template-columns:1fr 1fr}.shop-index-intro__film img{min-height:100%;object-position:top center}
   .shop-index-intro__meta{margin-top:28px;padding-top:0}.shop-index-intro__edition{top:14px;right:14px;bottom:auto}
-  .shop-toolbar{position:relative;top:0;display:flex;flex-wrap:wrap;align-items:center}
-  .shop-toolbar__filters{order:2;width:100%;overflow:auto;padding-top:9px;border-top:1px solid var(--hair)}
+  .shop-toolbar{position:relative;top:0;z-index:40;display:flex;flex-wrap:wrap;align-items:center;overflow:visible}
+  .shop-toolbar__filters{order:2;width:100%;overflow:visible;padding-top:9px;border-top:1px solid var(--hair)}
   .shop-toolbar__result{margin-left:0}.shop-filter--sort{margin-left:auto}
-  .shop-filter__menu{position:fixed;top:auto;right:10px;bottom:10px;left:10px;max-height:62vh;overflow:auto;transform-origin:bottom center}
-  .shop-filter__menu--colours,.shop-filter__menu--sizes{min-width:0}
-  .collections-page{padding-top:48px}.collections-intro{grid-template-columns:1fr}.collections-intro>a{grid-column:auto;justify-self:start}.collections-intro h1{font-size:clamp(4rem,20vw,7rem)}
+  .shop-filter[data-open="true"]{z-index:2}
+  /* Stay absolute under the trigger. Fixed bottom sheets are trapped by the
+     header/Lenis transforms, so a tap opened the control and showed nothing. */
+  .shop-filter__menu{
+    position:absolute;
+    top:calc(100% + 8px);
+    right:auto;
+    bottom:auto;
+    left:0;
+    width:min(92vw,22rem);
+    max-height:min(62vh,24rem);
+    overflow:auto;
+    transform-origin:top left;
+  }
+  .shop-filter--sort .shop-filter__menu{left:auto;right:0;transform-origin:top right}
+  .shop-filter__menu--colours,.shop-filter__menu--sizes{min-width:0;width:min(92vw,22rem)}
+  .collections-page{padding-top:48px}.collections-intro{grid-template-columns:1fr}.collections-intro>a{grid-column:auto;justify-self:start}.collections-intro h1{font-size:clamp(2.9rem,12.8vw,4.8rem)}
   .collections-grid{display:block}.collection-story,.collection-story:nth-child(3),.collection-story--lead,.collection-story--wide{margin:0 0 64px}.collection-story__image,.collection-story--lead .collection-story__image,.collection-story--wide .collection-story__image{aspect-ratio:4/5;border-radius:24px}.collection-story__copy{grid-template-columns:1fr}.collection-story__copy p{max-width:40ch}
   .collections-coda{padding:58px 24px}
   .account-auth-shell{padding:14px 12px 0}.auth-stage{grid-template-columns:1fr;min-height:0}.auth-stage__visual{min-height:360px}.auth-stage__aside{bottom:24px}.auth-stage__aside h2{font-size:2.4rem}.auth-stage__aside ul{display:none}.auth-stage__measure span:nth-child(2){display:none}.auth-stage__form{padding:38px 24px 46px}.auth-stage__heading{margin:34px 0 28px}.auth-stage__heading h1{font-size:clamp(3rem,15vw,5rem)}
@@ -3037,7 +3062,7 @@ details summary{font-family:var(--sans);font-size:12px;font-weight:700;letter-sp
 .bag-drawer__actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}.bag-drawer__actions .btn,.bag-drawer__actions .btn-q{display:grid;place-items:center;margin:0;min-height:48px;text-align:center}
 
 @media (max-width:760px){
-  .shop-filter__menu{--filter-shift:12px}
+  .shop-filter__menu{--filter-shift:-7px}
   .bag-drawer{width:100%;border-left:0;border-radius:24px 0 0 24px}
   .bag-drawer__header{padding:24px 20px 18px}.bag-drawer__body{padding-inline:20px}.bag-drawer__footer{padding:17px 20px max(20px,env(safe-area-inset-bottom))}
 }
@@ -3417,7 +3442,13 @@ html{
   .collections-page{padding-top:20px}
   .collections-intro{display:grid;grid-template-columns:1fr;min-height:690px;margin-bottom:76px;border-radius:42px 42px 18px 18px}
   .collections-intro__copy{z-index:4;justify-content:flex-end;padding:34px 24px;background:linear-gradient(180deg,transparent 26%,rgba(5,5,5,.96) 65%)}
-  .collections-intro h1{margin:10px 0 20px;font-size:clamp(4rem,20vw,6.8rem)}
+  .collections-intro h1{
+    margin:10px 0 20px;
+    font-size:clamp(2.9rem,12.8vw,4.8rem);
+    letter-spacing:-.05em;
+    max-width:100%;
+    padding-right:.1em;
+  }
   .collections-intro__copy>a{margin-top:28px}
   .collections-intro__film{position:absolute;inset:0 0 41%;grid-template-columns:1fr 1fr}
   .collections-intro__film figure:nth-child(2){transform:none}
@@ -4215,14 +4246,17 @@ a:focus-visible>.rolltext .rolltext__rail,button:focus-visible>.rolltext .rollte
 }
 .atelier-hero__copy>.lab{color:#9d9d98}
 .ahero--atelier h1{
-  max-width:8ch;
+  max-width:11ch;
   margin:14px 0 24px;
   color:var(--paper);
   font-size:clamp(3.8rem,6.6vw,7.4rem);
   font-weight:560;
   line-height:.82;
   letter-spacing:-.075em;
+  overflow:visible;
+  padding-right:.08em;
 }
+.atelier-hero__break{display:block}
 .atelier-hero__copy>p{
   max-width:38ch;
   margin:0;
@@ -4323,7 +4357,11 @@ a:focus-visible>.rolltext .rolltext__rail,button:focus-visible>.rolltext .rollte
     padding:330px 24px 28px;
     background:linear-gradient(180deg,transparent 28%,rgba(5,5,5,.97) 53%);
   }
-  .ahero--atelier h1{max-width:8ch;font-size:clamp(3.6rem,17vw,5.8rem)}
+  .ahero--atelier h1{
+    max-width:none;
+    font-size:clamp(2.9rem,13vw,4.4rem);
+    letter-spacing:-.05em;
+  }
   .atelier-hero__action{margin-top:25px}
   .atelier-hero__edition{top:14px;right:14px;bottom:auto}
 

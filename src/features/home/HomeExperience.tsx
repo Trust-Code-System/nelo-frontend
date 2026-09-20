@@ -97,10 +97,15 @@ export function HomeExperience({ children }: { children: ReactNode }) {
       const track = film?.querySelector<HTMLElement>('.film-track');
       if (film && sticky && track) {
         // Same pinned runway on phone and desktop: vertical scroll holds the
-        // frame, then scrubs sideways through every look. Overshooting by the
-        // track's inline padding would leave an empty ink-only frame at the
-        // end of the pin. Touch follows the finger more tightly than a wheel.
-        const distance = () => Math.max(0, track.scrollWidth - window.innerWidth);
+        // frame, then scrubs sideways through every look. Distance is the last
+        // frame's right edge (plus the track's end padding) minus the viewport,
+        // so a clipped or shrinking track cannot report a zero overflow.
+        const distance = () => {
+          const last = track.querySelector<HTMLElement>('figure:last-child');
+          if (!last) return 0;
+          const padEnd = Number.parseFloat(getComputedStyle(track).paddingInlineEnd) || 0;
+          return Math.max(0, last.offsetLeft + last.offsetWidth + padEnd - window.innerWidth);
+        };
         gsap.to(track, {
           x: () => -distance(),
           ease: 'none',
