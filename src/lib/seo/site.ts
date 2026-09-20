@@ -12,7 +12,9 @@ import { MARKETS, type Market } from '@/lib/vendure/channels';
  * first time anyone looks.
  */
 export function siteUrl(): string {
-  const raw = process.env.NELO_SITE_URL ?? 'http://localhost:4310';
+  const configured = process.env.NELO_SITE_URL?.trim();
+  const vercelProductionHost = process.env.VERCEL_PROJECT_PRODUCTION_URL?.trim();
+  const raw = configured || (vercelProductionHost ? `https://${vercelProductionHost}` : 'http://localhost:4310');
   return raw.replace(/\/+$/, '');
 }
 
