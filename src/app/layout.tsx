@@ -37,7 +37,11 @@ export const metadata: Metadata = {
   // No Twitter image is declared here: a site-wide fallback image that is not the product
   // being shared is worse than letting the crawler pick from the page.
   twitter: { card: 'summary_large_image' },
-  icons: { icon: '/favicon.ico', apple: '/icon.svg' },
+  icons: {
+    icon: [{ url: '/icon.png', type: 'image/png' }],
+    shortcut: '/icon.png',
+    apple: '/icon.png',
+  },
 };
 
 // No 'use client' here, and none on any layout. Interactivity lives in islands.
