@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { Suspense } from 'react';
 import { BagDrawer } from './BagDrawer';
 import { BagDrawerClient } from './BagDrawerClient';
@@ -7,7 +6,7 @@ import { BrandMark } from './BrandMark';
 import { HeaderSearch } from './HeaderSearch';
 import { MarketSelector } from './MarketSelector';
 import { ScrollHeader } from './ScrollHeader';
-import { RollText } from './motion/RollText';
+import { NavRollLink } from './NavRollLink';
 import type { Market } from '@/lib/vendure/channels';
 
 /** Server component. The market switcher is a set of links, not client state - changing
@@ -32,22 +31,15 @@ export function SiteHeader({ market, announcement }: { market: Market; announcem
             </span>
           </div>
           <nav className="nav-links" aria-label="Primary">
-            <Link href={`/${market}/shop`} aria-label="Shop" data-index="01">
-              <RollText text="Shop" />
-            </Link>
-            <Link href={`/${market}/collections`} aria-label="Collections" data-index="02">
-              <RollText text="Collections" />
-            </Link>
-            <Link href={`/${market}/atelier`} aria-label="Atelier" data-index="03">
-              <RollText text="Atelier" />
-            </Link>
+            <NavRollLink href={`/${market}/shop`} label="Shop" index="01" />
+            <NavRollLink href={`/${market}/collections`} label="Collections" index="02" />
+            <NavRollLink href={`/${market}/atelier`} label="Atelier" index="03" />
+            <NavRollLink href={`/${market}/client-care`} label="Care" index="04" />
           </nav>
           <div className="hdr-r">
             <MarketSelector market={market} />
             <HeaderSearch market={market} />
-            <Link className="header-link u-hide" href={`/${market}/account`} aria-label="Account">
-              <RollText text="Account" />
-            </Link>
+            <NavRollLink className="header-link u-hide" href={`/${market}/account`} label="Account" />
             <Suspense fallback={<BagDrawerClient market={market} loading />}>
               <BagDrawer market={market} />
             </Suspense>

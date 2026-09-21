@@ -1,4 +1,5 @@
 import { channelFor, type Market } from '@/lib/vendure/channels';
+import { DEV_PAYMENT_METHOD_CODE, PAYSTACK_METHOD_PREFIX } from '@/features/checkout/config';
 
 /**
  * Turning Vendure's order state into something a customer can read.
@@ -68,6 +69,39 @@ export function orderState(state: string): StateCopy {
 /** Terminal enough that a customer should not expect it to change on its own. */
 export function isSettledState(state: string): boolean {
   return state === 'Delivered' || state === 'Cancelled';
+}
+
+/**
+ * Turning a Vendure PaymentMethod code into something a customer can read.
+ *
+ * Same rule as `orderState`: an unrecognised code falls through to itself rather than to a
+ * friendly guess, because it is better to show a raw code once than to lie about what it
+ * is. The dev handler is named for what it is - see `devPaymentEnabled` - so a screen that
+ * somehow reaches it in an unintended deployment reads as a test artifact, not as a real
+ * payment method.
+ */
+export function paymentMethodLabel(code: string): string {
+  if (code === DEV_PAYMENT_METHOD_CODE) return 'Development payment (test)';
+  if (code.toLowerCase().startsWith(PAYSTACK_METHOD_PREFIX)) return 'Paystack';
+  return code;
+}
+
+/**
+ * Turning a Vendure Payment's own state (Created/Authorized/Settled/Declined/Cancelled/
+ * Error - a different state machine from the Order's) into the site's British spelling and
+ * voice, matching `orderState` above. Unrecognised values fall through to themselves.
+ */
+const PAYMENT_STATES: Readonly<Record<string, string>> = {
+  Created: 'Created',
+  Authorized: 'Authorised',
+  Settled: 'Paid',
+  Declined: 'Declined',
+  Cancelled: 'Cancelled',
+  Error: 'Payment error',
+};
+
+export function paymentStateLabel(state: string): string {
+  return PAYMENT_STATES[state] ?? state;
 }
 
 /**

@@ -45,8 +45,12 @@ export function MarketSelector({ market }: { market: Market }) {
         aria-controls={panelId}
         onClick={() => setOpen((value) => !value)}
       >
-        <span>{current.label}</span>
-        <span className="market-switcher__mark" aria-hidden="true">⌄</span>
+        <span className="market-switcher__label">{current.label}</span>
+        <span className="market-switcher__mark" aria-hidden="true">
+          <svg viewBox="0 0 12 8" focusable="false">
+            <path d="M1.2 1.6 6 6.4 10.8 1.6" />
+          </svg>
+        </span>
       </button>
       <div
         id={panelId}

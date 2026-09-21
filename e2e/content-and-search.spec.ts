@@ -13,6 +13,9 @@ const WRITTEN = [
   ['/ng/contact', /talk to the atelier/i],
   ['/ng/shipping', /shipping and duties/i],
   ['/ng/returns', /returns and alterations/i],
+  ['/ng/privacy', /privacy policy/i],
+  ['/ng/terms', /terms of service/i],
+  ['/ng/client-care', /everything after the order/i],
   ['/ng/size-guide', /size guide/i],
   ['/ng/order-tracking', /track an order/i],
 ] as const;

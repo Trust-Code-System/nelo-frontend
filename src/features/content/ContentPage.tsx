@@ -10,6 +10,8 @@ const MASTHEAD_IMAGES: Record<string, string> = {
   'Returns and alterations': '/editorial/live/reign-02.webp',
   'Talk to the atelier': '/editorial/live/bridal-consultation.webp',
   'Shipping and duties': '/editorial/live/bloom-02.webp',
+  'Privacy policy': '/editorial/live/about-founder-landscape.jpg',
+  'Terms of service': '/editorial/live/traditional-consultation.webp',
 };
 
 /**

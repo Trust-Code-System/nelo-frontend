@@ -208,9 +208,6 @@ export function Filmstrip() {
                   loading={i < 4 ? 'eager' : 'lazy'}
                 />
               </div>
-              <figcaption>
-                {String(i + 1).padStart(2, '0')} - {frame.caption}
-              </figcaption>
             </figure>
           ))}
         </div>
@@ -300,7 +297,7 @@ export function CommissionSplit({ market }: { market: Market }) {
           ))}
         </ol>
         <div className="acts">
-          <Link className="btn-q" data-magnetic href={`/${market}/atelier`}>
+          <Link className="btn-q" href={`/${market}/atelier`}>
             Request a consultation
           </Link>
         </div>
@@ -321,7 +318,7 @@ export function CommissionSplit({ market }: { market: Market }) {
           ))}
         </ol>
         <div className="acts">
-          <Link className="btn-q" data-magnetic href={`/${market}/atelier`}>
+          <Link className="btn-q" href={`/${market}/atelier`}>
             Enquire about bridal
           </Link>
         </div>

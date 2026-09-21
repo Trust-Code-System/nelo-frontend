@@ -16,6 +16,9 @@ describe('legacyRedirect', () => {
     expect(legacyRedirect('/pages/about-us')).toBe('/ng/about');
     expect(legacyRedirect('/pages/contact')).toBe('/ng/contact');
     expect(legacyRedirect('/pages/order-tracking')).toBe('/ng/order-tracking');
+    expect(legacyRedirect('/pages/privacy-policy')).toBe('/ng/privacy');
+    expect(legacyRedirect('/policies/privacy-policy')).toBe('/ng/privacy');
+    expect(legacyRedirect('/policies/terms-of-service')).toBe('/ng/terms');
   });
 
   it('carries a product or collection handle onto the market-prefixed path', () => {

@@ -41,6 +41,16 @@ const EXACT: Readonly<Record<string, string>> = {
   '/pages/refund-policy': `/${DEFAULT_MARKET}/returns`,
   '/pages/size-guide': `/${DEFAULT_MARKET}/size-guide`,
   '/pages/size-chart': `/${DEFAULT_MARKET}/size-guide`,
+  '/pages/faqs': `/${DEFAULT_MARKET}/client-care`,
+  '/pages/faq': `/${DEFAULT_MARKET}/client-care`,
+  '/pages/privacy-policy': `/${DEFAULT_MARKET}/privacy`,
+  '/pages/privacy': `/${DEFAULT_MARKET}/privacy`,
+  '/pages/terms-of-service': `/${DEFAULT_MARKET}/terms`,
+  '/pages/terms-and-policies': `/${DEFAULT_MARKET}/terms`,
+  '/policies/privacy-policy': `/${DEFAULT_MARKET}/privacy`,
+  '/policies/terms-of-service': `/${DEFAULT_MARKET}/terms`,
+  '/policies/refund-policy': `/${DEFAULT_MARKET}/returns`,
+  '/policies/shipping-policy': `/${DEFAULT_MARKET}/shipping`,
 
   // The atelier absorbs three old pages: bridal, bespoke and the consultation booking page.
   // They are one surface now because they are one process.

@@ -34,10 +34,13 @@ const STATIC_PATHS = [
   { path: '/collections', priority: 0.9, changeFrequency: 'daily' as const },
   { path: '/shop', priority: 1, changeFrequency: 'daily' as const },
   { path: '/atelier', priority: 0.9, changeFrequency: 'weekly' as const },
+  { path: '/client-care', priority: 0.7, changeFrequency: 'monthly' as const },
   { path: '/size-guide', priority: 0.7, changeFrequency: 'monthly' as const },
   { path: '/about', priority: 0.6, changeFrequency: 'monthly' as const },
   { path: '/shipping', priority: 0.5, changeFrequency: 'monthly' as const },
   { path: '/returns', priority: 0.5, changeFrequency: 'monthly' as const },
+  { path: '/privacy', priority: 0.4, changeFrequency: 'yearly' as const },
+  { path: '/terms', priority: 0.4, changeFrequency: 'yearly' as const },
   { path: '/contact', priority: 0.5, changeFrequency: 'monthly' as const },
   // Indexable while empty: people search for "track my order" by name. The page carries
   // `noindex` only once a code is in the query string.

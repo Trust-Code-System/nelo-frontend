@@ -91,6 +91,10 @@ export function MotionProvider({ children }: { children: ReactNode }) {
       smoothWheel: true,
       syncTouch: false,
       wheelMultiplier: 0.86,
+      prevent: (node) =>
+        Boolean(node.closest?.('select, [data-lenis-prevent]')) ||
+        Boolean(document.querySelector('select:open')),
+      virtualScroll: () => !document.querySelector('select:open'),
     });
     lenisRef.current = lenis;
     const updateScrollTrigger = () => ScrollTrigger.update();
@@ -101,6 +105,14 @@ export function MotionProvider({ children }: { children: ReactNode }) {
     gsap.ticker.lagSmoothing(0);
     document.documentElement.classList.add('motion-ready');
 
+    const onSelectToggle = (event: Event) => {
+      if (!(event.target instanceof HTMLSelectElement)) return;
+      const state = 'newState' in event ? String((event as ToggleEvent).newState) : '';
+      if (state === 'open') lenis.stop();
+      else if (state === 'closed') lenis.start();
+    };
+    document.addEventListener('toggle', onSelectToggle, true);
+
     const onPop = () => {
       popped.current = true;
     };
@@ -109,6 +121,7 @@ export function MotionProvider({ children }: { children: ReactNode }) {
     return () => {
       lenis.off('scroll', updateScrollTrigger);
       gsap.ticker.remove(tickLenis);
+      document.removeEventListener('toggle', onSelectToggle, true);
       lenis.destroy();
       lenisRef.current = null;
       window.removeEventListener('popstate', onPop);

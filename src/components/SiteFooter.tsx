@@ -19,40 +19,10 @@ export function SiteFooter({ market }: { market: Market }) {
     // is no longer inside the page's.
     <footer className="sitefoot">
       <div className="shell">
-        <div className="footer-top">
-          <div className="footer-lead">
-            <BrandMark href={`/${market}`} footer />
-            <p>Clothing with presence, cut in Lagos and made to remember you.</p>
-            <Link className="footer-lead__cta" href={`/${market}/collections`}>
-              Enter the collection <DirectLinkMark />
-            </Link>
-          </div>
-
-          <section className="footer-newsletter" aria-labelledby="footer-newsletter-title">
-            <div>
-              <span className="lab">Notes from the house</span>
-              <h2 id="footer-newsletter-title" data-motion-words>New collections, fittings and stories from Lagos.</h2>
-            </div>
-            <form action={`/${market}/contact`} method="get">
-              <input type="hidden" name="subject" value="Newsletter" />
-              <label className="sr" htmlFor="newsletter-email">Email address</label>
-              <input
-                id="newsletter-email"
-                type="email"
-                name="email"
-                placeholder="Email address"
-                autoComplete="email"
-                required
-              />
-              <button type="submit">Join the list <DirectLinkMark /></button>
-            </form>
-            <p>Occasional notes only. No noise, and you can leave at any time.</p>
-          </section>
-        </div>
-
         <div className="footer-directory">
           <section className="footer-contact" aria-labelledby="footer-contact-title">
             <div>
+              <BrandMark href={`/${market}`} footer />
               <span className="lab">Lagos store</span>
               <h2 id="footer-contact-title">Visit the house</h2>
             </div>
@@ -84,7 +54,7 @@ export function SiteFooter({ market }: { market: Market }) {
               </ul>
             </div>
             <div>
-              <h2>Client care</h2>
+              <h2><Link href={`/${market}/client-care`}>Client care</Link></h2>
               <ul>
                 <li><Link href={`/${market}/size-guide`}>Size guide</Link></li>
                 <li><Link href={`/${market}/shipping`}>Shipping</Link></li>
@@ -97,7 +67,8 @@ export function SiteFooter({ market }: { market: Market }) {
               <ul>
                 <li><Link href={`/${market}/about`}>About NELO</Link></li>
                 <li><Link href={`/${market}/contact`}>Contact</Link></li>
-                <li><a href={STORE_CONTACT.instagram} rel="noreferrer" target="_blank">Instagram <DirectLinkMark /></a></li>
+                <li><Link href={`/${market}/privacy`}>Privacy policy</Link></li>
+                <li><Link href={`/${market}/terms`}>Terms of service</Link></li>
               </ul>
             </div>
             <div>
@@ -109,9 +80,33 @@ export function SiteFooter({ market }: { market: Market }) {
             </div>
           </div>
         </div>
+        <section className="footer-newsletter" aria-labelledby="footer-newsletter-title">
+          <div>
+            <span className="lab">The list</span>
+            <h2 id="footer-newsletter-title">Join the newsletter.</h2>
+          </div>
+          <form action={`/${market}/contact`} method="get">
+            <input type="hidden" name="subject" value="Newsletter" />
+            <label className="sr" htmlFor="footer-newsletter-email">Email address</label>
+            <input
+              id="footer-newsletter-email"
+              type="email"
+              name="email"
+              placeholder="Email address"
+              autoComplete="email"
+              required
+            />
+            <button type="submit">Join the list <DirectLinkMark /></button>
+          </form>
+          <p>Occasional notes only. No noise, and you can leave at any time.</p>
+        </section>
         <div className="footer-base">
           <p>© 2026 NELO Woman · Lagos</p>
-          <p>Statement femininity · Sizes 6 to 30 · Worldwide delivery</p>
+          <p>
+            <Link href={`/${market}/terms`}>Terms of service</Link>
+            {' · '}
+            <Link href={`/${market}/privacy`}>Privacy policy</Link>
+          </p>
         </div>
       </div>
     </footer>

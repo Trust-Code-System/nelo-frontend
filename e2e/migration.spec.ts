@@ -19,6 +19,8 @@ const LEGACY: readonly [string, string][] = [
   ['/pages/consultation', '/ng/atelier'],
   ['/pages/nelo-bridal', '/ng/atelier'],
   ['/pages/size-guide', '/ng/size-guide'],
+  ['/policies/privacy-policy', '/ng/privacy'],
+  ['/pages/terms-of-service', '/ng/terms'],
   ['/products/some-garment', '/ng/products/some-garment'],
   ['/collections/bridal', '/ng/collections/bridal'],
   ['/collections/all', '/ng/collections'],

@@ -1,9 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { DirectLinkMark } from '@/components/DirectLinkMark';
-import type { CSSProperties } from 'react';
 import { formatNaira, type NeloProduct } from './nelo';
 import type { Market } from '@/lib/vendure/channels';
 
@@ -30,6 +29,111 @@ type Measurements = Record<MeasurementKey, string>;
 
 const EMPTY_MEASUREMENTS: Measurements = { bust: '', waist: '', hips: '', height: '' };
 
+function MeasurementSelect({
+  label,
+  placeholder,
+  value,
+  options,
+  open,
+  onOpenChange,
+  onChange,
+}: {
+  label: string;
+  placeholder: string;
+  value: string;
+  options: Array<{ value: string; label: string }>;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onChange: (value: string) => void;
+}) {
+  const root = useRef<HTMLDivElement>(null);
+  const listId = useId();
+  const selectedLabel = options.find((option) => option.value === value)?.label ?? placeholder;
+
+  useEffect(() => {
+    if (!open) return;
+
+    function onPointerDown(event: PointerEvent) {
+      if (root.current && !root.current.contains(event.target as Node)) onOpenChange(false);
+    }
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') onOpenChange(false);
+    }
+
+    document.addEventListener('pointerdown', onPointerDown);
+    document.addEventListener('keydown', onKeyDown);
+
+    const node = root.current;
+    const onWheel = (event: WheelEvent) => {
+      event.stopPropagation();
+    };
+    node?.addEventListener('wheel', onWheel, { passive: true });
+
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown);
+      document.removeEventListener('keydown', onKeyDown);
+      node?.removeEventListener('wheel', onWheel);
+    };
+  }, [open, onOpenChange]);
+
+  return (
+    <div
+      ref={root}
+      className="nelo-measure-select"
+      data-open={open ? 'true' : 'false'}
+    >
+      <button
+        type="button"
+        className="nelo-measure-select__trigger"
+        aria-label={label}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-controls={listId}
+        onClick={() => onOpenChange(!open)}
+      >
+        {selectedLabel}
+      </button>
+      <div
+        id={listId}
+        className="nelo-measure-select__menu"
+        role="listbox"
+        aria-label={label}
+        data-open={open ? 'true' : 'false'}
+        data-lenis-prevent
+        aria-hidden={!open}
+        inert={!open}
+        onWheel={(event) => event.stopPropagation()}
+      >
+        <button
+          type="button"
+          role="option"
+          aria-selected={!value}
+          onClick={() => {
+            onChange('');
+            onOpenChange(false);
+          }}
+        >
+          {placeholder}
+        </button>
+        {options.map((option) => (
+          <button
+            key={option.value}
+            type="button"
+            role="option"
+            aria-selected={option.value === value}
+            onClick={() => {
+              onChange(option.value);
+              onOpenChange(false);
+            }}
+          >
+            {option.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function inchesLabel(value: number) {
   return `${value} in · ${Math.round(value * 2.54)} cm`;
 }
@@ -52,6 +156,7 @@ export function NeloVariantPicker({ product, market }: { product: NeloProduct; m
     firstAvailable?.option3 ?? '',
   ]);
   const [measurements, setMeasurements] = useState<Measurements>(EMPTY_MEASUREMENTS);
+  const [openMeasure, setOpenMeasure] = useState<MeasurementKey | null>(null);
 
   const variant = useMemo(
     () =>
@@ -135,38 +240,45 @@ export function NeloVariantPicker({ product, market }: { product: NeloProduct; m
           <Link href={`/${market}/size-guide`}>How to measure <DirectLinkMark /></Link>
         </div>
         <div className="nelo-measurements__grid">
-          {(Object.keys(MEASUREMENT_OPTIONS) as Array<keyof typeof MEASUREMENT_OPTIONS>).map((key) => (
-            <label key={key}>
-              <span>{key === 'hips' ? 'Hips' : `${key[0]!.toUpperCase()}${key.slice(1)}`} (inches)</span>
-              <select
-                aria-label={key === 'hips' ? 'Hips' : `${key[0]!.toUpperCase()}${key.slice(1)}`}
-                value={measurements[key]}
-                onChange={(event) =>
-                  setMeasurements((current) => ({ ...current, [key]: event.target.value }))
-                }
-              >
-                <option value="">Select {key}</option>
-                {MEASUREMENT_OPTIONS[key].map((value) => (
-                  <option key={value} value={value}>{inchesLabel(value)}</option>
-                ))}
-              </select>
-            </label>
-          ))}
-          <label>
+          {(Object.keys(MEASUREMENT_OPTIONS) as Array<keyof typeof MEASUREMENT_OPTIONS>).map((key) => {
+            const label = key === 'hips' ? 'Hips' : `${key[0]!.toUpperCase()}${key.slice(1)}`;
+            return (
+              <div key={key}>
+                <span>{label} (inches)</span>
+                <MeasurementSelect
+                  label={label}
+                  placeholder={`Select ${key}`}
+                  value={measurements[key]}
+                  options={MEASUREMENT_OPTIONS[key].map((value) => ({
+                    value: String(value),
+                    label: inchesLabel(value),
+                  }))}
+                  open={openMeasure === key}
+                  onOpenChange={(next) => setOpenMeasure(next ? key : null)}
+                  onChange={(value) =>
+                    setMeasurements((current) => ({ ...current, [key]: value }))
+                  }
+                />
+              </div>
+            );
+          })}
+          <div>
             <span>Height</span>
-            <select
-              aria-label="Height"
+            <MeasurementSelect
+              label="Height"
+              placeholder="Select height"
               value={measurements.height}
-              onChange={(event) =>
-                setMeasurements((current) => ({ ...current, height: event.target.value }))
+              options={HEIGHT_OPTIONS.map((value) => ({
+                value: String(value),
+                label: heightLabel(value),
+              }))}
+              open={openMeasure === 'height'}
+              onOpenChange={(next) => setOpenMeasure(next ? 'height' : null)}
+              onChange={(value) =>
+                setMeasurements((current) => ({ ...current, height: value }))
               }
-            >
-              <option value="">Select height</option>
-              {HEIGHT_OPTIONS.map((value) => (
-                <option key={value} value={value}>{heightLabel(value)}</option>
-              ))}
-            </select>
-          </label>
+            />
+          </div>
         </div>
       </fieldset>
 

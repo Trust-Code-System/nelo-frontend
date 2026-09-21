@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { Instrument_Sans, IBM_Plex_Mono } from 'next/font/google';
 import { siteUrl } from '@/lib/seo/site';
-import { AdaptiveCursor } from '@/components/AdaptiveCursor';
 import { MotionProvider } from '@/components/motion/MotionProvider';
 import 'lenis/dist/lenis.css';
 import './globals.css';
@@ -50,7 +49,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${sans.variable} ${mono.variable}`}>
       <body>
         <MotionProvider>{children}</MotionProvider>
-        <AdaptiveCursor />
       </body>
     </html>
   );

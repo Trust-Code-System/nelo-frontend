@@ -3,6 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { DirectLinkMark } from '@/components/DirectLinkMark';
+import { HouseNotes } from '@/components/HouseNotes';
 import { SiteFooter } from '@/components/SiteFooter';
 import { SiteHeader } from '@/components/SiteHeader';
 import { CollectionsExperience } from '@/features/collections/CollectionsExperience';
@@ -119,6 +120,8 @@ export default async function CollectionsPage({ params }: { params: Promise<{ ma
           <h2>Every chapter, in one index.</h2>
           <Link className="btn" href={`/${market}/shop`}>Shop all 77 pieces</Link>
         </section>
+
+        <HouseNotes market={market} />
       </main>
       <SiteFooter market={market} />
     </CollectionsExperience>

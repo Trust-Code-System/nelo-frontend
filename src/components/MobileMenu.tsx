@@ -94,9 +94,9 @@ export function MobileMenu({ market }: { market: Market }) {
                   ['02', 'Shop all', `/${market}/shop`],
                   ['03', 'Collections', `/${market}/collections`],
                   ['04', 'Atelier', `/${market}/atelier`],
-                  ['05', 'Search', `/${market}/search`],
-                  ['06', 'Your account', `/${market}/account`],
-                  ['07', 'Size guide', `/${market}/size-guide`],
+                  ['05', 'Client care', `/${market}/client-care`],
+                  ['06', 'Search', `/${market}/search`],
+                  ['07', 'Your account', `/${market}/account`],
                 ] as const).map(([number, label, href], index) => (
                   <Link
                     key={href}

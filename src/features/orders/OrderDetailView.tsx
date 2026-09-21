@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { dateZoneLabel, formatOrderDate, orderState } from './presentation';
+import { dateZoneLabel, formatOrderDate, orderState, paymentMethodLabel, paymentStateLabel } from './presentation';
 import { assetPreview } from '@/lib/vendure/assets';
 import { formatMoney, type Market } from '@/lib/vendure/channels';
 import type { OrderDetailFragment } from '@/lib/vendure/generated/graphql';
@@ -127,9 +127,9 @@ export function OrderDetailView({
             <dl className="ordmeta">
               {order.payments.map((payment) => (
                 <div className="spec" key={payment.id}>
-                  <dt>{payment.method}</dt>
+                  <dt>{paymentMethodLabel(payment.method)}</dt>
                   <dd>
-                    {payment.state} · {formatMoney(payment.amount, market)}
+                    {paymentStateLabel(payment.state)} · {formatMoney(payment.amount, market)}
                   </dd>
                 </div>
               ))}
