@@ -94,7 +94,13 @@ export function MotionProvider({ children }: { children: ReactNode }) {
       prevent: (node) =>
         Boolean(node.closest?.('select, [data-lenis-prevent]')) ||
         Boolean(document.querySelector('select:open')),
-      virtualScroll: () => !document.querySelector('select:open'),
+      virtualScroll: (data) => {
+        if (document.querySelector('select:open')) return false;
+        const path = data?.event?.composedPath?.() ?? [];
+        return !path.some(
+          (node) => node instanceof HTMLElement && node.hasAttribute('data-lenis-prevent'),
+        );
+      },
     });
     lenisRef.current = lenis;
     const updateScrollTrigger = () => ScrollTrigger.update();

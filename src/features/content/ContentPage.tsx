@@ -57,7 +57,7 @@ export function ContentPage({
           </div>
         </div>
 
-        <div className={aside ? 'contentgrid' : undefined} style={{ paddingTop: 'var(--s7)' }}>
+        <div className={aside ? 'contentgrid' : 'content-body'}>
           <article className="prose">{children}</article>
           {/* A div rather than an <aside>: see AccountShell. */}
           {aside ? <div className="aside">{aside}</div> : null}

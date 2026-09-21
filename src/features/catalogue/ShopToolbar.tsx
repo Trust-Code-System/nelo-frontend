@@ -52,6 +52,38 @@ export function ShopToolbar({
     };
   }, [open]);
 
+  useEffect(() => {
+    if (!open) return;
+
+    document.documentElement.classList.add('shop-filter-lock');
+
+    const menu = () => root.current?.querySelector<HTMLElement>('.shop-filter__menu[data-open="true"]');
+
+    const insideOpenMenu = (target: EventTarget | null) => {
+      const panel = menu();
+      return Boolean(panel && target instanceof Node && panel.contains(target));
+    };
+
+    const onWheel = (event: WheelEvent) => {
+      if (insideOpenMenu(event.target)) return;
+      event.preventDefault();
+    };
+
+    const onTouchMove = (event: TouchEvent) => {
+      if (insideOpenMenu(event.target)) return;
+      event.preventDefault();
+    };
+
+    document.addEventListener('wheel', onWheel, { capture: true, passive: false });
+    document.addEventListener('touchmove', onTouchMove, { passive: false });
+
+    return () => {
+      document.documentElement.classList.remove('shop-filter-lock');
+      document.removeEventListener('wheel', onWheel, true);
+      document.removeEventListener('touchmove', onTouchMove);
+    };
+  }, [open]);
+
   const panels: Array<{
     key: Panel;
     label: string;
@@ -131,8 +163,13 @@ function ShopDisclosure({
         id={panelId}
         className={`shop-filter__menu ${panel.menuClass ?? ''}`}
         data-open={expanded ? 'true' : 'false'}
+        data-lenis-prevent
+        data-lenis-prevent-wheel
+        data-lenis-prevent-touch
         aria-hidden={!expanded}
         inert={!expanded}
+        onWheel={(event) => event.stopPropagation()}
+        onTouchMove={(event) => event.stopPropagation()}
       >
         {panel.options.map((option) => (
           <Link

@@ -737,10 +737,16 @@ details .body{padding-bottom:var(--s5); color:var(--smoke); font-size:var(--t-sm
 .phead>div:first-child{flex:1 1 30rem; min-width:0}
 
 /* The prose column is capped at 66ch, so a `1fr` first track pushed the aside to the far
-   right with a void between them. Sizing the track to the copy keeps the two adjacent. */
-.contentgrid{grid-template-columns:minmax(0,68ch) minmax(0,21rem); justify-content:start}
+   right with a void between them. Sizing the track to the copy keeps the two adjacent.
+   Desktop only: the same two tracks on a phone leave ~20px for the article and drop the
+   Also-read card on top of the copy. */
+@media (min-width:981px){
+  .contentgrid{grid-template-columns:minmax(0,68ch) minmax(16rem,21rem); justify-content:start}
+}
+.contentgrid > .prose,
+.contentgrid > .aside{min-width:0}
 /* .prose already carries the bottom padding; the grid adding its own doubled it. */
-.contentgrid{padding-bottom:0}
+.contentgrid,.content-body{padding-top:var(--s7);padding-bottom:0}
 
 /* Fig. 01 needs room for its own labels: below about 320px the 7.5px mono type in the
    drawing stops being legible, and the aside is narrower than that on a phone. */
@@ -1723,6 +1729,26 @@ details summary{font-family:var(--sans);font-size:12px;font-weight:700;letter-sp
 .contentgrid{gap:clamp(36px,7vw,96px)}
 .prose{font-size:16px}
 .prose h2{font-size:clamp(1.7rem,2.7vw,2.5rem);letter-spacing:-.035em;border:0;margin-top:64px}
+
+/* Written pages: one column on a phone so the black card cannot sit over the policy. */
+@media (max-width:980px){
+  .contentgrid{
+    grid-template-columns:1fr;
+    justify-content:stretch;
+    gap:28px;
+  }
+  .contentgrid > .prose,
+  .contentgrid > .aside{
+    width:100%;
+    max-width:none;
+  }
+  .aside{
+    position:static;
+    top:auto;
+    width:100%;
+    max-width:none;
+  }
+}
 .mdefs{border-top-color:var(--hair)}
 .tablewrap{border:1px solid var(--hair);border-radius:var(--r-md);overflow:auto}
 .rows{margin-top:0}
@@ -1749,13 +1775,26 @@ details summary{font-family:var(--sans);font-size:12px;font-weight:700;letter-sp
 
 @media (max-width:760px){
   .phead,.proj-head,.ahero{padding:28px 22px;border-radius:22px}
-  .phead h1,.proj-head h1,.ahero h1{font-size:clamp(2.5rem,13vw,4.25rem)}
+  .phead h1,.proj-head h1,.ahero h1{font-size:clamp(2.15rem,11vw,3.4rem);line-height:.96}
   .aform fieldset{padding:18px;border-radius:20px}
   .mm{grid-template-columns:1fr 86px 72px}
   .panel{padding:24px 18px}
   .acct-nav{width:100%;overflow-x:auto;flex-wrap:nowrap;border-radius:var(--r-md)}
   .acct-nav a{white-space:nowrap}
   .searchform{width:100%}
+  .contentgrid,.content-body{gap:22px;padding-top:20px}
+  .prose{font-size:16.5px;line-height:1.65;overflow-wrap:break-word}
+  .prose h2{margin-top:32px;font-size:clamp(1.4rem,7vw,1.85rem);line-height:1.15}
+  .phead>div:first-child,.proj-head>div:first-child,.ahero>div:first-child{
+    flex:1 1 auto;width:100%;max-width:100%
+  }
+  .aside{
+    padding:22px 20px;
+    border-radius:20px;
+    box-shadow:none;
+  }
+  .aside h2,.aside h3{margin:8px 0 14px;font-size:1.35rem}
+  .aside li a{display:block;padding-block:6px}
 }
 
 /* ===========================================================================
@@ -2892,12 +2931,20 @@ details summary{font-family:var(--sans);font-size:12px;font-weight:700;letter-sp
   box-shadow:0 28px 60px -38px rgba(0,0,0,.76);
   transform-origin:top left;
   animation:shop-filter-in 220ms cubic-bezier(.22,1,.36,1) both;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
 }
 .shop-filter__menu a{display:flex;align-items:center;min-height:38px;padding:8px 10px;border-radius:8px;font-size:12px}
 .shop-filter__menu a:hover,.shop-filter__menu a:focus-visible{background:var(--bone)}
 .shop-filter__menu a[aria-current="true"]{background:var(--ink);color:var(--paper)}
 .shop-filter__menu--colours{grid-template-columns:1fr 1fr;min-width:370px}
-.shop-filter__menu--sizes{grid-template-columns:repeat(4,1fr);min-width:250px}
+.shop-filter__menu--sizes{grid-template-columns:repeat(4,minmax(0,1fr));min-width:250px;gap:4px}
+.shop-filter__menu--sizes a{
+  justify-content:center;
+  text-align:center;
+  min-width:0;
+  padding:8px 4px;
+}
 .shop-filter--sort{margin-left:6px}
 .shop-filter--sort .shop-filter__menu{right:0;left:auto;transform-origin:top right}
 @keyframes shop-filter-in{from{opacity:0;transform:translateY(-6px) scale(.985)}to{opacity:1;transform:none}}
@@ -2988,11 +3035,13 @@ details summary{font-family:var(--sans);font-size:12px;font-weight:700;letter-sp
   .shop-index-intro__film{position:absolute;inset:0 0 42%;grid-template-columns:1fr 1fr}.shop-index-intro__film img{min-height:100%;object-position:top center}
   .shop-index-intro__meta{margin-top:28px;padding-top:0}.shop-index-intro__edition{top:14px;right:14px;bottom:auto}
   .shop-toolbar{position:relative;top:0;z-index:40;display:flex;flex-wrap:wrap;align-items:center;overflow:visible}
-  .shop-toolbar__filters{order:2;width:100%;overflow:visible;padding-top:9px;border-top:1px solid var(--hair)}
+  .shop-toolbar__filters{position:relative;order:2;width:100%;overflow:visible;padding-top:9px;border-top:1px solid var(--hair)}
   .shop-toolbar__result{margin-left:0}.shop-filter--sort{margin-left:auto}
   .shop-filter[data-open="true"]{z-index:2}
-  /* Stay absolute under the trigger. Fixed bottom sheets are trapped by the
-     header/Lenis transforms, so a tap opened the control and showed nothing. */
+  /* Colour and size sit mid-row, so a 92vw panel from the trigger hangs off the
+     phone and clips the last column of numbers. Anchor those menus to the
+     filter bar instead. Sort stays under its own control. */
+  .shop-toolbar__filters .shop-filter{position:static}
   .shop-filter__menu{
     position:absolute;
     top:calc(100% + 8px);
@@ -3002,10 +3051,21 @@ details summary{font-family:var(--sans);font-size:12px;font-weight:700;letter-sp
     width:min(92vw,22rem);
     max-height:min(62vh,24rem);
     overflow:auto;
+    overflow-x:hidden;
+    overscroll-behavior:contain;
+    -webkit-overflow-scrolling:touch;
+    touch-action:pan-y;
     transform-origin:top left;
   }
+  .shop-toolbar__filters .shop-filter__menu{
+    left:0;
+    right:0;
+    width:auto;
+    max-width:none;
+    transform-origin:top center;
+  }
   .shop-filter--sort .shop-filter__menu{left:auto;right:0;transform-origin:top right}
-  .shop-filter__menu--colours,.shop-filter__menu--sizes{min-width:0;width:min(92vw,22rem)}
+  .shop-filter__menu--colours,.shop-filter__menu--sizes{min-width:0}
   .collections-page{padding-top:48px}.collections-intro{grid-template-columns:1fr}.collections-intro>a{grid-column:auto;justify-self:start}.collections-intro h1{font-size:clamp(2.9rem,12.8vw,4.8rem)}
   .collections-grid{display:block}.collection-story,.collection-story:nth-child(3),.collection-story--lead,.collection-story--wide{margin:0 0 64px}.collection-story__image,.collection-story--lead .collection-story__image,.collection-story--wide .collection-story__image{aspect-ratio:4/5;border-radius:24px}.collection-story__copy{grid-template-columns:1fr}.collection-story__copy p{max-width:40ch}
   .collections-coda{padding:58px 24px}
@@ -3013,7 +3073,9 @@ details summary{font-family:var(--sans);font-size:12px;font-weight:700;letter-sp
 }
 @media (max-width:480px){
   .shop-index-intro__film img:nth-child(2){display:none}.shop-index-intro__film{grid-template-columns:1fr}
-  .shop-filter__menu--colours{grid-template-columns:1fr 1fr}.shop-filter__menu--sizes{grid-template-columns:repeat(4,1fr)}
+  .shop-filter__menu--colours{grid-template-columns:1fr 1fr}
+  .shop-filter__menu--sizes{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .shop-filter__menu--sizes a{min-height:42px;padding:10px 2px}
   .auth-stage__measure{inset:12px 12px auto}.auth-stage__measure span{font-size:8px}.auth-stage__form{padding-inline:20px}
 }
 @media (prefers-reduced-motion:reduce){
@@ -3057,6 +3119,14 @@ details summary{font-family:var(--sans);font-size:12px;font-weight:700;letter-sp
   transform:translateY(0) scale(1);
   transition:opacity 240ms cubic-bezier(.16,1,.3,1),transform 240ms cubic-bezier(.16,1,.3,1),visibility 0s;
 }
+
+html.shop-filter-lock,
+html.shop-filter-lock body{
+  overflow:hidden;
+  overscroll-behavior:none;
+}
+html.shop-filter-lock body{touch-action:none}
+html.shop-filter-lock .shop-filter__menu[data-open="true"]{touch-action:pan-y}
 
 /* One human-readable region selector replaces the competing currency pills. */
 .market-switcher{position:relative}
