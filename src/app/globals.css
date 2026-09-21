@@ -4762,7 +4762,13 @@ button:active>.rolltext .rolltext__rail,
   .house-motion{--reel-line:3.8rem}
   .house-motion__inner{padding-block:22px}
   .house-motion__meta .num{display:none}
-  .house-motion__rail>span{font-size:clamp(2.25rem,9.5vw,3rem);letter-spacing:-.055em}
+  /* 9.5vw was the operative term at 375px (it sits between the clamp's own floor and
+     ceiling, so the floor alone can't fix it) and rendered "Remembered in motion." - the
+     longest of the four ticker phrases - 25px wider than house-motion__window's 343px, so
+     its overflow:hidden clipped the last letter. 8.75vw is the fluid term that keeps this
+     phrase inside its window from 320px to 375px without the floor ever taking over -
+     verified at both widths, all four phrases, before landing here. */
+  .house-motion__rail>span{font-size:clamp(1.7rem,8.75vw,3rem);letter-spacing:-.055em}
   .house-motion__measure{height:16px}
 }
 
