@@ -3,6 +3,85 @@
 Headless storefront for Nelo Woman, built against the Vendure + Atelier backend in
 `nelo-commerce`. The Vendure **Shop API schema is the contract** between the two repos.
 
+## Setup
+
+You need **Node.js 20.9 or newer**. This repo pins **22.18.0** in `.nvmrc`.
+
+### 1. Install dependencies
+
+From this directory:
+
+```bash
+npm install
+```
+
+CI uses `npm ci`, which installs exactly what `package-lock.json` records. Use that when you want a clean install from the lockfile.
+
+### 2. Create the env file
+
+```bash
+cp .env.example .env.local
+```
+
+On Windows PowerShell:
+
+```powershell
+Copy-Item .env.example .env.local
+```
+
+`.env.local` is gitignored. The storefront will not load a catalogue until `VENDURE_SHOP_API_URL` and both channel tokens are set. Every variable is server-only. Do not prefix any of them with `NEXT_PUBLIC_`.
+
+| Variable | What to put |
+| --- | --- |
+| `VENDURE_SHOP_API_URL` | Shop API URL. Local harness: `http://localhost:3000/shop-api`. |
+| `VENDURE_CHANNEL_TOKEN_NG` | Token for the `nelo-ng` channel. |
+| `VENDURE_CHANNEL_TOKEN_INTERNATIONAL` | Token for the `nelo-international` channel. |
+| `VENDURE_SCHEMA` | Leave as `./schema/shop-api.graphql` unless you are regenerating types from a live endpoint. |
+| `NELO_SITE_URL` | Leave blank locally. It falls back to `http://localhost:4310`. |
+| `NELO_INTERNATIONAL_CHECKOUT` | Leave blank. International checkout stays closed until Paystack can settle USD. |
+
+### 3. Point it at a Shop API
+
+**Shared backend.** Ask the backend team for the Shop API URL and the two channel tokens, paste them into `.env.local`, and skip to step 4.
+
+**Local harness.** The storefront develops against a Vendure 3.7.3 app at `../vendure-dev` (SQLite, sample catalogue). It is not in this repo and it is not production. It does not include the Atelier plugin, Paystack, or Nelo's real channel data.
+
+```bash
+cd ../vendure-dev
+npm install
+npm run dev:server    # Shop API on :3000
+npm run dev:worker    # required — search indexing runs on the worker
+```
+
+On Windows, `npm run dev:server` exits with `EPERM` because the file watcher tries to watch `vendure.sqlite-journal`. From `vendure-dev`, start the server and worker without that watcher:
+
+```bash
+node node_modules/ts-node/dist/bin.js ./src/index.ts
+node node_modules/ts-node/dist/bin.js ./src/index-worker.ts
+```
+
+With both processes running, from `vendure-dev` in another terminal, create the two channels and print the tokens:
+
+```bash
+node setup-nelo-channels.mjs
+```
+
+Copy the printed `VENDURE_CHANNEL_TOKEN_NG` and `VENDURE_CHANNEL_TOKEN_INTERNATIONAL` lines into this repo's `.env.local`. The script also assigns the sample catalogue, shipping methods, and payment methods to both channels. After that, run `reindex` from the Vendure Dashboard at [http://localhost:3000/dashboard](http://localhost:3000/dashboard). Local login is `superadmin` / `superadmin`. The worker has to be running or the job stays pending and search returns nothing.
+
+### 4. Start the storefront
+
+```bash
+npm run dev
+```
+
+Open [http://localhost:4310](http://localhost:4310). An unknown market is a 404. A URL with no market segment redirects to `/ng`.
+
+To check the project the way CI does:
+
+```bash
+npm run verify    # typecheck, lint, unit tests, production build
+```
+
 ## Stack — resolved and pinned
 
 | | |
@@ -30,14 +109,7 @@ npm run codegen:check  # drift gate — fails if generated output is stale
 
 ## Local development backend
 
-The storefront develops against a **local Vendure 3.7.3 harness** at `../vendure-dev`
-(SQLite, seeded sample data). It is not the production backend and is not in this repo.
-
-```bash
-cd ../vendure-dev
-npm run dev:server    # Shop API on :3000
-npm run dev:worker    # required — search indexing runs on the worker, not the server
-```
+The install and boot sequence is in [Setup](#setup). This section is what that harness can and cannot do.
 
 Core commerce — products, collections, search, `activeOrder`, the cart, accounts, addresses,
 orders and checkout up to payment — is standard Vendure, so types generated here match what
@@ -45,9 +117,8 @@ production will expose. What the harness does **not** have is the Atelier plugin
 Nelo's real Channel data.
 
 `vendure-dev/setup-nelo-channels.mjs` creates the two Channels (`nelo-ng` NGN,
-`nelo-international` USD), assigns the catalogue to both, **assigns the shipping and payment
-methods to both** (without which checkout stalls with nothing to choose), and prints the
-tokens for `.env.local`. After assigning products you must `reindex` — and the **worker must
+`nelo-international` USD), assigns the catalogue to both, and **assigns the shipping and payment
+methods to both** (without which checkout stalls with nothing to choose). After assigning products you must `reindex` — and the **worker must
 be running** or the job sits PENDING and search returns nothing.
 
 ### Traps worth knowing before you hit them
@@ -77,7 +148,7 @@ be running** or the job sits PENDING and search returns nothing.
 
 ## Environment
 
-Copy `.env.example` to `.env.local`. Checkout uses the backend's concrete Paystack Shop API
+`.env.local` is created in [Setup](#setup). Checkout uses the backend's concrete Paystack Shop API
 contract; only international payment remains behind a storefront gate:
 
 | Variable | Purpose |
