@@ -1,5 +1,5 @@
 import { channelFor, type Market } from '@/lib/vendure/channels';
-import { DEV_PAYMENT_METHOD_CODE, PAYSTACK_METHOD_PREFIX } from '@/features/checkout/config';
+import { PAYSTACK_METHOD_CODE } from '@/features/checkout/paystack';
 
 /**
  * Turning Vendure's order state into something a customer can read.
@@ -76,13 +76,10 @@ export function isSettledState(state: string): boolean {
  *
  * Same rule as `orderState`: an unrecognised code falls through to itself rather than to a
  * friendly guess, because it is better to show a raw code once than to lie about what it
- * is. The dev handler is named for what it is - see `devPaymentEnabled` - so a screen that
- * somehow reaches it in an unintended deployment reads as a test artifact, not as a real
- * payment method.
+ * is.
  */
 export function paymentMethodLabel(code: string): string {
-  if (code === DEV_PAYMENT_METHOD_CODE) return 'Development payment (test)';
-  if (code.toLowerCase().startsWith(PAYSTACK_METHOD_PREFIX)) return 'Paystack';
+  if (code === PAYSTACK_METHOD_CODE) return 'Paystack';
   return code;
 }
 

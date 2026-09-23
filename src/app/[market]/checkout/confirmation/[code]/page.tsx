@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { SiteFooter } from '@/components/SiteFooter';
 import { SiteHeader } from '@/components/SiteHeader';
 import { PaymentStatusPoll } from '@/features/checkout/PaymentStatusPoll';
+import { isPaystackReference } from '@/features/checkout/paystack';
 import { PAID_STATES } from '@/features/checkout/states';
 import { OrderDetailView } from '@/features/orders/OrderDetailView';
 import { isMarket } from '@/lib/vendure/channels';
@@ -42,15 +43,23 @@ export default async function ConfirmationPage({
   // can acknowledge that the customer came back from somewhere - it is never matched against
   // anything, never stored, and never used to decide that an order is paid.
   const raw = await searchParams;
-  const returnedFromProvider = Boolean(raw.reference ?? raw.trxref);
+  const candidateReference = raw.reference ?? raw.trxref;
+  const rawReference = Array.isArray(candidateReference)
+    ? candidateReference[0]
+    : candidateReference;
+  const reference = isPaystackReference(rawReference) ? rawReference : null;
+  const returnedFromProvider = Boolean(rawReference);
 
   let order: OrderDetailFragment | null = null;
-  let reachable = true;
+  let orderLookupFailed = false;
   try {
     const { data } = await vendureQuery(OrderByCodeDocument, { code }, { market });
     order = data.orderByCode;
   } catch {
-    reachable = false;
+    // A pending guest Order is deliberately not readable through orderByCode yet. The
+    // custom Paystack status query below has the narrower active-session ownership rule and
+    // remains available until settlement makes the native Order lookup readable.
+    orderLookupFailed = true;
   }
 
   const paid = Boolean(order && PAID_STATES.has(order.state));
@@ -79,7 +88,7 @@ export default async function ConfirmationPage({
         </div>
 
         <section className="section-gap">
-          {!reachable ? (
+          {orderLookupFailed && !reference ? (
             <div className="empty" style={{ textAlign: 'left', alignItems: 'flex-start' }}>
               <span className="lab">Temporarily unavailable</span>
               <h2>We cannot reach the store to confirm this</h2>
@@ -93,7 +102,24 @@ export default async function ConfirmationPage({
               {/* Rendered whenever the order is not confirmed paid, including when the
                   customer has just come back from a provider redirect. */}
               {!paid ? (
-                <PaymentStatusPoll market={market} code={code} alreadyPaid={false} />
+                reference ? (
+                  <PaymentStatusPoll
+                    market={market}
+                    code={code}
+                    reference={reference}
+                    alreadyPaid={false}
+                  />
+                ) : (
+                  <div className="empty" style={{ textAlign: 'left', alignItems: 'flex-start' }}>
+                    <span className="lab">Payment reference missing</span>
+                    <h2>We need your payment reference to check this order</h2>
+                    <p>
+                      Nothing about this return link proves a charge. Keep order{' '}
+                      <span className="num">{code}</span> and contact us so we can check it
+                      safely.
+                    </p>
+                  </div>
+                )
               ) : null}
 
               {paid && order ? (

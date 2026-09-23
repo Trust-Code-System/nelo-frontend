@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import type { Market } from '@/lib/vendure/channels';
+import { paystackErrorMessage } from './paystack';
 
 /**
  * "Confirming payment" - never "thank you".
@@ -28,16 +29,19 @@ type Status = 'waiting' | 'paid' | 'failed' | 'timeout' | 'unknown';
 export function PaymentStatusPoll({
   market,
   code,
+  reference,
   /** True when the server render already saw a paid state - the poll then never starts. */
   alreadyPaid,
 }: {
   market: Market;
   code: string;
+  reference: string;
   alreadyPaid: boolean;
 }) {
   const router = useRouter();
   const [status, setStatus] = useState<Status>(alreadyPaid ? 'paid' : 'waiting');
   const [attempt, setAttempt] = useState(0);
+  const [errorCode, setErrorCode] = useState<string | null>(null);
   // Bumping this restarts the poll loop. "Check again" has to reopen the budget, and the
   // effect's dependencies are the only thing that can do that.
   const [restarts, setRestarts] = useState(0);
@@ -54,7 +58,7 @@ export function PaymentStatusPoll({
 
       try {
         const response = await fetch(
-          `/api/order-status/${encodeURIComponent(code)}?market=${market}`,
+          `/api/order-status/${encodeURIComponent(code)}?market=${market}&reference=${encodeURIComponent(reference)}`,
           { cache: 'no-store' },
         );
         const body = (await response.json()) as {
@@ -62,6 +66,7 @@ export function PaymentStatusPoll({
           paid?: boolean;
           state?: string | null;
           terminal?: boolean;
+          errorCode?: string | null;
         };
 
         if (cancelled.current) return;
@@ -73,6 +78,7 @@ export function PaymentStatusPoll({
           return;
         }
         if (body.terminal) {
+          setErrorCode(body.errorCode ?? null);
           setStatus('failed');
           router.refresh();
           return;
@@ -101,7 +107,7 @@ export function PaymentStatusPoll({
       cancelled.current = true;
       if (timer) clearTimeout(timer);
     };
-  }, [alreadyPaid, code, market, router, restarts]);
+  }, [alreadyPaid, code, market, reference, router, restarts]);
 
   if (status === 'paid') return null;
 
@@ -127,10 +133,10 @@ export function PaymentStatusPoll({
 
       {status === 'failed' ? (
         <>
-          <h2>This order was not paid</h2>
+          <h2>We could not confirm this payment</h2>
           <p aria-live="polite">
-            The store has no confirmed payment for <span className="num">{code}</span>.
-            Nothing has been charged to you.
+            {paystackErrorMessage(errorCode)} Order <span className="num">{code}</span> is
+            saved for support.
           </p>
         </>
       ) : null}
@@ -163,6 +169,7 @@ export function PaymentStatusPoll({
           onClick={() => {
             setStatus('waiting');
             setAttempt(0);
+            setErrorCode(null);
             setRestarts((value) => value + 1);
             router.refresh();
           }}

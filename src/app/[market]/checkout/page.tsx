@@ -10,11 +10,8 @@ import {
   setCheckoutCustomer,
   setCheckoutShippingAddress,
 } from '@/features/checkout/actions';
-import {
-  devPaymentEnabled,
-  internationalCheckoutEnabled,
-  isPaystackMethod,
-} from '@/features/checkout/config';
+import { internationalCheckoutEnabled } from '@/features/checkout/config';
+import { PAYSTACK_METHOD_CODE } from '@/features/checkout/paystack';
 import { PlaceOrder } from '@/features/checkout/PlaceOrder';
 import { ShippingChoice } from '@/features/checkout/ShippingChoice';
 import { resolveStep, STEP_LABELS, STEPS, stepState } from '@/features/checkout/states';
@@ -49,10 +46,9 @@ export const fetchCache = 'only-no-store';
  * The order of operations is Vendure's: customer → shipping address → eligible shipping
  * methods → shipping method → ArrangingPayment → eligible payment methods → payment.
  *
- * Payment is the one part that is not finished, and the reason is external: the Paystack
- * initialise-payment operation does not exist on the backend yet. Everything up to it is
- * real. Against the local harness the development handler completes the flow end to end;
- * in any other deployment the review step says plainly that payment is not connected.
+ * Nigerian checkout finishes through the backend's hosted Paystack flow. The storefront
+ * never receives card details, never supplies a payable amount and never treats a browser
+ * callback as proof of payment.
  */
 export default async function CheckoutPage({
   params,
@@ -166,7 +162,6 @@ export default async function CheckoutPage({
     }
   }
 
-  const devPath = devPaymentEnabled();
   const selectedShippingId = order.shippingLines[0]?.shippingMethod.id;
   const defaultAddress =
     addresses.find((address) => address.defaultShippingAddress) ?? addresses[0];
@@ -310,7 +305,6 @@ export default async function CheckoutPage({
             <ReviewStep
               market={market}
               order={order}
-              devPath={devPath}
               paymentMethods={paymentMethods}
             />
           ) : null}
@@ -377,12 +371,10 @@ export default async function CheckoutPage({
 function ReviewStep({
   market,
   order,
-  devPath,
   paymentMethods,
 }: {
   market: Market;
   order: OrderDetailFragment;
-  devPath: boolean;
   paymentMethods: readonly {
     code: string;
     name: string;
@@ -391,10 +383,7 @@ function ReviewStep({
   }[];
 }) {
   const address = order.shippingAddress;
-  const paystack = paymentMethods.find((method) => isPaystackMethod(method.code));
-  const devMethod = paymentMethods.find(
-    (method) => !isPaystackMethod(method.code) && method.isEligible,
-  );
+  const paystack = paymentMethods.find((method) => method.code === PAYSTACK_METHOD_CODE);
 
   return (
     <>
@@ -445,23 +434,18 @@ function ReviewStep({
       </details>
 
       <div className="section-gap">
-        {devPath && devMethod ? (
+        {paystack?.isEligible ? (
           <PlaceOrder
             market={market}
             payable={formatMoney(order.totalWithTax, market)}
-            devPath
           />
         ) : (
           <div className="empty" style={{ textAlign: 'left', alignItems: 'flex-start' }}>
-            <span className="lab">Payment not connected</span>
-            <h2>We cannot take payment yet</h2>
+            <span className="lab">Payment unavailable</span>
+            <h2>Paystack is not available for this order</h2>
             <p>
-              Everything up to this point is real and saved against your order. What is
-              missing is the payment step itself:{' '}
-              {paystack
-                ? `Paystack is configured on the store as "${paystack.name}", but the operation that starts a Paystack transaction does not exist on the Shop API yet.`
-                : 'no payment method the store will accept for this order is connected to a working payment flow yet.'}{' '}
-              We will not show you a receipt for money that has not moved.
+              {paystack?.message ??
+                'The store has not made Paystack eligible for this order. Nothing has been charged.'}
             </p>
             <div className="acts-row">
               <Link className="btn-q" href={`/${market}/contact`}>
