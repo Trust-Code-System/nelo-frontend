@@ -130,6 +130,7 @@ test.describe('mobile navigation', () => {
     await page.goto('/ng');
 
     const button = page.getByRole('button', { name: /^menu$/i });
+    await expect(button).toHaveAttribute('data-ready', 'true');
     await expect(button).toHaveAttribute('aria-expanded', 'false');
 
     await button.click();
@@ -146,6 +147,7 @@ test.describe('mobile navigation', () => {
     await page.goto('/ng');
 
     const button = page.getByRole('button', { name: /^menu$/i });
+    await expect(button).toHaveAttribute('data-ready', 'true');
     await button.click();
     await page.keyboard.press('Escape');
 
@@ -158,8 +160,10 @@ test.describe('mobile navigation', () => {
 
   test('the market can be switched on a phone', async ({ page }) => {
     await page.goto('/ng');
-    await page.getByRole('button', { name: /^menu$/i }).click();
-    await page.getByRole('link', { name: /INT/ }).click();
+    const menu = page.getByRole('button', { name: /^menu$/i });
+    await expect(menu).toHaveAttribute('data-ready', 'true');
+    await menu.click();
+    await page.locator('.menu-panel-markets').getByRole('link', { name: /Worldwide/ }).click();
     await expect(page).toHaveURL(/\/international/);
   });
 });
@@ -172,10 +176,12 @@ test.describe('the menu panel is actually hidden when closed', () => {
 
     // `hidden` alone does not hide an element that sets its own `display`, so assert on
     // visibility rather than on the attribute.
-    const measurements = page.getByRole('link', { name: 'Your measurements' });
-    await expect(measurements).toBeHidden();
+    const account = page.getByRole('link', { name: 'Your account' });
+    await expect(account).toBeHidden();
 
-    await page.getByRole('button', { name: /^menu$/i }).click();
-    await expect(measurements).toBeVisible();
+    const menu = page.getByRole('button', { name: /^menu$/i });
+    await expect(menu).toHaveAttribute('data-ready', 'true');
+    await menu.click();
+    await expect(account).toBeVisible();
   });
 });

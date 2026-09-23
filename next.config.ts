@@ -31,6 +31,13 @@ const config: NextConfig = {
     // against the real asset host above — this is a harness limitation, not a policy.
     unoptimized: process.env.NODE_ENV === 'development',
   },
+  async rewrites() {
+    // Browsers request /favicon.ico before reading the app icon link. The artwork lives
+    // at app/icon.png, which Next serves as /icon.png.
+    return {
+      beforeFiles: [{ source: '/favicon.ico', destination: '/icon.png' }],
+    };
+  },
 };
 
 export default config;
