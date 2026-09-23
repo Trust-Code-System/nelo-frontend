@@ -26,6 +26,11 @@ export function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
   const [, first] = pathname.split('/');
 
+  // The backend has one fixed Paystack callback URL without a market segment. Its Route
+  // Handler restores the market from the short-lived HttpOnly checkout hint, so rewriting
+  // it here would bypass the handler and land on a non-existent market route.
+  if (pathname === '/checkout/payment-return') return NextResponse.next();
+
   if (isMarket(first)) return NextResponse.next();
 
   // Legacy first: `/collections/bridal` is both a Shopify URL and an unprefixed path, and it

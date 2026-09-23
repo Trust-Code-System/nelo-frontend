@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useId, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useId, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties } from 'react';
 import { DirectLinkMark } from '@/components/DirectLinkMark';
 import { formatNaira, type NeloProduct } from './nelo';
 import type { Market } from '@/lib/vendure/channels';
@@ -48,6 +48,7 @@ function MeasurementSelect({
 }) {
   const root = useRef<HTMLDivElement>(null);
   const listId = useId();
+  const triggerId = `${listId}-trigger`;
   const selectedLabel = options.find((option) => option.value === value)?.label ?? placeholder;
 
   useEffect(() => {
@@ -83,6 +84,7 @@ function MeasurementSelect({
       data-open={open ? 'true' : 'false'}
     >
       <button
+        id={triggerId}
         type="button"
         className="nelo-measure-select__trigger"
         aria-label={label}
@@ -97,7 +99,7 @@ function MeasurementSelect({
         id={listId}
         className="nelo-measure-select__menu"
         role="listbox"
-        aria-label={label}
+        aria-labelledby={triggerId}
         data-open={open ? 'true' : 'false'}
         data-lenis-prevent
         aria-hidden={!open}
@@ -157,6 +159,11 @@ export function NeloVariantPicker({ product, market }: { product: NeloProduct; m
   ]);
   const [measurements, setMeasurements] = useState<Measurements>(EMPTY_MEASUREMENTS);
   const [openMeasure, setOpenMeasure] = useState<MeasurementKey | null>(null);
+  const ready = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
 
   const variant = useMemo(
     () =>
@@ -192,7 +199,7 @@ export function NeloVariantPicker({ product, market }: { product: NeloProduct; m
   }, [market, measurements, product.handle, product.title, selectableOptions, selected, variant]);
 
   return (
-    <div className="nelo-variant-picker">
+    <div className="nelo-variant-picker" data-ready={ready ? 'true' : 'false'}>
       {selectableOptions.map((option) => {
         const position = option.position - 1;
         const isColour = option.name.toLocaleLowerCase() === 'colour';

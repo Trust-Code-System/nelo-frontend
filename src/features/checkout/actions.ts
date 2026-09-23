@@ -6,8 +6,8 @@ import { assertMarket, type Market } from '@/lib/vendure/channels';
 import { presentableMessage } from '@/lib/vendure/errors';
 import {
   ActiveOrderForCheckoutDocument,
-  AddPaymentToOrderDocument,
   ApplyCouponCodeDocument,
+  InitializePaystackPaymentDocument,
   RemoveCouponCodeDocument,
   SetCustomerForOrderDocument,
   SetOrderShippingAddressDocument,
@@ -19,17 +19,22 @@ import {
 import { writeSessionToken } from '@/lib/vendure/session';
 import { vendureQuery } from '@/lib/vendure/transport';
 import type { FormState } from '@/features/account/state';
-import { DEV_PAYMENT_METHOD_CODE, devPaymentEnabled, internationalCheckoutEnabled } from './config';
-import { PAID_STATES } from './states';
+import { internationalCheckoutEnabled } from './config';
+import { writePaymentReturnHint } from './payment-return';
+import {
+  isPaystackReference,
+  paystackAuthorizationUrl,
+  paystackErrorMessage,
+} from './paystack';
 
 /**
  * Checkout Server Actions.
  *
  * Shared rules, applied by every action in this file:
  *
- *   1. No amount, price or total is ever sent. `addPaymentToOrder` deliberately has no
- *      amount argument - Vendure charges its own `totalWithTax`. Anything the browser could
- *      contribute to the figure would be an attack surface.
+ *   1. No amount, price or total is ever sent. `initializePaystackPayment` has no input -
+ *      Vendure charges its own `totalWithTax`. Anything the browser could contribute to the
+ *      figure would be an attack surface.
  *   2. Every union is branched on `__typename`. `setOrderShippingMethod` returning
  *      `IneligibleShippingMethodError` is HTTP 200 and would otherwise read as success.
  *   3. Nothing is retried after an ambiguous response. A mutation whose result cannot be
@@ -260,34 +265,32 @@ export async function removeCoupon(_previous: FormState, form: FormData): Promis
 }
 
 /**
- * Place the order against the DEVELOPMENT payment handler.
- *
- * This exists so the whole journey is testable before the Paystack contract does. It is
- * unreachable unless `NELO_DEV_PAYMENT=enabled`, it is checked again here rather than only
- * in the UI, and no money moves through it.
+ * Initialize the active NGN Order against the backend's hosted Paystack flow.
  *
  * The sequence is deliberate:
  *
  *   transition to ArrangingPayment → confirm the order really is in that state →
- *   addPaymentToOrder → confirm the returned state is actually a paid state →
- *   only then show a confirmation.
+ *   initialize through the typed backend mutation → validate the provider origin →
+ *   retain only the Order code/reference needed by the fixed callback → leave for Paystack.
  *
  * `transitionOrderToState` is NULLABLE. A null result means the order was already in the
  * requested state, which is not the same as this call having moved it there - so the order
  * is re-read instead of the null being treated as either success or failure.
  */
-export async function placeDevOrder(_previous: FormState, form: FormData): Promise<FormState> {
+export async function startPaystackPayment(
+  _previous: FormState,
+  form: FormData,
+): Promise<FormState> {
   let destination: string;
   try {
     const market = assertMarket(form.get('market'));
     const gated = gateCheck(market);
     if (gated) return gated;
 
-    if (!devPaymentEnabled()) {
+    if (market !== 'ng') {
       return {
         status: 'error',
-        message:
-          'This storefront has no live payment path yet. The Paystack initialise operation does not exist on the backend, and the development handler is switched off here.',
+        message: 'Paystack checkout is currently available only for Nigerian naira orders.',
       };
     }
 
@@ -316,35 +319,41 @@ export async function placeDevOrder(_previous: FormState, form: FormData): Promi
       };
     }
 
-    const payment = await vendureQuery(
-      AddPaymentToOrderDocument,
-      {
-        input: {
-          method: DEV_PAYMENT_METHOD_CODE,
-          // The dummy handler's switches, sent explicitly so the happy path is not an
-          // accident of defaults. A real handler's metadata is the backend's contract.
-          metadata: { shouldDecline: false, shouldError: false, shouldErrorOnSettle: false },
-        },
-      },
-      { market },
-    );
-    const result = payment.data.addPaymentToOrder;
+    const initialized = await vendureQuery(InitializePaystackPaymentDocument, {}, { market });
+    const result = initialized.data.initializePaystackPayment;
 
-    if (result.__typename !== 'Order') {
-      return { status: 'error', message: result.message };
-    }
-
-    // HTTP 200 and an Order back still is not proof of payment. Only a state Vendure counts
-    // as paid produces a confirmation.
-    if (!PAID_STATES.has(result.state)) {
+    if (!isPaystackReference(result.reference)) {
       return {
         status: 'error',
-        message: `Payment did not complete - the order is in the ${result.state} state. Nothing has been charged. Your bag is unchanged.`,
+        message: 'Paystack returned an invalid payment reference. Nothing has been charged.',
       };
     }
 
-    revalidatePath(`/${market}`, 'layout');
-    destination = `/${market}/checkout/confirmation/${encodeURIComponent(result.code)}`;
+    if (result.status === 'settled' || result.status === 'processing') {
+      destination = `/${market}/checkout/confirmation/${encodeURIComponent(current.code)}?reference=${encodeURIComponent(result.reference)}`;
+    } else if (result.status === 'awaiting_payment') {
+      const checkoutUrl = paystackAuthorizationUrl(result.authorizationUrl);
+      if (!checkoutUrl) {
+        return {
+          status: 'error',
+          message:
+            'Paystack returned an invalid checkout address. Nothing has been charged; please try again.',
+        };
+      }
+      await writePaymentReturnHint({
+        market,
+        orderCode: current.code,
+        reference: result.reference,
+      });
+      destination = checkoutUrl;
+    } else if (result.status === 'initializing') {
+      return {
+        status: 'error',
+        message: 'Paystack is preparing your payment. Wait a moment, then try again.',
+      };
+    } else {
+      return { status: 'error', message: paystackErrorMessage(result.errorCode) };
+    }
   } catch (error) {
     return failure(error);
   }

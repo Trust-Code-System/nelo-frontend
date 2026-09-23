@@ -61,6 +61,7 @@ export function MobileMenu({ market }: { market: Market }) {
         type="button"
         aria-expanded={open}
         aria-controls={panelId}
+        data-ready={mounted ? 'true' : 'false'}
         onClick={() => setOpen((value) => !value)}
       >
         Menu
@@ -79,7 +80,8 @@ export function MobileMenu({ market }: { market: Market }) {
                 ref={closeRef}
                 className="menu-panel__close"
                 type="button"
-                aria-label="Close menu"
+                aria-label="Close"
+                aria-expanded={open}
                 onClick={dismiss}
               >
                 <span aria-hidden="true">×</span>
@@ -104,7 +106,7 @@ export function MobileMenu({ market }: { market: Market }) {
                     onClick={() => setOpen(false)}
                     style={{ '--i': index } as CSSProperties}
                   >
-                    <span>{number}</span>
+                    <span aria-hidden="true">{number}</span>
                     {label}
                   </Link>
                 ))}

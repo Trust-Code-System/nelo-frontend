@@ -66,13 +66,12 @@ test.describe('written pages', () => {
     await expect(page.getByText(/6\.35/)).toBeVisible();
   });
 
-  test('the contact page does not publish invented contact details', async ({ page }) => {
+  test('the contact page publishes the Lagos atelier, not a placeholder', async ({ page }) => {
     await page.goto('/ng/contact');
-    // A plausible-looking placeholder is worse than an obvious gap, because someone will
-    // try to use it. The page has to say the details are missing.
-    await expect(page.getByText(/missing its real contact details/i)).toBeVisible();
-    await expect(page.locator('a[href^="mailto:"]')).toHaveCount(0);
-    await expect(page.locator('a[href^="tel:"]')).toHaveCount(0);
+    await expect(page.getByRole('link', { name: 'info@nelowoman.com' }).first()).toBeVisible();
+    await expect(page.getByRole('link', { name: '+234 806 0712 122' }).first()).toBeVisible();
+    await expect(page.getByText('5 Gbengbola Street').first()).toBeVisible();
+    await expect(page.locator('a[href*="example.com"]')).toHaveCount(0);
   });
 });
 

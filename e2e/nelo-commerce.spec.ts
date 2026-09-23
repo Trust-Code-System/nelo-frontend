@@ -29,17 +29,25 @@ test.describe('NELO commerce archive', () => {
     await expect(page.locator('.thumbs button')).toHaveCount(5);
     await expect(page.getByRole('button', { name: /^teal$/i })).toHaveCount(1);
     await expect(page.getByRole('button', { name: /^30$/ })).toBeVisible();
-    await expect(page.getByLabel('Bust', { exact: true })).toBeVisible();
-    await expect(page.getByLabel('Waist', { exact: true })).toBeVisible();
-    await expect(page.getByLabel('Hips', { exact: true })).toBeVisible();
-    await expect(page.getByLabel('Height', { exact: true })).toBeVisible();
-    await page.getByLabel('Bust', { exact: true }).selectOption('34');
+    const picker = page.locator('.nelo-variant-picker');
+    await expect(picker).toHaveAttribute('data-ready', 'true');
+    const bust = picker.getByRole('button', { name: 'Bust', exact: true });
+    await expect(bust).toBeVisible();
+    await expect(picker.getByRole('button', { name: 'Waist', exact: true })).toBeVisible();
+    await expect(picker.getByRole('button', { name: 'Hips', exact: true })).toBeVisible();
+    await expect(picker.getByRole('button', { name: 'Height', exact: true })).toBeVisible();
+    await bust.scrollIntoViewIfNeeded();
+    await bust.click();
+    await expect(bust).toHaveAttribute('aria-expanded', 'true');
+    await picker.getByRole('option', { name: /^34 in/ }).click();
     const orderLink = page.getByRole('link', { name: /order this piece/i });
     await expect(orderLink).toHaveAttribute(
       'href',
       /\/ng\/atelier\?.*piece=ADELE\+SET.*bust=34/,
     );
-    await expect(page.locator('a[href*="nelowoman.com"]')).toHaveCount(0);
+    await expect(
+      page.locator('a[href*="://nelowoman.com"], a[href*="://www.nelowoman.com"]'),
+    ).toHaveCount(0);
     await orderLink.click();
     await expect(page).toHaveURL(/\/ng\/atelier\?.*piece=ADELE\+SET.*bust=34/);
     await expect(page.getByText('Selected from the shop')).toBeVisible();

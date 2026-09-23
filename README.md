@@ -3,6 +3,85 @@
 Headless storefront for Nelo Woman, built against the Vendure + Atelier backend in
 `nelo-commerce`. The Vendure **Shop API schema is the contract** between the two repos.
 
+## Setup
+
+You need **Node.js 20.9 or newer**. This repo pins **22.18.0** in `.nvmrc`.
+
+### 1. Install dependencies
+
+From this directory:
+
+```bash
+npm install
+```
+
+CI uses `npm ci`, which installs exactly what `package-lock.json` records. Use that when you want a clean install from the lockfile.
+
+### 2. Create the env file
+
+```bash
+cp .env.example .env.local
+```
+
+On Windows PowerShell:
+
+```powershell
+Copy-Item .env.example .env.local
+```
+
+`.env.local` is gitignored. The storefront will not load a catalogue until `VENDURE_SHOP_API_URL` and both channel tokens are set. Every variable is server-only. Do not prefix any of them with `NEXT_PUBLIC_`.
+
+| Variable | What to put |
+| --- | --- |
+| `VENDURE_SHOP_API_URL` | Shop API URL. Local harness: `http://localhost:3000/shop-api`. |
+| `VENDURE_CHANNEL_TOKEN_NG` | Token for the `nelo-ng` channel. |
+| `VENDURE_CHANNEL_TOKEN_INTERNATIONAL` | Token for the `nelo-international` channel. |
+| `VENDURE_SCHEMA` | Leave as `./schema/shop-api.graphql` unless you are regenerating types from a live endpoint. |
+| `NELO_SITE_URL` | Leave blank locally. It falls back to `http://localhost:4310`. |
+| `NELO_INTERNATIONAL_CHECKOUT` | Leave blank. International checkout stays closed until Paystack can settle USD. |
+
+### 3. Point it at a Shop API
+
+**Shared backend.** Ask the backend team for the Shop API URL and the two channel tokens, paste them into `.env.local`, and skip to step 4.
+
+**Local harness.** The storefront develops against a Vendure 3.7.3 app at `../vendure-dev` (SQLite, sample catalogue). It is not in this repo and it is not production. It does not include the Atelier plugin, Paystack, or Nelo's real channel data.
+
+```bash
+cd ../vendure-dev
+npm install
+npm run dev:server    # Shop API on :3000
+npm run dev:worker    # required — search indexing runs on the worker
+```
+
+On Windows, `npm run dev:server` exits with `EPERM` because the file watcher tries to watch `vendure.sqlite-journal`. From `vendure-dev`, start the server and worker without that watcher:
+
+```bash
+node node_modules/ts-node/dist/bin.js ./src/index.ts
+node node_modules/ts-node/dist/bin.js ./src/index-worker.ts
+```
+
+With both processes running, from `vendure-dev` in another terminal, create the two channels and print the tokens:
+
+```bash
+node setup-nelo-channels.mjs
+```
+
+Copy the printed `VENDURE_CHANNEL_TOKEN_NG` and `VENDURE_CHANNEL_TOKEN_INTERNATIONAL` lines into this repo's `.env.local`. The script also assigns the sample catalogue, shipping methods, and payment methods to both channels. After that, run `reindex` from the Vendure Dashboard at [http://localhost:3000/dashboard](http://localhost:3000/dashboard). Local login is `superadmin` / `superadmin`. The worker has to be running or the job stays pending and search returns nothing.
+
+### 4. Start the storefront
+
+```bash
+npm run dev
+```
+
+Open [http://localhost:4310](http://localhost:4310). An unknown market is a 404. A URL with no market segment redirects to `/ng`.
+
+To check the project the way CI does:
+
+```bash
+npm run verify    # typecheck, lint, unit tests, production build
+```
+
 ## Stack — resolved and pinned
 
 | | |
@@ -14,9 +93,9 @@ Headless storefront for Nelo Woman, built against the Vendure + Atelier backend 
 | Codegen | @graphql-codegen/cli 7.4.1, typed-document-node |
 
 Lockfile committed. Architecture: **server-first gateway** — Server Actions for mutations,
-Server Components calling the same server-only functions directly. There is exactly one Route
-Handler in the whole app (`/api/order-status/[code]`) and only a client island calls it; see
-[Why there is one Route Handler](#why-there-is-one-route-handler).
+Server Components calling the same server-only functions directly. Two narrow Route Handlers
+support the hosted payment return and its bounded client-side status poll; see
+[Why there are two Route Handlers](#why-there-are-two-route-handlers).
 
 ## Commands
 
@@ -30,14 +109,7 @@ npm run codegen:check  # drift gate — fails if generated output is stale
 
 ## Local development backend
 
-The storefront develops against a **local Vendure 3.7.3 harness** at `../vendure-dev`
-(SQLite, seeded sample data). It is not the production backend and is not in this repo.
-
-```bash
-cd ../vendure-dev
-npm run dev:server    # Shop API on :3000
-npm run dev:worker    # required — search indexing runs on the worker, not the server
-```
+The install and boot sequence is in [Setup](#setup). This section is what that harness can and cannot do.
 
 Core commerce — products, collections, search, `activeOrder`, the cart, accounts, addresses,
 orders and checkout up to payment — is standard Vendure, so types generated here match what
@@ -45,9 +117,8 @@ production will expose. What the harness does **not** have is the Atelier plugin
 Nelo's real Channel data.
 
 `vendure-dev/setup-nelo-channels.mjs` creates the two Channels (`nelo-ng` NGN,
-`nelo-international` USD), assigns the catalogue to both, **assigns the shipping and payment
-methods to both** (without which checkout stalls with nothing to choose), and prints the
-tokens for `.env.local`. After assigning products you must `reindex` — and the **worker must
+`nelo-international` USD), assigns the catalogue to both, and **assigns the shipping and payment
+methods to both** (without which checkout stalls with nothing to choose). After assigning products you must `reindex` — and the **worker must
 be running** or the job sits PENDING and search returns nothing.
 
 ### Traps worth knowing before you hit them
@@ -77,13 +148,12 @@ be running** or the job sits PENDING and search returns nothing.
 
 ## Environment
 
-Copy `.env.example` to `.env.local`. Two flags exist because the backend contract is not
-finished, and both are documented in `src/features/checkout/config.ts`:
+`.env.local` is created in [Setup](#setup). Checkout uses the backend's concrete Paystack Shop API
+contract; only international payment remains behind a storefront gate:
 
 | Variable | Purpose |
 | --- | --- |
 | `NELO_SITE_URL` | Absolute base for canonical tags, hreflang alternates and the sitemap. Server-only. Falls back to `http://localhost:4310` deliberately — a canonical pointing at the wrong production host is worse than one pointing at an obvious local one. |
-| `NELO_DEV_PAYMENT` | `enabled` routes checkout's final step at Vendure's `dummy-payment-handler` so the whole journey is testable today. **Development only.** No money moves. Must never be set in a customer-facing deployment. |
 | `NELO_INTERNATIONAL_CHECKOUT` | Blank means international checkout is **closed**. See [International checkout](#international-checkout-is-gated). |
 
 ## Continuous integration
@@ -141,7 +211,6 @@ src/
   proxy.ts                 # legacy 301s, then adds a market segment (307); never changes one
 contracts/
   atelier-shop-api.proposal.graphql    # awaiting backend review
-  paystack-shop-api.proposal.graphql   # awaiting backend review
 docs/
   CATALOGUE-IMPORT.md      # the shape the storefront expects Nelo's catalogue in
 design/                    # phase 0 mockups; the design lock is STYLESEED.md
@@ -157,7 +226,7 @@ These come from the backend team's architecture context and are not stylistic pr
   happens only on a separate anonymous path that carries no session.
 - **HTTP 200 is not success.** Transport errors, GraphQL `errors` and Vendure typed result
   unions are decoded separately, and every union selects `__typename`.
-- **The browser never supplies a total.** `addPaymentToOrder` has no amount argument and the
+- **The browser never supplies a total.** `initializePaystackPayment` has no input and the
   checkout forms have no price field. Vendure charges its own `totalWithTax`.
 - **Measurements are decimal millimetres to two places.** Captured as a string plus an
   explicit unit; the backend normalises. A quarter inch is 6.35 mm, never 6.
@@ -166,14 +235,13 @@ These come from the backend team's architecture context and are not stylistic pr
 - **A commission is not a cart.** No price, quantity or add-to-bag on any Atelier surface.
 - **No frontend FX conversion.** Channel pricing is backend-owned.
 
-### Why there is one Route Handler
+### Why there are two Route Handlers
 
-Server Components read Vendure directly and never call the app's own endpoints. The single
-exception is `/api/order-status/[code]`, which exists for a case Server Components cannot
-cover: after a hosted payment redirect the browser has to ask "has the backend confirmed this
-yet?" repeatedly without re-rendering the page. It returns a state string and two booleans —
-no totals, no lines, no customer — because a polling endpoint is the easiest thing in a
-storefront to point at somebody else's order code.
+Server Components read Vendure directly and never call the app's own endpoints. Two narrow
+exceptions support hosted payment: `/checkout/payment-return` turns the backend's fixed
+Paystack callback into the market/order confirmation URL using a short-lived HttpOnly hint,
+and `/api/order-status/[code]` polls the backend's ownership-checked payment-attempt query.
+Neither route can settle an order, and neither exposes totals, lines or customer data.
 
 ## Storefront routes the backend needs to know about
 
@@ -203,28 +271,25 @@ Three things the backend has to decide, because the storefront cannot:
 
 | | Blocked on |
 | --- | --- |
-| Paystack payment | The initialise-payment operation does not exist. Settlement is not implemented. Our proposed contract: `contracts/paystack-shop-api.proposal.graphql`. |
+| Paystack live release evidence | The NGN hosted-redirect contract and webhook settlement are implemented. A real Paystack test-mode run with API, worker, Redis and public HTTPS ingress is still required before release. |
 | Atelier screens | No customer-facing resolvers exist. Our proposed contract: `contracts/atelier-shop-api.proposal.graphql`. Every Atelier screen stays on marked fixtures until it lands. |
 | International checkout | Confirmation that the Paystack account can settle USD. |
 | Real catalogue | Nelo's own products. The harness carries Vendure's sample electronics. `docs/CATALOGUE-IMPORT.md` says what shape the storefront needs. |
 
 ### Checkout, precisely
 
-Everything up to payment is **built and works against live Vendure**: `setCustomerForOrder`,
+The NGN flow is integrated end to end: `setCustomerForOrder`,
 `setOrderShippingAddress`, `eligibleShippingMethods`, `setOrderShippingMethod`,
-`transitionOrderToState`, `eligiblePaymentMethods`, `addPaymentToOrder`, `applyCouponCode`.
+`transitionOrderToState`, `eligiblePaymentMethods`, `initializePaystackPayment`,
+`paystackPaymentStatus`, and `applyCouponCode`.
 Guest checkout is supported; signed-in customers skip the details step.
 
-What is missing is the Paystack **initialisation** step. Against the harness, with
-`NELO_DEV_PAYMENT=enabled`, the flow completes through Vendure's development payment handler
-and a guest can place an order end to end. In any other deployment the review step says
-plainly that payment is not connected and offers a way to order by message. It never shows a
-receipt for money that has not moved.
-
-The return flow is already built to the agreed shape: the `reference` on a return URL is an
-untrusted hint, the confirmation screen says **"confirming payment"** until Vendure itself
-reports a paid state, and it polls with bounded backoff, stops on a terminal state, and then
-offers a manual refresh and a support path.
+The backend derives amount, currency, customer and callback. The storefront validates the
+returned checkout URL against `https://checkout.paystack.com`, retains the order/reference
+in a short-lived HttpOnly callback hint, and never treats the provider return as payment
+proof. The confirmation screen says **"confirming payment"** until the backend attempt is
+`settled`, polls with bounded backoff, stops on terminal failure, then offers a manual refresh
+and support path.
 
 ### International checkout is gated
 

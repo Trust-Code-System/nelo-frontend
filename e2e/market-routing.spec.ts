@@ -3,7 +3,9 @@ import { expect, test, type Page } from '@playwright/test';
 /** Below 860px the inline nav is replaced by a disclosure, so open it first. */
 async function openNavIfMobile(page: Page) {
   const menu = page.getByRole('button', { name: /^menu$/i });
-  if (await menu.isVisible()) await menu.click();
+  if (!(await menu.isVisible())) return;
+  await expect(menu).toHaveAttribute('data-ready', 'true');
+  await menu.click();
 }
 
 /**
@@ -42,19 +44,33 @@ test.describe('market resolution', () => {
     expect(response?.status()).toBe(404);
   });
 
-  test('the chosen market is carried through internal links', async ({ page }) => {
+  test('the chosen market is carried through internal links', async ({ page, isMobile }) => {
     await page.goto('/international');
-    await openNavIfMobile(page);
-    await page.getByRole('link', { name: 'Atelier', exact: true }).first().click();
+    const atelier = isMobile
+      ? page.locator('.menu-panel-nav').getByRole('link', { name: 'Atelier', exact: true })
+      : page.locator('.nav-links').getByRole('link', { name: 'Atelier', exact: true });
+    if (isMobile) await openNavIfMobile(page);
+    await atelier.click();
     await expect(page).toHaveURL(/\/international\/atelier/);
   });
 
-  test('switching market is a navigation, not hidden client state', async ({ page }) => {
+  test('switching market is a navigation, not hidden client state', async ({ page, isMobile }) => {
     await page.goto('/ng/atelier');
-    await openNavIfMobile(page);
-    // The switcher is a set of links so the market is always visible in the address.
-    const intLink = page.getByRole('link', { name: /INT/ });
-    await expect(intLink).toHaveAttribute('href', '/international');
+    if (isMobile) {
+      await openNavIfMobile(page);
+      await expect(
+        page.locator('.menu-panel-markets').getByRole('link', { name: /Worldwide/ }),
+      ).toHaveAttribute('href', '/international');
+      return;
+    }
+    // The desktop switcher keeps the links in a disclosure. Opening it must reveal a real
+    // navigation, not a client-only currency toggle.
+    const switcher = page.locator('.market-switcher');
+    await switcher.getByRole('button', { name: 'Nigeria' }).click();
+    await expect(switcher.getByRole('link', { name: 'Worldwide' })).toHaveAttribute(
+      'href',
+      '/international',
+    );
   });
 });
 

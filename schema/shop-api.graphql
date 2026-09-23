@@ -2071,7 +2071,16 @@ double-precision fractional values as specified by [IEEE
 """
 scalar Money
 
+type PaystackPaymentResult {
+  reference: String!
+  status: String!
+  authorizationUrl: String
+  errorCode: String
+}
+
 type Mutation {
+  initializePaystackPayment: PaystackPaymentResult!
+
   """
   Adds an item to the Order. If custom fields are defined on the OrderLine
   entity, a third argument 'customFields' will be available.
@@ -3414,6 +3423,8 @@ type PublicShippingMethod {
 }
 
 type Query {
+  paystackPaymentStatus(orderCode: String!, reference: String!): PaystackPaymentResult!
+
   """The active Channel"""
   activeChannel: Channel!
 
@@ -4005,4 +4016,3 @@ type Zone implements Node {
   members: [Region!]!
   customFields: JSON
 }
-

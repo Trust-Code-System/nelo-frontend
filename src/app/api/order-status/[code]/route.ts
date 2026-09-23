@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { PAID_STATES } from '@/features/checkout/states';
+import { isPaystackReference, paystackAttemptState } from '@/features/checkout/paystack';
 import { isMarket } from '@/lib/vendure/channels';
-import { OrderByCodeDocument } from '@/lib/vendure/generated/graphql';
+import { PaystackPaymentStatusDocument } from '@/lib/vendure/generated/graphql';
 import { vendureQuery } from '@/lib/vendure/transport';
 
 /**
@@ -12,14 +12,11 @@ import { vendureQuery } from '@/lib/vendure/transport';
  * backend confirmed this yet?" repeatedly, without re-rendering the page each time. Server
  * Components still read Vendure directly and never call this.
  *
- * What it returns is deliberately almost nothing: a state string and two booleans. No
+ * What it returns is deliberately almost nothing: an attempt status and two booleans. No
  * totals, no lines, no address, no customer. A polling endpoint is the easiest thing in a
  * storefront to point at somebody else's order code, so it must not be a way to read one.
- * Vendure's own rules still apply on top - a customer sees their own orders, and a guest
- * order only within two hours - so an order that is not the caller's comes back as unknown.
- *
- * The `reference` a payment provider puts in a return URL never reaches this: the code in
- * the path is the storefront's own order code, and only the state Vendure reports counts.
+ * Vendure's custom status query applies the active-session rule while an Order is pending
+ * and the native Order-by-code rule after placement. A different session receives no data.
  */
 
 export const dynamic = 'force-dynamic';
@@ -30,6 +27,7 @@ export async function GET(
 ) {
   const { code } = await context.params;
   const market = request.nextUrl.searchParams.get('market');
+  const reference = request.nextUrl.searchParams.get('reference');
 
   if (!isMarket(market)) {
     return NextResponse.json({ error: 'unknown market' }, { status: 400 });
@@ -38,25 +36,26 @@ export async function GET(
   if (!code || code.length > 64) {
     return NextResponse.json({ error: 'unknown order' }, { status: 400 });
   }
+  if (!isPaystackReference(reference)) {
+    return NextResponse.json({ error: 'unknown payment' }, { status: 400 });
+  }
 
   try {
-    const { data } = await vendureQuery(OrderByCodeDocument, { code }, { market });
-    const order = data.orderByCode;
-
-    if (!order) {
-      return NextResponse.json(
-        { known: false, paid: false, state: null },
-        { status: 404, headers: { 'Cache-Control': 'no-store' } },
-      );
-    }
+    const { data } = await vendureQuery(
+      PaystackPaymentStatusDocument,
+      { orderCode: code, reference },
+      { market },
+    );
+    const attempt = data.paystackPaymentStatus;
+    const state = paystackAttemptState(attempt.status);
 
     return NextResponse.json(
       {
         known: true,
-        state: order.state,
-        paid: PAID_STATES.has(order.state),
-        // Terminal for polling purposes: no amount of waiting will change a cancelled order.
-        terminal: PAID_STATES.has(order.state) || order.state === 'Cancelled',
+        state: attempt.status,
+        paid: state.paid,
+        terminal: state.terminal,
+        errorCode: attempt.errorCode,
       },
       { headers: { 'Cache-Control': 'no-store' } },
     );
