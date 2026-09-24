@@ -1,12 +1,21 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { SiteFooter } from '@/components/SiteFooter';
-import { SiteHeader } from '@/components/SiteHeader';
-import { PROFILES } from '@/features/atelier/fixtures';
-import { MeasurementFields } from '@/features/atelier/MeasurementFields';
-import type { MeasurementProfile } from '@/features/atelier/types';
+import {
+  AccountShell,
+  AccountUnavailable,
+  SignInRequired,
+} from '@/features/account/AccountShell';
+import { DeleteAddressButton } from '@/features/account/DeleteAddressButton';
+import { deleteMeasurementProfile, saveMeasurementProfile } from '@/features/atelier/measurement-actions';
+import { ProfileForm } from '@/features/atelier/ProfileForm';
 import { display, fromMillimetres, LABELS, MEASUREMENT_CODES } from '@/lib/atelier/measurements';
-import { isMarket } from '@/lib/vendure/channels';
+import { isMarket, type Market } from '@/lib/vendure/channels';
+import { vendureErrorCode } from '@/lib/vendure/errors';
+import {
+  ActiveMeasurementProfilesDocument,
+  type MeasurementProfileFieldsFragment,
+} from '@/lib/vendure/generated/graphql';
+import { vendureQuery } from '@/lib/vendure/transport';
 
 export const metadata: Metadata = { title: 'Your measurements' };
 
@@ -20,12 +29,14 @@ function formatDate(iso: string | null): string {
 }
 
 /**
- * Measurement profiles.
+ * Measurement profiles - the real Atelier Shop API.
  *
- * Profiles are reusable and exactly one is the active default. A commission does not read
- * this page live - it holds its own confirmed snapshot - so editing here never changes a
- * garment already in production. That is stated on the page, because it is not obvious and
- * getting it wrong would be expensive.
+ * Profiles are reusable and any number may exist; exactly one is the default. A commission
+ * does not read this page live - it holds its own confirmed snapshot - so editing here never
+ * changes a garment already in production.
+ *
+ * A profile the atelier measured (`source: atelier`) is read-only here: the backend refuses
+ * both edit and delete, so neither control is offered.
  *
  * Nothing here goes into a URL, browser storage, analytics or a public cache.
  */
@@ -37,158 +48,86 @@ export default async function MeasurementsPage({
   const { market } = await params;
   if (!isMarket(market)) notFound();
 
-  const active = PROFILES.find((profile) => profile.isDefault) ?? PROFILES[0];
+  let profiles: MeasurementProfileFieldsFragment[] = [];
+  let signedIn = true;
+  let reachable = true;
 
-  // Prefill the editor from the active profile, converted to inches for entry.
-  const initial = active
-    ? Object.fromEntries(
-        active.measurements
-          .filter((measurement) => measurement.millimetres !== null)
-          .map((measurement) => [
-            measurement.code,
-            { value: fromMillimetres(measurement.millimetres as string, 'inch'), unit: 'inch' },
-          ]),
-      )
-    : {};
+  try {
+    const { data } = await vendureQuery(ActiveMeasurementProfilesDocument, {}, { market });
+    profiles = data.activeMeasurementProfiles;
+  } catch (error) {
+    // Every Atelier operation refuses a guest with FORBIDDEN - there is no separate probe.
+    if (vendureErrorCode(error) === 'FORBIDDEN') signedIn = false;
+    else reachable = false;
+  }
+
+  if (!reachable) {
+    return (
+      <AccountShell market={market} title="Your measurements" showNav={false}>
+        <AccountUnavailable market={market} />
+      </AccountShell>
+    );
+  }
+
+  if (!signedIn) {
+    return (
+      <AccountShell market={market} title="Your measurements" showNav={false}>
+        <SignInRequired
+          market={market}
+          returnTo={`/${market}/account/measurements`}
+          reason="Sign in to manage your measurement profiles."
+        />
+      </AccountShell>
+    );
+  }
 
   return (
-    <>
-      <div className="fixture">
-        <span className="lab">
-          Fixture data - no Atelier Shop API exists yet. Nothing on this screen is live.
+    <AccountShell
+      market={market}
+      title="Your measurements"
+      current="/measurements"
+      meta={
+        <span>
+          {profiles.length} {profiles.length === 1 ? 'profile' : 'profiles'}
         </span>
-      </div>
-      <SiteHeader market={market} announcement="Your measurements - Nelo Atelier" />
+      }
+    >
+      {profiles.length === 0 ? (
+        <p className="lead">No measurement profiles yet. Add one below.</p>
+      ) : (
+        profiles.map((profile) => (
+          <ProfileCard key={profile.id} market={market} profile={profile} />
+        ))
+      )}
 
-      <main className="shell">
-        <div className="proj-head">
-          <div>
-            <span className="lab">Account</span>
-            <h1>Your measurements</h1>
-            <p className="masthead-copy">
-              Keep precise profiles ready for fittings, alterations and future commissions.
-            </p>
-          </div>
-          <div className="proj-meta">
-            <span>
-              {PROFILES.length} {PROFILES.length === 1 ? 'profile' : 'profiles'}
-            </span>
-          </div>
+      <p className="mnote">
+        One profile is the default and is the one we reach for first. A commission keeps its
+        own confirmed snapshot, so changing anything here will not alter a garment already
+        being made.
+      </p>
+
+      <details className="addr-add" open={profiles.length === 0}>
+        <summary>Add a profile</summary>
+        <div className="body">
+          <ProfileForm market={market} action={saveMeasurementProfile} submitLabel="Save profile" />
         </div>
-
-        <section className="section-gap">
-          <div className="shead">
-            <div>
-              <span className="lab">Saved</span>
-              <h2>Profiles</h2>
-            </div>
-          </div>
-
-          {PROFILES.map((profile) => (
-            <ProfileCard key={profile.id} profile={profile} />
-          ))}
-
-          <p className="mnote">
-            One profile is the default and is the one we reach for first. A commission keeps
-            its own confirmed snapshot, so changing anything here will not alter a garment
-            already being made.
-          </p>
-        </section>
-
-        <section className="section-gap">
-          <div className="shead">
-            <div>
-              <span className="lab">Edit</span>
-              <h2>{active ? active.name : 'New profile'}</h2>
-            </div>
-          </div>
-
-          <form className="aform" action="#">
-            <div>
-              <fieldset>
-                <legend>Profile</legend>
-                <label className="f" htmlFor="profile-name">
-                  <span className="lab">Name this profile</span>
-                  <input
-                    id="profile-name"
-                    name="name"
-                    type="text"
-                    defaultValue={active?.name ?? ''}
-                    placeholder="My measurements"
-                  />
-                </label>
-                <label className="opt" style={{ border: 'var(--rule)' }}>
-                  <input
-                    type="checkbox"
-                    name="makeDefault"
-                    defaultChecked={active?.isDefault ?? true}
-                  />
-                  <span>
-                    <span className="t">Use this profile by default</span>
-                    <span className="d">
-                      We will cut to this one unless a commission confirms different figures.
-                    </span>
-                  </span>
-                </label>
-              </fieldset>
-
-              <fieldset>
-                <legend>Where we are with this</legend>
-                <dl className="mlist">
-                  <div className="spec">
-                    <dt>Confirmed</dt>
-                    <dd>{formatDate(active?.confirmedAt ?? null)}</dd>
-                  </div>
-                  <div className="spec">
-                    <dt>By</dt>
-                    <dd>{active?.confirmedLocation ?? 'Self-measured'}</dd>
-                  </div>
-                  <div className="spec">
-                    <dt>Last edited</dt>
-                    <dd>{formatDate(active?.updatedAt ?? null)}</dd>
-                  </div>
-                </dl>
-                <p className="mnote">
-                  Self-measured figures are a good start. We confirm them at your first fitting
-                  before anything is cut.
-                </p>
-              </fieldset>
-              <div className="aside">
-                <span className="lab">Saving</span>
-                <h2>Nothing leaves this page yet</h2>
-                <p>
-                  Your figures are never put in a web address, stored in your browser, or sent
-                  to analytics. When saving is live they go straight to the atelier.
-                </p>
-                <button className="btn submit" type="button" disabled>
-                  Save profile
-                </button>
-                <p className="mnote" style={{ textAlign: 'center' }}>
-                  Disabled until the Atelier API exists
-                </p>
-              </div>
-            </div>
-
-            <div>
-              <fieldset>
-                <legend>Measurements</legend>
-                <MeasurementFields initial={initial} />
-              </fieldset>
-
-            </div>
-          </form>
-        </section>
-
-      </main>
-
-      <SiteFooter market={market} />
-    </>
+      </details>
+    </AccountShell>
   );
 }
 
-function ProfileCard({ profile }: { profile: MeasurementProfile }) {
+function ProfileCard({
+  market,
+  profile,
+}: {
+  market: Market;
+  profile: MeasurementProfileFieldsFragment;
+}) {
   const byCode = new Map(profile.measurements.map((m) => [m.code, m.millimetres]));
-  const confirmedCount = profile.measurements.filter((m) => m.millimetres !== null).length;
+  const measuredCount = profile.measurements.length;
+  const initial = Object.fromEntries(
+    profile.measurements.map((m) => [m.code, fromMillimetres(m.millimetres, profile.preferredDisplayUnit)]),
+  );
 
   return (
     <article className="garment">
@@ -200,26 +139,52 @@ function ProfileCard({ profile }: { profile: MeasurementProfile }) {
               Default
             </span>
           ) : null}
+          {profile.source === 'atelier' ? (
+            <span className="pill settled" style={{ marginLeft: 'var(--s3)' }}>
+              Measured by the atelier
+            </span>
+          ) : null}
         </h2>
         <span className="eta">
-          {confirmedCount} of {MEASUREMENT_CODES.length} confirmed ·{' '}
-          {profile.confirmedAt
-            ? `confirmed ${formatDate(profile.confirmedAt)}`
-            : 'not yet confirmed by the atelier'}
+          {measuredCount} of {MEASUREMENT_CODES.length} measured
+          {profile.measuredAt ? ` · measured ${formatDate(profile.measuredAt)}` : ''} · last
+          edited {formatDate(profile.updatedAt)}
         </span>
       </div>
 
       <dl className="snap-grid">
-        {MEASUREMENT_CODES.map((code) => {
-          const mm = byCode.get(code) ?? null;
-          return (
-            <div key={code} className={mm === null ? 'unset' : undefined}>
-              <dt>{LABELS[code]}</dt>
-              <dd>{display(mm, 'millimetre')}</dd>
-            </div>
-          );
-        })}
+        {MEASUREMENT_CODES.map((code) => (
+          <div key={code} className={!byCode.has(code) ? 'unset' : undefined}>
+            <dt>{LABELS[code]}</dt>
+            <dd>{display(byCode.get(code) ?? null, 'millimetre')}</dd>
+          </div>
+        ))}
       </dl>
+
+      {profile.source === 'customer' ? (
+        <div className="addr-acts">
+          <details>
+            <summary>Edit</summary>
+            <div className="body">
+              <ProfileForm
+                market={market}
+                action={saveMeasurementProfile}
+                profileId={profile.id}
+                name={profile.name}
+                unit={profile.preferredDisplayUnit}
+                initial={initial}
+                isDefault={profile.isDefault}
+                submitLabel="Save changes"
+              />
+            </div>
+          </details>
+          <DeleteAddressButton market={market} id={profile.id} action={deleteMeasurementProfile} />
+        </div>
+      ) : (
+        <p className="mnote">
+          This profile was measured at the atelier and can&apos;t be edited or removed here.
+        </p>
+      )}
     </article>
   );
 }

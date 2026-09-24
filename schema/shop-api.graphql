@@ -1,14 +1,3 @@
-"""Exposes a URL that specifies the behavior of this scalar."""
-directive @specifiedBy(
-  """The URL that specifies the behavior of this scalar."""
-  url: String!
-) on SCALAR
-
-"""
-Indicates exactly one field must be supplied and this field must not be `null`.
-"""
-directive @oneOf on INPUT_OBJECT
-
 union ActiveOrderResult = Order | NoActiveOrderError
 
 input AddItemInput {
@@ -2261,6 +2250,10 @@ type Mutation {
 
   """Resets a Customer's password based on the provided token"""
   resetPassword(token: String!, password: String!): ResetPasswordResult!
+  upsertMeasurementProfile(input: UpsertMeasurementProfileInput!): UpsertMeasurementProfileResult!
+  deleteMeasurementProfile(id: ID!): Boolean!
+  requestAppointment(input: RequestAppointmentInput!): RequestAppointmentResult!
+  cancelAppointment(id: ID!): AtelierAppointment!
 }
 
 union NativeAuthenticationResult = CurrentUser | InvalidCredentialsError | NotVerifiedError | NativeAuthStrategyError
@@ -3503,6 +3496,12 @@ type Query {
 
   """Get active shipping methods"""
   activeShippingMethods: [PublicShippingMethod]!
+  activeMeasurementProfiles: [MeasurementProfile!]!
+  atelierAppointments(options: AtelierAppointmentListOptions): AtelierAppointmentList!
+  bespokeProjects(options: BespokeProjectListOptions): BespokeProjectList!
+
+  """Null when the reference is unknown or not this customer's."""
+  bespokeProject(reference: String!): BespokeProject
 }
 
 union RefreshCustomerVerificationResult = Success | NativeAuthStrategyError
@@ -4015,4 +4014,218 @@ type Zone implements Node {
   name: String!
   members: [Region!]!
   customFields: JSON
+}
+
+scalar DecimalMillimetres
+
+enum MeasurementCode {
+  bust
+  waist
+  hip
+  height
+  shoulderWidth
+  sleeveLength
+  inseam
+}
+
+enum MeasurementUnit {
+  inch
+  centimetre
+}
+
+enum MeasurementSource {
+  customer
+  atelier
+}
+
+type Measurement {
+  code: MeasurementCode!
+  millimetres: DecimalMillimetres!
+}
+
+type MeasurementProfile {
+  id: ID!
+  name: String!
+  isDefault: Boolean!
+  source: MeasurementSource!
+  preferredDisplayUnit: MeasurementUnit!
+  measurements: [Measurement!]!
+  measuredAt: DateTime
+  updatedAt: DateTime!
+}
+
+input MeasurementValueInput {
+  code: MeasurementCode!
+  value: String!
+}
+
+type MeasurementRangeError {
+  errorCode: String!
+  message: String!
+  code: MeasurementCode!
+  plausibleMinMillimetres: DecimalMillimetres!
+  plausibleMaxMillimetres: DecimalMillimetres!
+}
+
+type MeasurementFormatError {
+  errorCode: String!
+  message: String!
+  code: MeasurementCode!
+}
+
+input UpsertMeasurementProfileInput {
+  id: ID
+  name: String!
+  preferredDisplayUnit: MeasurementUnit!
+  values: [MeasurementValueInput!]!
+  makeDefault: Boolean
+}
+
+union UpsertMeasurementProfileResult = MeasurementProfile | MeasurementRangeError | MeasurementFormatError
+
+enum AppointmentPurpose {
+  consultation
+  fitting
+}
+
+enum CommissionContext {
+  readyToWear
+  bespoke
+  bridal
+}
+
+enum AppointmentLocationMode {
+  inStore
+  customerLocation
+  virtual
+}
+
+enum AppointmentStatus {
+  requested
+  confirmed
+  completed
+  cancelled
+  noShow
+}
+
+type AtelierAppointment {
+  id: ID!
+  purpose: AppointmentPurpose!
+  context: CommissionContext
+  locationMode: AppointmentLocationMode!
+  status: AppointmentStatus!
+  startsAt: DateTime!
+  endsAt: DateTime!
+  timezone: String!
+  locationDetails: String
+  notes: String
+  isCancellable: Boolean!
+  createdAt: DateTime!
+}
+
+type AtelierAppointmentList {
+  items: [AtelierAppointment!]!
+  totalItems: Int!
+}
+
+enum BespokeProjectStage {
+  consultation
+  proposal
+  confirmed
+  active
+  ready
+  completed
+  cancelled
+}
+
+enum BespokeItemStage {
+  design
+  awaitingMaterials
+  cutting
+  sewing
+  fitting
+  qualityControl
+  ready
+  delivered
+  cancelled
+}
+
+type BespokeProjectList {
+  items: [BespokeProject!]!
+  totalItems: Int!
+}
+
+"""
+The measurements this commission is made to: a copy taken at confirmation. Editing a profile never changes it.
+"""
+type CommissionMeasurements {
+  confirmedAt: DateTime!
+
+  """Only measured codes appear."""
+  measurements: [Measurement!]!
+}
+
+type BespokeItem {
+  id: ID!
+  name: String!
+  stage: BespokeItemStage!
+
+  """Calendar date, YYYY-MM-DD. Null until the atelier sets one."""
+  targetCompletionDate: String
+}
+
+type BespokeProject {
+  id: ID!
+
+  """Stable, customer-facing, safe in URLs."""
+  reference: String!
+
+  """Only bespoke or bridal. readyToWear is an appointment context only."""
+  context: CommissionContext!
+  stage: BespokeProjectStage!
+  targetCompletionDate: String
+
+  """Oldest first."""
+  items: [BespokeItem!]!
+
+  """Null until the atelier confirms measurements."""
+  measurements: CommissionMeasurements
+
+  """By start time, then id."""
+  appointments: [AtelierAppointment!]!
+
+  """
+  Distinct codes of the Orders linked to this commission's items, by Order id.
+  """
+  relatedOrderCodes: [String!]!
+  createdAt: DateTime!
+}
+
+input BespokeProjectListOptions {
+  skip: Int
+
+  """At most 50; default 20."""
+  take: Int
+}
+
+input RequestAppointmentInput {
+  purpose: AppointmentPurpose!
+  context: CommissionContext!
+  locationMode: AppointmentLocationMode!
+  preferredAt: DateTime!
+  notes: String
+}
+
+type AppointmentRequestLimitError {
+  errorCode: String!
+  message: String!
+  openRequestLimit: Int!
+}
+
+union RequestAppointmentResult = AtelierAppointment | AppointmentRequestLimitError
+
+input AtelierAppointmentListOptions {
+  skip: Int
+  take: Int
+  status: [AppointmentStatus!]
 }

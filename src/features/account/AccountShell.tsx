@@ -15,6 +15,7 @@ const SECTIONS = [
   { href: '/orders', label: 'Orders' },
   { href: '/addresses', label: 'Addresses' },
   { href: '/measurements', label: 'Measurements' },
+  { href: '/appointments', label: 'Appointments' },
   { href: '/password', label: 'Password' },
   { href: '/email', label: 'Email' },
 ] as const;

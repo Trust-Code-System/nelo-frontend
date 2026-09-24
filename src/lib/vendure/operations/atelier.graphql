@@ -1,0 +1,96 @@
+# Atelier Shop API - measurement profiles and appointments.
+#
+# Every operation here refuses a guest with FORBIDDEN. There is no anonymous variant: the
+# transport must always carry the session, and the response must never be cached.
+#
+# Contract: nelo-commerce docs/plans/2026-09-24-atelier-shop-api-design.md ("Shop API
+# contract"), not contracts/atelier-shop-api.proposal.graphql, which that design superseded.
+
+fragment MeasurementProfileFields on MeasurementProfile {
+  id
+  name
+  isDefault
+  source
+  preferredDisplayUnit
+  measuredAt
+  updatedAt
+  measurements {
+    code
+    millimetres
+  }
+}
+
+fragment AtelierAppointmentFields on AtelierAppointment {
+  id
+  purpose
+  context
+  locationMode
+  status
+  startsAt
+  endsAt
+  timezone
+  locationDetails
+  notes
+  isCancellable
+  createdAt
+}
+
+query ActiveMeasurementProfiles {
+  activeMeasurementProfiles {
+    ...MeasurementProfileFields
+  }
+}
+
+mutation UpsertMeasurementProfile($input: UpsertMeasurementProfileInput!) {
+  upsertMeasurementProfile(input: $input) {
+    __typename
+    ... on MeasurementProfile {
+      ...MeasurementProfileFields
+    }
+    ... on MeasurementRangeError {
+      errorCode
+      message
+      code
+      plausibleMinMillimetres
+      plausibleMaxMillimetres
+    }
+    ... on MeasurementFormatError {
+      errorCode
+      message
+      code
+    }
+  }
+}
+
+mutation DeleteMeasurementProfile($id: ID!) {
+  deleteMeasurementProfile(id: $id)
+}
+
+query AtelierAppointments($options: AtelierAppointmentListOptions) {
+  atelierAppointments(options: $options) {
+    totalItems
+    items {
+      ...AtelierAppointmentFields
+    }
+  }
+}
+
+mutation RequestAppointment($input: RequestAppointmentInput!) {
+  requestAppointment(input: $input) {
+    __typename
+    ... on AtelierAppointment {
+      ...AtelierAppointmentFields
+    }
+    ... on AppointmentRequestLimitError {
+      errorCode
+      message
+      openRequestLimit
+    }
+  }
+}
+
+mutation CancelAppointment($id: ID!) {
+  cancelAppointment(id: $id) {
+    ...AtelierAppointmentFields
+  }
+}

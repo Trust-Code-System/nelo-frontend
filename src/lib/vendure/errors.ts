@@ -86,7 +86,40 @@ export function unwrap<TSuccess extends { __typename?: string }>(
 /** Customer-facing copy. Raw traces are never shown; business messages are. */
 export function presentableMessage(error: unknown): string {
   if (error instanceof VendureResultError) return error.message;
+  if (error instanceof VendureGraphQLError) {
+    const code = vendureErrorCode(error);
+    // USER_INPUT_ERROR and ILLEGAL_OPERATION carry a message written for the customer
+    // (e.g. "This appointment can no longer be cancelled"). FORBIDDEN never reaches here
+    // with detail attached - callers decode it themselves, because what it means (sign in,
+    // or a record that is not theirs) depends on which operation threw it.
+    if (code === 'USER_INPUT_ERROR' || code === 'ILLEGAL_OPERATION') {
+      return error.errors[0]?.message ?? 'Something went wrong on our side. Please try again.';
+    }
+  }
   if (error instanceof VendureTransportError)
     return 'We could not reach the store. Check your connection and try again.';
   return 'Something went wrong on our side. Please try again.';
+}
+
+/**
+ * Decodes the `extensions.code` of a top-level GraphQL error - distinct from `errorCode` on a
+ * typed result union member. Vendure throws `ForbiddenError`, `UserInputError` and
+ * `IllegalOperationError` as real GraphQL errors, not as union results, so they arrive here as
+ * a `VendureGraphQLError` rather than from `unwrap`.
+ *
+ * The three codes the Atelier Shop API actually throws:
+ *  - FORBIDDEN: not signed in, or a record that is not the caller's. The backend deliberately
+ *    does not say which - callers must not either.
+ *  - USER_INPUT_ERROR: a presentable, customer-facing message.
+ *  - ILLEGAL_OPERATION: the state changed underneath the request (e.g. a second cancel).
+ *    The caller should refetch and re-render, not just show the message.
+ */
+export type VendureErrorCode = 'FORBIDDEN' | 'USER_INPUT_ERROR' | 'ILLEGAL_OPERATION';
+
+export function vendureErrorCode(error: unknown): VendureErrorCode | undefined {
+  if (!(error instanceof VendureGraphQLError)) return undefined;
+  const code = error.errors[0]?.extensions?.code;
+  return code === 'FORBIDDEN' || code === 'USER_INPUT_ERROR' || code === 'ILLEGAL_OPERATION'
+    ? code
+    : undefined;
 }
