@@ -16,6 +16,7 @@ const SECTIONS = [
   { href: '/addresses', label: 'Addresses' },
   { href: '/measurements', label: 'Measurements' },
   { href: '/password', label: 'Password' },
+  { href: '/email', label: 'Email' },
 ] as const;
 
 export function AccountShell({

@@ -6,6 +6,8 @@ import { assertMarket, type Market } from '@/lib/vendure/channels';
 import { presentableMessage } from '@/lib/vendure/errors';
 import {
   ActiveOrderDocument,
+  RequestUpdateCustomerEmailAddressDocument,
+  UpdateCustomerEmailAddressDocument,
   LoginDocument,
   LogoutDocument,
   RefreshCustomerVerificationDocument,
@@ -373,4 +375,34 @@ export async function changePassword(_previous: FormState, form: FormData): Prom
  *  account pages do not each re-implement it. */
 export async function hasSessionCookie(): Promise<boolean> {
   return Boolean(await readSessionToken());
+}
+
+/** Vendure requires the signed-in customer's current password before emailing a new address. */
+export async function requestEmailChange(_previous: FormState, form: FormData): Promise<FormState> {
+  try {
+    const market = assertMarket(form.get('market'));
+    const newEmailAddress = readString(form, 'email', EMAIL_MAX);
+    const password = readSecret(form, 'password');
+    if (!looksLikeEmail(newEmailAddress)) return fieldError('email', 'Enter a valid new email address.');
+    if (!password) return fieldError('password', 'Enter your current password.');
+    const { data } = await vendureQuery(RequestUpdateCustomerEmailAddressDocument,
+      { password, newEmailAddress }, { market });
+    const result = data.requestUpdateCustomerEmailAddress;
+    if (result.__typename !== 'Success') return { status: 'error', message: result.message };
+    return { status: 'success', message: 'Check your new email address for a confirmation link. Your current address stays active until you confirm.' };
+  } catch (error) { return unexpected(error); }
+}
+
+/** A POST consumes the email token; opening the page must never change account identity. */
+export async function confirmEmailChange(_previous: FormState, form: FormData): Promise<FormState> {
+  try {
+    const market = assertMarket(form.get('market'));
+    const token = readString(form, 'token', 512);
+    if (!token) return { status: 'error', message: 'This confirmation link is incomplete. Request a new one from your account.' };
+    const { data } = await vendureQuery(UpdateCustomerEmailAddressDocument, { token }, { market });
+    const result = data.updateCustomerEmailAddress;
+    if (result.__typename !== 'Success') return { status: 'error', message: result.message };
+    revalidatePath(`/${market}`, 'layout');
+    return { status: 'success', message: 'Your email address has been updated. Use your new email address the next time you sign in.' };
+  } catch (error) { return unexpected(error); }
 }

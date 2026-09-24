@@ -300,3 +300,35 @@ figure against a dollar price. The catalogue, the bag and the atelier are all un
 
 One flag: `NELO_INTERNATIONAL_CHECKOUT=enabled`. It is enforced in the Server Actions as well
 as the UI, because a checkout that is only disabled in the markup is not disabled.
+
+## Account email flows
+
+Backend email configuration is tracked in `nelo-commerce` PR #35. This storefront provides:
+
+- `/{market}/account/verify`: confirm registration (or request a new verification email).
+- `/{market}/account/password`: request a reset while signed out.
+- `/{market}/account/password/reset`: set a new password using the emailed token.
+- `/{market}/account/email`: signed-in request to change email, requiring the current password.
+- `/{market}/account/verify-email-address-change`: explicitly confirm the emailed token with a POST.
+
+For the NG market configure backend `EMAIL_VERIFY_PATH=/ng/account/verify`,
+`EMAIL_PASSWORD_RESET_PATH=/ng/account/password/reset`, and
+`EMAIL_CHANGE_ADDRESS_PATH=/ng/account/verify-email-address-change`. Use the actual deployed
+storefront origin for `STOREFRONT_ORIGIN`. The routes also support `international`; the backend's
+current configuration chooses explicit paths and does not dynamically route email links by Channel.
+Domain verification, sending credentials, and final deployment settings remain backend rollout work.
+
+### Local verification evidence
+
+74 unit tests passed, including seven email-action tests for input validation, password preservation,
+Vendure error unions and token confirmation. Typecheck, lint and production build passed.
+GraphQL operations were generated from the checked-in Shop API schema. The drift command compares
+against Git's baseline, so it reports the intended generated changes until those changes are committed;
+regenerating produced identical output.
+
+A Chrome browser journey against an isolated real Vendure API, PostgreSQL database and Redis worker
+passed registration, emailed-token verification/sign-in, email-change request, confirmation and account
+identity refresh, followed by password reset to the new address and automatic sign-in. The international
+confirmation page also handled a missing token. Emails were captured by the test sender rather than sent
+externally. Captured URL paths/tokens were opened on the local frontend origin; this does not verify the
+final public hostname, DNS or inbox delivery. The separate backend gate already exercised Resend SMTP.

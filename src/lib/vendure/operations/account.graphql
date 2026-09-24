@@ -190,3 +190,19 @@ mutation DeleteCustomerAddress($id: ID!) {
     success
   }
 }
+
+mutation RequestUpdateCustomerEmailAddress($password: String!, $newEmailAddress: String!) {
+  requestUpdateCustomerEmailAddress(password: $password, newEmailAddress: $newEmailAddress) {
+    __typename
+    ... on Success { success }
+    ... on ErrorResult { errorCode message }
+  }
+}
+
+mutation UpdateCustomerEmailAddress($token: String!) {
+  updateCustomerEmailAddress(token: $token) {
+    __typename
+    ... on Success { success }
+    ... on ErrorResult { errorCode message }
+  }
+}
