@@ -110,7 +110,7 @@ export function VariantSelector({
             })}
           </div>
           <p className="mnote">
-            Struck options are not in stock to ship. Every size can still be cut to measure.
+            Unavailable options cannot be added to your bag.
           </p>
         </div>
       ))}
@@ -122,12 +122,14 @@ export function VariantSelector({
           className="btn"
           type="button"
           onClick={submit}
-          disabled={!selectedVariant || pending}
+          disabled={!selectedVariant || selectedVariant.stockLevel === 'OUT_OF_STOCK' || pending}
           style={{ width: '100%', textAlign: 'center', padding: 'var(--s4)' }}
         >
           {pending
             ? 'Adding…'
-            : selectedVariant
+            : selectedVariant?.stockLevel === 'OUT_OF_STOCK'
+              ? 'Out of stock'
+              : selectedVariant
               ? `Add to bag - ${prices[selectedVariant.id] ?? ''}`
               : 'Select a size'}
         </button>
@@ -139,9 +141,7 @@ export function VariantSelector({
             </span>
           ) : (
             <>
-              Cut to measure · dispatched in 10-14 days
-              <br />
-              Free alterations within 30 days of delivery
+              Choose your options, then add this piece to your bag.
             </>
           )}
         </p>
