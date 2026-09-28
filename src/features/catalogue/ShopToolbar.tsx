@@ -99,7 +99,7 @@ export function ShopToolbar({
     <div ref={root} className="shop-toolbar" aria-label="Shop controls">
       <div className="shop-toolbar__filters">
         <span className="shop-toolbar__label">Filter {activeFilters ? `(${activeFilters})` : ''}</span>
-        {panels.slice(0, 2).map((panel) => (
+        {panels.slice(0, 2).filter((panel) => panel.options.length > 1).map((panel) => (
           <ShopDisclosure
             key={panel.key}
             panel={panel}

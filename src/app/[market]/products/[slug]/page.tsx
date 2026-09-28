@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -20,19 +21,13 @@ import {
   type SearchCatalogueQuery,
 } from '@/lib/vendure/generated/graphql';
 import { catalogueQuery } from '@/lib/vendure/transport';
-import { display, LABELS } from '@/lib/atelier/measurements';
-import { PROFILES } from '@/features/atelier/fixtures';
 
 type Product = NonNullable<ProductBySlugQuery['product']>;
 
-async function loadProduct(slug: string, market: Market): Promise<Product | null> {
-  try {
-    const { data } = await catalogueQuery(ProductBySlugDocument, { slug }, market);
-    return data.product;
-  } catch {
-    return null;
-  }
-}
+const loadProduct = cache(async (slug: string, market: Market): Promise<Product | null> => {
+  const { data } = await catalogueQuery(ProductBySlugDocument, { slug }, market);
+  return data.product;
+});
 
 async function loadRecommendations(
   currentSlug: string,
@@ -57,7 +52,8 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { market, slug } = await params;
   if (!isMarket(market)) return {};
-  const neloProduct = findNeloProduct(slug);
+  const product = await loadProduct(slug, market);
+  const neloProduct = !product ? findNeloProduct(slug) : null;
   if (neloProduct) {
     return {
       title: neloProduct.title,
@@ -74,7 +70,6 @@ export async function generateMetadata({
       },
     };
   }
-  const product = await loadProduct(slug, market);
   if (!product) return {};
 
   const description = product.description
@@ -104,9 +99,7 @@ export async function generateMetadata({
  * Composition follows the commerce grammar: media, then identity and price, then variants,
  * then one primary action, then the detail. There is exactly one CTA on this page.
  *
- * The measurement panel is the differentiator and is still FIXTURE-backed - there is no
- * Atelier API to read a real profile from, so it is labelled as such rather than implied to
- * be the customer's own data.
+ * Vendure products use the bag; legacy editorial products retain their Atelier flow.
  */
 export default async function ProductPage({
   params,
@@ -116,14 +109,15 @@ export default async function ProductPage({
   const { market, slug } = await params;
   if (!isMarket(market)) notFound();
 
-  const neloProduct = findNeloProduct(slug);
-  if (neloProduct) return <NeloProductProfile product={neloProduct} market={market} />;
-
   const [product, recommendations] = await Promise.all([
     loadProduct(slug, market),
     loadRecommendations(slug, market),
   ]);
-  if (!product) notFound();
+  if (!product) {
+    const neloProduct = findNeloProduct(slug);
+    if (neloProduct) return <NeloProductProfile product={neloProduct} market={market} />;
+    notFound();
+  }
 
   // Formatted on the server: the client island receives strings, not currency logic.
   const prices = Object.fromEntries(
@@ -141,7 +135,6 @@ export default async function ProductPage({
     thumb: assetPreview(asset.preview, { width: 300, height: 300 }),
   }));
 
-  const profile = PROFILES.find((p) => p.isDefault) ?? PROFILES[0];
 
   return (
     <>
@@ -191,36 +184,11 @@ export default async function ProductPage({
                 {product.variants[0] ? prices[product.variants[0].id] : ''}
               </span>
               <span className="t">
-                {product.variants[0]?.currencyCode} · duties included
+                {product.variants[0]?.currencyCode}
               </span>
             </div>
 
-            <VariantSelector product={product} market={market} prices={prices}>
-              <section className="fit">
-                <div className="fit-h">
-                  <span className="lab" style={{ color: 'var(--ink)' }}>
-                    <b>Cut to your measurements</b>
-                  </span>
-                  <Link href={`/${market}/account/measurements`}>Edit profile</Link>
-                </div>
-                <dl className="mgrid">
-                  {(profile?.measurements ?? []).map((measurement) => (
-                    <div
-                      className={`mrow${measurement.millimetres === null ? ' unset' : ''}`}
-                      key={measurement.code}
-                    >
-                      <dt>{LABELS[measurement.code]}</dt>
-                      <dd>{display(measurement.millimetres, 'millimetre')}</dd>
-                    </div>
-                  ))}
-                </dl>
-                <p className="mnote">
-                  Fixture profile - the Atelier API does not exist yet, so these are not your
-                  real measurements. <Link href={`/${market}/size-guide`}>How we measure</Link>
-                  .
-                </p>
-              </section>
-            </VariantSelector>
+            <VariantSelector product={product} market={market} prices={prices} />
 
             {product.description ? (
               <details open>
@@ -234,8 +202,7 @@ export default async function ProductPage({
             <details>
               <summary>Size and fit</summary>
               <div className="body">
-                Cut in UK 6 to 30, every style. Sizes struck through on the scale above are not
-                in stock to ship today but can still be cut to measure.{' '}
+                Choose from the available options above. Unavailable options cannot be added to your bag.{' '}
                 <Link href={`/${market}/size-guide`}>The size guide</Link> shows where each
                 measurement is taken.
               </div>
