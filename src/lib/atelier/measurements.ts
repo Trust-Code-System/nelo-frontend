@@ -124,6 +124,20 @@ export function fromMillimetres(mm: string, unit: MeasurementUnit): string {
   return (parsed / (unit === 'inch' ? MM_PER_INCH : MM_PER_CM)).toFixed(2);
 }
 
+/** Editable values need more precision than a two-place display: an unchanged saved
+ * profile must round back to the same 0.01 mm. Six decimal places keep that invariant. */
+export function measurementForInput(mm: string, unit: MeasurementUnit): string {
+  const match = /^(\d+)(?:\.(\d{1,2}))?$/.exec(mm);
+  if (!match) return '';
+  const fraction = match[2] ?? '';
+  const digits = BigInt((match[1] ?? '') + fraction);
+  const denominator = 10n ** BigInt(fraction.length) * (unit === 'inch' ? 254n : 10n);
+  const numerator = digits * (unit === 'inch' ? 10n : 1n) * 1_000_000n;
+  const scaled = (numerator + denominator / 2n) / denominator;
+  const decimal = (scaled % 1_000_000n).toString().padStart(6, '0').replace(/0+$/, '').padEnd(2, '0');
+  return `${scaled / 1_000_000n}.${decimal}`;
+}
+
 /**
  * Accepts a plain decimal only. Rejects empty, non-finite and non-positive values.
  * Returns null rather than throwing so the caller can distinguish "not entered" from

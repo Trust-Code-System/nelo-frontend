@@ -255,7 +255,7 @@ legend{font-family:var(--mono); font-size:var(--t-micro); letter-spacing:.18em; 
 .f{display:block; margin-bottom:var(--s4)}
 .f .lab{display:block; margin-bottom:7px}
 .f>label{display:block; margin-bottom:0}
-input[type="text"],input[type="date"],input[type="email"],input[type="password"],
+input[type="text"],input[type="date"],input[type="time"],input[type="email"],input[type="password"],
 input[type="tel"],input[type="search"],input[type="number"],select,textarea{
   width:100%; border:var(--rule); border-radius:var(--radius); background:var(--paper); color:var(--ink);
   padding:var(--s3); font-family:var(--sans); font-size:var(--t-sm)}
@@ -1583,7 +1583,7 @@ body.intro-locked{overflow:hidden}
    =========================================================================== */
 
 /* Native controls ---------------------------------------------------------- */
-input[type="text"],input[type="date"],input[type="email"],input[type="password"],
+input[type="text"],input[type="date"],input[type="time"],input[type="email"],input[type="password"],
 input[type="tel"],input[type="search"],input[type="number"],select,textarea{
   min-height:52px;border:1px solid var(--hair);border-radius:var(--r-md);
   background-color:var(--paper);color:var(--ink);padding:13px 16px;
@@ -4791,3 +4791,18 @@ button:active>.rolltext .rolltext__rail,
     width:min(38vw,520px,calc(80svh - 72px));
   }
 }
+.atelier-feedback{grid-column:1/-1}
+.atelier-feedback p{margin:0}
+.atelier-feedback ul{margin-block:var(--s3) 0;padding-inline-start:var(--s5)}
+.atelier-appointments{list-style:none;padding:0;margin:var(--s5) 0}
+.profile-measurements{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s4)}
+.profile-measurements .f{min-width:0}
+.shipment{margin-block:var(--s4);padding-block:var(--s3);border-bottom:var(--rule)}
+.shipment dd{overflow-wrap:anywhere}
+.newsletter-signup{min-width:0}
+.newsletter-feedback{overflow-wrap:anywhere}
+.atelier-feedback,.profile-measurements input,.aform input[type=date],.aform input[type=time]{min-width:0;max-width:100%}
+@media(max-width:480px){.profile-measurements{grid-template-columns:minmax(0,1fr)}}
+.commission-heading{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:var(--s5);margin-block:var(--s6);overflow-wrap:anywhere}
+.acct-nav{flex-wrap:wrap;overflow:visible}
+.acct-nav a{min-height:44px;display:inline-flex;align-items:center}

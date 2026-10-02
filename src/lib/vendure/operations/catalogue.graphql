@@ -30,6 +30,7 @@ fragment ProductCard on SearchResult {
   }
   currencyCode
   inStock
+  facetValueIds
 }
 
 query Collections {

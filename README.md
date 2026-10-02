@@ -44,7 +44,7 @@ Copy-Item .env.example .env.local
 
 **Shared backend.** Ask the backend team for the Shop API URL and the two channel tokens, paste them into `.env.local`, and skip to step 4.
 
-**Local harness.** The storefront develops against a Vendure 3.7.3 app at `../vendure-dev` (SQLite, sample catalogue). It is not in this repo and it is not production. It does not include the Atelier plugin, Paystack, or Nelo's real channel data.
+**Optional core-commerce harness.** A Vendure 3.7.3 app at `../vendure-dev` (SQLite, sample catalogue) can exercise core commerce only. It does not include Atelier, Paystack, or Nelo's real channel data. Use `nelo-commerce` for the current storefront's integration and release checks.
 
 ```bash
 cd ../vendure-dev
@@ -210,9 +210,10 @@ src/
     measurements.ts        # decimal-millimetre handling
   proxy.ts                 # legacy 301s, then adds a market segment (307); never changes one
 contracts/
-  atelier-shop-api.proposal.graphql    # awaiting backend review
+  atelier-shop-api.proposal.graphql    # historical proposal; use the published Shop schema
 docs/
   CATALOGUE-IMPORT.md      # the shape the storefront expects Nelo's catalogue in
+  FRONTEND-MVP-HANDOFF.md  # frontend changes, backend/provider dependencies and demo gate
 design/                    # phase 0 mockups; the design lock is STYLESEED.md
 ```
 
@@ -272,9 +273,12 @@ Three things the backend has to decide, because the storefront cannot:
 | | Blocked on |
 | --- | --- |
 | Paystack live release evidence | The NGN hosted-redirect contract and webhook settlement are implemented. A real Paystack test-mode run with API, worker, Redis and public HTTPS ingress is still required before release. |
-| Atelier screens | No customer-facing resolvers exist. Our proposed contract: `contracts/atelier-shop-api.proposal.graphql`. Every Atelier screen stays on marked fixtures until it lands. |
+| Atelier release evidence | Booking, measurement profiles, appointment cancellation and commission tracking use the published customer Shop API. Fixtures have been removed. Verify against the deployed nelo-commerce API and a verified test customer before release. |
 | International checkout | Confirmation that the Paystack account can settle USD. |
 | Real catalogue | Nelo's own products. The harness carries Vendure's sample electronics. `docs/CATALOGUE-IMPORT.md` says what shape the storefront needs. |
+| Newsletter provider | The footer posts a validated address to a server-only provider adapter. Configure `NELO_NEWSLETTER_WEBHOOK_URL` and optional Bearer token. An unconfigured provider does not report a subscription. |
+
+See [frontend MVP handoff](docs/FRONTEND-MVP-HANDOFF.md) for the gap mapping and remaining demo dependencies. `npm run schema:export` reads the target Shop API; `npm run e2e:mvp:ui` exercises the finished UI with an isolated local contract test double. `npm run e2e:mvp:live` verifies real profile persistence, appointment requests/cancellation and seeded commissions/tracking with a dedicated staging customer; configuration is in the handoff. Neither offline schema composition nor the UI double replaces live staging/Paystack verification. The Shopify snapshot remains an import source and is no longer a runtime catalogue fallback.
 
 ### Checkout, precisely
 

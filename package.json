@@ -12,10 +12,13 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "codegen": "graphql-codegen --config codegen.ts",
+    "schema:export": "node scripts/export-shop-schema.mjs",
     "codegen:check": "node scripts/codegen-check.mjs",
     "catalogue:sync": "node scripts/sync-nelo-catalogue.mjs",
     "test": "vitest run",
     "e2e": "playwright test",
+    "e2e:mvp:ui": "playwright test --config playwright.mvp-ui.config.ts",
+    "e2e:mvp:live": "playwright test e2e/atelier-live.spec.ts e2e/measurements.spec.ts e2e/nelo-commerce.spec.ts",
     "verify": "npm run typecheck && npm run lint && npm run test && npm run build"
   },
   "dependencies": {

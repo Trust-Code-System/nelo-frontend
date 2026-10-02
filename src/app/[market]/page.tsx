@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { SiteFooter } from '@/components/SiteFooter';
 import { SiteHeader } from '@/components/SiteHeader';
 import { ProductGrid } from '@/features/catalogue/ProductGrid';
+import { commissionFacetIds } from '@/features/catalogue/purchase-mode';
 import { Hero } from '@/features/home/Hero';
 import {
   CollectionPreview,
@@ -128,7 +129,7 @@ export default async function HomePage({
 
             {search ? (
               campaignItems.length > 0 ? (
-                <ProductGrid items={campaignItems} market={market} />
+                <ProductGrid items={campaignItems} market={market} commissionIds={commissionFacetIds(search.facetValues)} />
               ) : (
                 <CollectionPreview market={market} />
               )

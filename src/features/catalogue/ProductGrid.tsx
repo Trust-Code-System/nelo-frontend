@@ -39,9 +39,11 @@ function editorialLookFor(item: SearchItem) {
 export function ProductGrid({
   items,
   market,
+  commissionIds = [],
 }: {
   items: readonly SearchItem[];
   market: Market;
+  commissionIds?: readonly string[];
 }) {
   if (items.length === 0) {
     return (
@@ -60,7 +62,9 @@ export function ProductGrid({
     // `riseset` staggers the cards in on scroll. It is a CSS scroll-driven animation, so
     // the grid stays a server component and costs no JavaScript.
     <div className="grid g4 riseset">
-      {items.map((item, index) => (
+      {items.map((item, index) => {
+        const commission = item.facetValueIds.some(id => commissionIds.includes(id));
+        return (
         <Link className="card" key={item.productId} href={`/${market}/products/${item.slug}`}>
           <figure>
             <div className="ph framed">
@@ -85,16 +89,16 @@ export function ProductGrid({
             <figcaption>
               <div className="meta">
                 <h2>{item.productName}</h2>
-                <span className="price num">{priceLabel(item.priceWithTax, market)}</span>
+                <span className="price num">{commission ? 'By consultation' : priceLabel(item.priceWithTax, market)}</span>
               </div>
               <div className="strip">
-                <span>UK 6-30</span>
-                <span>{item.inStock ? 'Ready to ship' : 'Cut to measure'}</span>
+                <span>{commission ? 'Commission' : 'View sizes'}</span>
+                <span>{commission ? 'Made for you' : item.inStock ? 'Available' : 'Out of stock'}</span>
               </div>
             </figcaption>
           </figure>
         </Link>
-      ))}
+      ); })}
     </div>
   );
 }

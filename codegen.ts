@@ -31,6 +31,7 @@ const config: CodegenConfig = {
           Money: 'number',
           DateTime: 'string',
           JSON: 'unknown',
+          DecimalMillimetres: 'string',
         },
         skipTypename: false,
       },

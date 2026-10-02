@@ -4,9 +4,14 @@ Nelo's real catalogue does not exist in any environment yet. The local developme
 (`../vendure-dev`) is seeded with Vendure's sample **electronics** data, which is enough to
 prove the storefront reads a real Shop API and nothing else.
 
-Entering the real catalogue is the client's job. This document says exactly what shape the
-storefront needs it in, so whoever types it in does not have to read the frontend to find
-out. Everything below is checkable against the Vendure Admin UI.
+The retained `src/data/nelo-catalogue.json` and `public/catalogue` images are import sources.
+The backend team owns the importer and shared-environment provisioning; the client supplies
+category assignments and deliberate USD prices. This document defines the required shape.
+The frontend no longer falls back to Shopify products when Vendure has no match.
+
+Commission-only products use facet code `purchase-mode`, value code `commission`. Optional
+facet `category`, value `bridal`, selects bridal consultation intake. Ordinary published
+products use the bag. See `FRONTEND-MVP-HANDOFF.md` for integration and demo dependencies.
 
 Nothing here is a frontend preference dressed up as a requirement — each section says which
 screen breaks if it is missing.

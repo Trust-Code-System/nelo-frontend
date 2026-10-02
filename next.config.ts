@@ -3,6 +3,7 @@ import type { NextConfig } from 'next';
 
 const config: NextConfig = {
   reactStrictMode: true,
+  distDir: process.env.NELO_BUILD_DIR ?? '.next',
   // Pin the workspace root: an unrelated package-lock.json in the user's home
   // directory otherwise makes Turbopack infer the wrong root.
   turbopack: { root: path.resolve(process.cwd()) },

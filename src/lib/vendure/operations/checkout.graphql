@@ -67,6 +67,10 @@ fragment OrderDetail on Order {
   shippingWithTax
   totalWithTax
   couponCodes
+  fulfillments {
+    id state trackingCode
+    lines { orderLineId quantity }
+  }
   discounts {
     description
     amountWithTax

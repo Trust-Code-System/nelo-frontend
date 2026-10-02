@@ -6,13 +6,13 @@
  * quietly passing. A skipped test that says why is honest; a test that asserts fixture
  * behaviour and calls itself a catalogue test is not.
  *
- * Run them locally by starting ../vendure-dev first.
+ * Use the configured nelo-commerce endpoint for release verification.
  */
 
 let cached: boolean | null = null;
 
 export async function catalogueIsLive(): Promise<boolean> {
-  if (cached !== null) return cached;
+  if (cached !== null) return requireCatalogue(cached);
 
   const url = process.env.VENDURE_SHOP_API_URL ?? 'http://localhost:3000/shop-api';
   const token = process.env.VENDURE_CHANNEL_TOKEN_NG ?? '';
@@ -28,7 +28,7 @@ export async function catalogueIsLive(): Promise<boolean> {
     });
     if (!response.ok) {
       cached = false;
-      return cached;
+      return requireCatalogue(cached);
     }
     const body = (await response.json()) as {
       data?: { search?: { totalItems?: number } };
@@ -38,8 +38,13 @@ export async function catalogueIsLive(): Promise<boolean> {
   } catch {
     cached = false;
   }
-  return cached;
+  return requireCatalogue(cached);
+}
+
+function requireCatalogue(available: boolean): boolean {
+  if (!available && process.env.E2E_REQUIRE_BACKEND === '1') throw new Error('The staging gate requires a reachable, seeded nelo-commerce Shop API.');
+  return available;
 }
 
 export const NO_CATALOGUE =
-  'needs a reachable Vendure with a seeded catalogue — start ../vendure-dev';
+  'needs a reachable nelo-commerce Shop API with an imported catalogue';

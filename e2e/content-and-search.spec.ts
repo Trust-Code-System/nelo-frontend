@@ -85,12 +85,14 @@ test.describe('search', () => {
   });
 
   test('a term with no matches says so, and offers the atelier', async ({ page }) => {
+    test.skip(!(await catalogueIsLive()), NO_CATALOGUE);
     await page.goto('/ng/search?q=zzzznotathing');
     await expect(page.getByRole('heading', { name: /try a broader description/i })).toBeVisible();
     await expect(page.getByRole('link', { name: /ask the atelier/i })).toBeVisible();
   });
 
   test('a term returns results and stays in the URL', async ({ page }) => {
+    test.skip(!(await catalogueIsLive()), NO_CATALOGUE);
     await page.goto('/ng/search');
     await page.getByRole('searchbox').fill('Adele');
     await page.getByRole('search').getByRole('button', { name: /^search$/i }).click();

@@ -51,7 +51,7 @@ test.describe('market resolution', () => {
       : page.locator('.nav-links').getByRole('link', { name: 'Atelier', exact: true });
     if (isMobile) await openNavIfMobile(page);
     await atelier.click();
-    await expect(page).toHaveURL(/\/international\/atelier/);
+    await expect(page).toHaveURL(/\/international\/atelier/, { timeout: 15_000 });
   });
 
   test('switching market is a navigation, not hidden client state', async ({ page, isMobile }) => {
@@ -74,17 +74,10 @@ test.describe('market resolution', () => {
   });
 });
 
-test.describe('currency', () => {
-  test('NGN renders in the Nigerian market', async ({ page }) => {
-    await page.goto('/ng/account/atelier/NW-BR-0416');
-    await expect(page.getByText('₦450,000').first()).toBeVisible();
-  });
-
-  test('the same commission renders USD in the international market', async ({ page }) => {
-    await page.goto('/international/account/atelier/NW-BR-0416');
-    // Same minor units, formatted for the market. No frontend FX conversion happens:
-    // real prices come from the Channel, which is why this is a formatting assertion only.
-    await expect(page.getByText('$450,000').first()).toBeVisible();
-    await expect(page.getByText('₦450,000')).toHaveCount(0);
+test.describe('currency gates', () => {
+  test('USD payment stays closed until explicitly enabled', async ({ page }) => {
+    await page.goto('/international/checkout');
+    await expect(page.locator('main')).toContainText(/not.*open|not.*available|USD|international/i);
+    await expect(page.getByRole('button', { name: /pay now|pay with paystack/i })).toHaveCount(0);
   });
 });

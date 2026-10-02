@@ -6,7 +6,6 @@ vi.stubGlobal('React', React);
 vi.mock('@/lib/vendure/transport', () => ({ catalogueQuery: query }));
 vi.mock('@/components/SiteHeader', () => ({ SiteHeader: () => null }));
 vi.mock('@/components/SiteFooter', () => ({ SiteFooter: () => null }));
-vi.mock('@/features/catalogue/NeloProductProfile', () => ({ NeloProductProfile: () => <div>Atelier profile</div> }));
 vi.mock('@/features/catalogue/VariantSelector', () => ({ VariantSelector: () => <button>Add to bag</button> }));
 vi.mock('@/features/catalogue/ProductGallery', () => ({ ProductGallery: () => null }));
 import ProductPage, { generateMetadata } from '@/app/[market]/products/[slug]/page';
@@ -30,9 +29,21 @@ describe('catalogue page boundaries', () => {
     expect(html).not.toContain('Atelier profile'); expect(html).not.toContain('Fixture profile');
     expect((await generateMetadata({ params: params() })).title).toBe('Live Adele');
   });
-  it('preserves the legacy Atelier route when Vendure confirms the product is absent', async () => {
+  it('returns not found when Vendure confirms the product is absent, even for a Shopify slug', async () => {
     setup(null);
-    expect(renderToStaticMarkup(await ProductPage({ params: params() }))).toContain('Atelier profile');
+    await expect(ProductPage({ params: params() })).rejects.toThrow('404');
+    expect((await generateMetadata({ params: params() })).title).toBeUndefined();
+  });
+  it('routes an explicitly commissioned bridal piece to a consultation without a bag or price', async () => {
+    setup({ ...product, facetValues: [
+      { code: 'commission', facet: { code: 'purchase-mode' } },
+      { code: 'bridal', facet: { code: 'category' } },
+    ] } as typeof product);
+    const html = renderToStaticMarkup(await ProductPage({ params: params() }));
+    expect(html).toContain('Request a consultation');
+    expect(html).toContain('context=bridal');
+    expect(html).not.toContain('Add to bag');
+    expect(html).not.toContain('class="pricerow"');
   });
   it('does not switch an ordinary purchase to Atelier during an API outage', async () => {
     query.mockRejectedValue(new Error('API unavailable'));

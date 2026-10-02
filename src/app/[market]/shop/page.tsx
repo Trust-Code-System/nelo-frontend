@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import { SiteFooter } from '@/components/SiteFooter';
 import { SiteHeader } from '@/components/SiteHeader';
 import { ShopProductGrid } from '@/features/catalogue/ShopProductGrid';
+import { commissionFacetIds } from '@/features/catalogue/purchase-mode';
 import { ShopToolbar } from '@/features/catalogue/ShopToolbar';
 import { buildHref, PAGE_SIZE, parseParams, toSearchInput, SORT_LABELS } from '@/features/catalogue/search-params';
 import { shopFacetOptions } from '@/features/catalogue/shop-filters';
@@ -89,7 +90,7 @@ export default async function ShopPage({
             activeFilters={query.facets.length}
             clearHref={basePath}
           />
-          {search.items.length ? <ShopProductGrid items={search.items} market={market} /> : (
+          {search.items.length ? <ShopProductGrid items={search.items} market={market} commissionIds={commissionFacetIds(facets)} /> : (
             <section className="shop-empty">
               <span className="lab">No matching pieces</span>
               <h2>{query.facets.length || query.page > 1 || query.term ? 'Try another selection.' : 'The collection is coming soon.'}</h2>

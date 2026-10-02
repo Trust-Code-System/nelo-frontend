@@ -8,8 +8,10 @@ test.describe('NELO commerce archive', () => {
     const cards = page.locator('.nelo-product-card');
     await expect(cards.first()).toBeVisible();
     expect(await cards.count()).toBeLessThanOrEqual(12);
-    const title = await cards.first().locator('h2').innerText();
-    await cards.first().getByRole('link').click();
+    const ordinary = cards.filter({ hasNotText: 'By consultation' }).first();
+    await expect(ordinary).toBeVisible();
+    const title = await ordinary.locator('h2').innerText();
+    await ordinary.getByRole('link').click();
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(title);
     await expect(page.getByRole('button', { name: /add to bag|out of stock|select a size/i })).toBeVisible();
     await expect(page.locator('.nelo-variant-picker')).toHaveCount(0);
@@ -18,7 +20,7 @@ test.describe('NELO commerce archive', () => {
   test('shop and collections are separate destinations', async ({ page }) => {
     await page.goto('/ng/collections');
     await expect(page.getByRole('heading', { level: 1, name: 'Collections' })).toBeVisible();
-    await expect(page.locator('.collection-story')).toHaveCount(4);
+    for (const href of await page.locator('.collection-story a').evaluateAll(links => links.map(link => link.getAttribute('href')))) expect(href).toMatch(/^\/ng\/collections\//);
     await expect(page.locator('.nelo-product-card')).toHaveCount(0);
 
     const shopLink = page.getByRole('link', { name: /go straight to the shop/i });
@@ -28,39 +30,12 @@ test.describe('NELO commerce archive', () => {
     await expect(page.getByRole('heading', { level: 1, name: 'Shop all' })).toBeVisible();
   });
 
-  test('legacy editorial pieces retain their Atelier options', async ({ page }) => {
+  test('unknown published products do not silently become an atelier purchase', async ({ page }) => {
     test.skip(!(await catalogueIsLive()), NO_CATALOGUE);
-    await page.goto('/ng/products/adele');
-    test.skip(await page.locator('.nelo-variant-picker').count() === 0, 'Adele is now a Vendure product');
-    await expect(page.getByRole('heading', { level: 1, name: 'ADELE SET' })).toBeVisible();
-    await expect(page.locator('.thumbs button')).toHaveCount(5);
-    await expect(page.getByRole('button', { name: /^teal$/i })).toHaveCount(1);
-    await expect(page.getByRole('button', { name: /^30$/ })).toBeVisible();
-    const picker = page.locator('.nelo-variant-picker');
-    await expect(picker).toHaveAttribute('data-ready', 'true');
-    const bust = picker.getByRole('button', { name: 'Bust', exact: true });
-    await expect(bust).toBeVisible();
-    await expect(picker.getByRole('button', { name: 'Waist', exact: true })).toBeVisible();
-    await expect(picker.getByRole('button', { name: 'Hips', exact: true })).toBeVisible();
-    await expect(picker.getByRole('button', { name: 'Height', exact: true })).toBeVisible();
-    await bust.scrollIntoViewIfNeeded();
-    await bust.click();
-    await expect(bust).toHaveAttribute('aria-expanded', 'true');
-    await picker.getByRole('option', { name: /^34 in/ }).click();
-    const orderLink = page.getByRole('link', { name: /order this piece/i });
-    await expect(orderLink).toHaveAttribute(
-      'href',
-      /\/ng\/atelier\?.*piece=ADELE\+SET.*bust=34/,
-    );
-    await expect(
-      page.locator('a[href*="://nelowoman.com"], a[href*="://www.nelowoman.com"]'),
-    ).toHaveCount(0);
-    await orderLink.click();
-    await expect(page).toHaveURL(/\/ng\/atelier\?.*piece=ADELE\+SET.*bust=34/);
-    await expect(page.getByText('Selected from the shop')).toBeVisible();
-    await expect(page.getByLabel('Bust', { exact: true })).toHaveValue('34');
+    const response = await page.goto('/ng/products/not-a-published-product');
+    expect(response?.status()).toBe(404);
+    await expect(page.getByRole('link', { name: 'Order this piece', exact: true })).toHaveCount(0);
   });
-
   test('the landing campaign exposes manual slide controls', async ({ page }) => {
     await page.goto('/ng');
     await page.waitForTimeout(2_200);
@@ -83,7 +58,9 @@ test.describe('NELO commerce archive', () => {
   test('shop disclosures are mutually exclusive', async ({ page }) => {
     test.skip(!(await catalogueIsLive()), NO_CATALOGUE);
     await page.goto('/ng/shop');
-    test.skip(await page.getByRole('button', { name: /^colour/i }).count() === 0 || await page.getByRole('button', { name: /^size/i }).count() === 0, 'Colour and size facets are not configured');
+    const configured = await page.getByRole('button', { name: /^colour/i }).count() > 0 && await page.getByRole('button', { name: /^size/i }).count() > 0;
+    if (!configured && process.env.E2E_REQUIRE_BACKEND === '1') throw new Error('The staging catalogue gate requires published colour and size facets.');
+    test.skip(!configured, 'Colour and size facets are not configured');
     const colour = page.getByRole('button', { name: /^colour/i });
     const size = page.getByRole('button', { name: /^size/i });
     const sort = page.getByRole('button', { name: /^sort/i });

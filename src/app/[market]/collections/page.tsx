@@ -9,45 +9,10 @@ import { SiteHeader } from '@/components/SiteHeader';
 import { CollectionsExperience } from '@/features/collections/CollectionsExperience';
 import { marketAlternates } from '@/lib/seo/site';
 import { isMarket } from '@/lib/vendure/channels';
+import { CollectionsDocument, type CollectionsQuery } from '@/lib/vendure/generated/graphql';
+import { catalogueQuery } from '@/lib/vendure/transport';
+import { assetPreview } from '@/lib/vendure/assets';
 
-const COLLECTIONS = [
-  {
-    number: '01',
-    title: 'Linear Summer 26',
-    note: 'The current line. Sculpted colour, long silhouettes and the precision of a Lagos cut.',
-    image: '/editorial/live/linear-tokyo-2400.jpg',
-    alt: 'A turquoise Linear Summer 26 look photographed against deep red.',
-    href: '/shop',
-    className: 'collection-story--lead',
-  },
-  {
-    number: '02',
-    title: 'The 7th Drop',
-    note: 'An anniversary capsule built around presence, movement and occasion dressing.',
-    image: '/catalogue/7th-anniversary-collection/01.jpg',
-    alt: 'The 7th Drop anniversary campaign by NELO Woman.',
-    href: '/products/7th-anniversary-collection',
-    className: '',
-  },
-  {
-    number: '03',
-    title: 'House signatures',
-    note: 'Adele, Bloom, Reign and Nova. Four silhouettes that define the house language.',
-    image: '/editorial/live/adele-02.webp',
-    alt: 'The Adele Set from the NELO Woman house signatures.',
-    href: '/shop',
-    className: '',
-  },
-  {
-    number: '04',
-    title: 'The ceremony edit',
-    note: 'Bridal and occasion pieces that begin with a conversation, never a template.',
-    image: '/catalogue/the-minimalist-bride/01.jpg',
-    alt: 'The Minimalist Bride by NELO Woman.',
-    href: '/products/the-minimalist-bride',
-    className: 'collection-story--wide',
-  },
-] as const;
 
 export async function generateMetadata({ params }: { params: Promise<{ market: string }> }): Promise<Metadata> {
   const { market } = await params;
@@ -62,6 +27,10 @@ export async function generateMetadata({ params }: { params: Promise<{ market: s
 export default async function CollectionsPage({ params }: { params: Promise<{ market: string }> }) {
   const { market } = await params;
   if (!isMarket(market)) notFound();
+
+  let collections: CollectionsQuery['collections']['items'] | null = null;
+  try { collections = (await catalogueQuery(CollectionsDocument, {}, market)).data.collections.items; }
+  catch { collections = null; }
 
   return (
     <CollectionsExperience>
@@ -82,43 +51,44 @@ export default async function CollectionsPage({ params }: { params: Promise<{ ma
             <figure><Image src="/editorial/live/adele-02.webp" alt="" fill sizes="20vw" priority /></figure>
             <figure><Image src="/editorial/live/bloom-02.webp" alt="" fill sizes="20vw" priority /></figure>
           </div>
-          <span className="collections-intro__edition num">ARCHIVE / 01—04</span>
+          <span className="collections-intro__edition num">NELO / COLLECTIONS</span>
         </header>
 
         <div className="collections-index" aria-hidden="true">
-          <span className="lab">The archive</span>
-          <span className="num">04 chapters / Lagos</span>
+          <span className="lab">The collection</span>
+          <span className="num">{collections ? `${collections.length} collections / Lagos` : 'Lagos'}</span>
         </div>
 
         <div className="collections-grid">
-          {COLLECTIONS.map((collection) => (
-            <article className={`collection-story ${collection.className}`} key={collection.title}>
-              <Link href={`/${market}${collection.href}`}>
+          {collections?.map((collection, index) => (
+            <article className={`collection-story ${index === 0 ? 'collection-story--lead' : ''}`} key={collection.id}>
+              <Link href={`/${market}/collections/${collection.slug}`}>
                 <div className="collection-story__image">
                   <Image
-                    src={collection.image}
-                    alt={collection.alt}
+                    src={collection.featuredAsset ? assetPreview(collection.featuredAsset.preview, { width: 1200, height: 1500 }) : '/editorial/live/linear-tokyo-2400.jpg'}
+                    alt={collection.name}
                     fill
-                    sizes={collection.className.includes('lead') ? '(max-width: 760px) 100vw, 66vw' : '(max-width: 760px) 100vw, 40vw'}
+                    sizes={index === 0 ? '(max-width: 760px) 100vw, 66vw' : '(max-width: 760px) 100vw, 40vw'}
                   />
-                  <span className="collection-story__number num">{collection.number}</span>
+                  <span className="collection-story__number num">{String(index + 1).padStart(2, '0')}</span>
                   <span className="collection-story__action">Explore <DirectLinkMark /></span>
                 </div>
                 <div className="collection-story__copy">
-                  <span className="lab">Chapter {collection.number}</span>
-                  <h2>{collection.title}</h2>
-                  <p>{collection.note}</p>
+                  <span className="lab">Collection {String(index + 1).padStart(2, '0')}</span>
+                  <h2>{collection.name}</h2>
+                  <p>{collection.description.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() || 'Explore the pieces selected for this collection.'}</p>
                   <span className="collection-story__text-link">Enter the chapter <DirectLinkMark /></span>
                 </div>
               </Link>
             </article>
           ))}
         </div>
+        {collections === null ? <section className="empty"><h2>We cannot load the collections right now</h2><p>Please try again shortly.</p><Link className="btn-q" href={`/${market}/collections`}>Try again</Link></section> : !collections.length ? <section className="empty"><h2>New collections are on their way</h2><p>Browse the shop or begin a conversation with the atelier.</p><Link className="btn-q" href={`/${market}/atelier?context=bridal`}>Explore bridal commissions</Link></section> : null}
 
         <section className="collections-coda">
           <span className="lab">The complete wardrobe</span>
           <h2>Every chapter, in one index.</h2>
-          <Link className="btn" href={`/${market}/shop`}>Shop all 77 pieces</Link>
+          <Link className="btn" href={`/${market}/shop`}>Shop all pieces</Link>
         </section>
 
         <HouseNotes market={market} />

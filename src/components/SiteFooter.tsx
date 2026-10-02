@@ -3,6 +3,7 @@ import { BrandMark } from './BrandMark';
 import { DirectLinkMark } from './DirectLinkMark';
 import type { Market } from '@/lib/vendure/channels';
 import { STORE_CONTACT } from '@/lib/contact';
+import { NewsletterForm } from '@/features/newsletter/NewsletterForm';
 
 /**
  * The footer column headings are h2, not h4.
@@ -49,8 +50,8 @@ export function SiteFooter({ market }: { market: Market }) {
               <h2>Atelier</h2>
               <ul>
                 <li><Link href={`/${market}/atelier`}>Bespoke</Link></li>
-                <li><Link href={`/${market}/atelier`}>Bridal</Link></li>
-                <li><Link href={`/${market}/atelier`}>Book a fitting</Link></li>
+                <li><Link href={`/${market}/atelier?context=bridal`}>Bridal</Link></li>
+                <li><Link href={`/${market}/atelier?purpose=fitting`}>Book a fitting</Link></li>
               </ul>
             </div>
             <div>
@@ -85,20 +86,8 @@ export function SiteFooter({ market }: { market: Market }) {
             <span className="lab">The list</span>
             <h2 id="footer-newsletter-title">Join the newsletter.</h2>
           </div>
-          <form action={`/${market}/contact`} method="get">
-            <input type="hidden" name="subject" value="Newsletter" />
-            <label className="sr" htmlFor="footer-newsletter-email">Email address</label>
-            <input
-              id="footer-newsletter-email"
-              type="email"
-              name="email"
-              placeholder="Email address"
-              autoComplete="email"
-              required
-            />
-            <button type="submit">Join the list <DirectLinkMark /></button>
-          </form>
-          <p>Occasional notes only. No noise, and you can leave at any time.</p>
+          <NewsletterForm market={market} />
+          <p>By joining, you agree to receive occasional NELO notes. Unsubscribe at any time. <Link href={`/${market}/privacy`}>Privacy policy</Link>.</p>
         </section>
         <div className="footer-base">
           <p>© 2026 NELO Woman · Lagos</p>

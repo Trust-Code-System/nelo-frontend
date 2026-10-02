@@ -328,3 +328,5 @@ extend type Mutation {
 # - Anything returning a staff actor id or an override reason.
 # - A "pay deposit" mutation. Commercial charges go through the ordinary Vendure Order and
 #   the Paystack initialisation operation, once that contract exists.
+# Historical proposal only. Current operations use schema/shop-api.graphql and the
+# published nelo-commerce Atelier Shop SDL; do not implement this proposal as a contract.

@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { signInToAtelier } from './atelier-account';
 import { catalogueIsLive, NO_CATALOGUE } from './backend';
 
 /**
@@ -75,6 +76,7 @@ test.describe('keyboard', () => {
   });
 
   test('the measurement form is completable without a mouse', async ({ page }) => {
+    await signInToAtelier(page);
     await page.goto('/ng/account/measurements');
 
     // Reach the first measurement input and type a decimal into it.
@@ -86,11 +88,11 @@ test.describe('keyboard', () => {
     );
     expect(value).toBe('34.25');
 
-    // The unit selector is the very next stop: unit and value belong together, and a decimal
-    // with no unit is the one thing this form must never submit.
+    // One display unit applies to the whole profile in the published API.
+    await expect(page.getByLabel('Measurement unit', { exact: true }).last()).toHaveValue('inch');
     await page.keyboard.press('Tab');
     const next = await focused(page);
-    expect(next).toMatch(/select|unit/i);
+    expect(next).toMatch(/waist|input/i);
   });
 });
 

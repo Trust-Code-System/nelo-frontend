@@ -6,6 +6,7 @@ import { SiteHeader } from '@/components/SiteHeader';
 import { FilterRail } from '@/features/catalogue/FilterRail';
 import { FilterSheet } from '@/features/catalogue/FilterSheet';
 import { ProductGrid } from '@/features/catalogue/ProductGrid';
+import { commissionFacetIds } from '@/features/catalogue/purchase-mode';
 import {
   buildHref,
   PAGE_SIZE,
@@ -186,7 +187,7 @@ export default async function CollectionPage({
               </nav>
             </div>
 
-            <ProductGrid items={search?.items ?? []} market={market} />
+            <ProductGrid items={search?.items ?? []} market={market} commissionIds={commissionFacetIds(search?.facetValues ?? [])} />
 
             {lastPage > 1 ? (
               <nav className="pager" aria-label="Pages">

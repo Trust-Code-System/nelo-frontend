@@ -98,11 +98,11 @@ test.describe('collection page', () => {
     await expect(pager.getByText(/Page 2 of/)).toBeVisible();
   });
 
-  test('the collections index is a campaign archive that leads to shopping', async ({ page }) => {
+  test('the collections index leads to the live catalogue', async ({ page }) => {
     await page.goto('/ng/collections');
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(/collections/i);
 
-    await expect(page.locator('.collection-story')).toHaveCount(4);
+    for (const href of await page.locator('.collection-story a').evaluateAll(links => links.map(link => link.getAttribute('href')))) expect(href).toMatch(/^\/ng\/collections\//);
     const shopLink = page.getByRole('link', { name: /go straight to the shop/i });
     await expect(shopLink).toHaveAttribute('href', '/ng/shop');
     await shopLink.click();

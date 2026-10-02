@@ -1,0 +1,56 @@
+fragment AtelierProfile on MeasurementProfile {
+  __typename
+  id name isDefault source preferredDisplayUnit measuredAt updatedAt
+  measurements { code millimetres }
+}
+
+fragment CustomerAppointment on AtelierAppointment {
+  __typename
+  id purpose context locationMode status startsAt endsAt timezone
+  locationDetails notes isCancellable createdAt
+}
+
+query ActiveMeasurementProfiles {
+  activeMeasurementProfiles { ...AtelierProfile }
+}
+
+mutation UpsertMeasurementProfile($input: UpsertMeasurementProfileInput!) {
+  upsertMeasurementProfile(input: $input) {
+    __typename
+    ... on MeasurementProfile { ...AtelierProfile }
+    ... on MeasurementFormatError { errorCode message code }
+    ... on MeasurementRangeError { errorCode message code plausibleMinMillimetres plausibleMaxMillimetres }
+  }
+}
+
+mutation DeleteMeasurementProfile($id: ID!) {
+  deleteMeasurementProfile(id: $id)
+}
+
+mutation RequestAppointment($input: RequestAppointmentInput!) {
+  requestAppointment(input: $input) {
+    __typename
+    ... on AtelierAppointment { ...CustomerAppointment }
+    ... on AppointmentRequestLimitError { errorCode message openRequestLimit }
+  }
+}
+
+mutation CancelAppointment($id: ID!) {
+  cancelAppointment(id: $id) { ...CustomerAppointment }
+}
+
+query CustomerAtelier($appointmentOptions: AtelierAppointmentListOptions, $projectOptions: BespokeProjectListOptions) {
+  atelierAppointments(options: $appointmentOptions) { totalItems items { ...CustomerAppointment } }
+  bespokeProjects(options: $projectOptions) {
+    totalItems items { id reference context stage targetCompletionDate createdAt items { id name stage targetCompletionDate } }
+  }
+}
+
+query BespokeProject($reference: String!) {
+  bespokeProject(reference: $reference) {
+    id reference context stage targetCompletionDate createdAt relatedOrderCodes
+    items { id name stage targetCompletionDate }
+    measurements { confirmedAt measurements { code millimetres } }
+    appointments { ...CustomerAppointment }
+  }
+}

@@ -83,6 +83,13 @@ export function OrderDetailView({
       <div className="ordcols">
         <div>
           <h2 className="ordsub">Delivery</h2>
+          {order.fulfillments?.length ? order.fulfillments.map(fulfillment => <div className="shipment" key={fulfillment.id}>
+            <dl className="ordmeta">
+              <div className="spec"><dt>Shipment status</dt><dd>{{ Pending: 'Preparing shipment', Shipped: 'Shipped', Delivered: 'Delivered', Cancelled: 'Cancelled' }[fulfillment.state] ?? fulfillment.state}</dd></div>
+              <div className="spec"><dt>Tracking number</dt><dd className="num">{fulfillment.trackingCode || 'Awaiting courier tracking number'}</dd></div>
+              <div className="spec"><dt>Items in this shipment</dt><dd>{fulfillment.lines.map(line => `${order.lines.find(item => item.id === line.orderLineId)?.productVariant.name ?? 'Garment'} × ${line.quantity}`).join(' · ')}</dd></div>
+            </dl>
+          </div>) : <p className="mnote">Your shipment details will appear here when the atelier dispatches your order.</p>}
           {address?.streetLine1 ? (
             <address>
               {address.fullName ? (

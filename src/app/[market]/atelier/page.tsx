@@ -1,13 +1,14 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { SiteFooter } from '@/components/SiteFooter';
 import { SiteHeader } from '@/components/SiteHeader';
-import {
-  MeasurementFields,
-  type MeasurementInitial,
-} from '@/features/atelier/MeasurementFields';
 import { CoutureDatePicker } from '@/features/atelier/CoutureDatePicker';
-import { PROJECT_STAGES } from '@/features/atelier/fixtures';
+import { AtelierForm, AtelierSubmit } from '@/features/atelier/AtelierForm';
+import { requestAppointment } from '@/features/atelier/actions';
+import { PROJECT_STAGE_ORDER, PROJECT_STAGE_LABELS } from '@/features/atelier/presentation';
+import { AccountUnavailable, SignInRequired } from '@/features/account/AccountShell';
+import { getActiveCustomer } from '@/lib/vendure/customer';
 import { isMarket } from '@/lib/vendure/channels';
 
 export const metadata: Metadata = {
@@ -15,16 +16,7 @@ export const metadata: Metadata = {
   description: 'Commission a bespoke or bridal garment from the Nelo atelier in Lagos.',
 };
 
-/**
- * Bespoke and bridal intake.
- *
- * FIXTURE SCREEN. No Atelier Shop API exists, so nothing here submits anywhere. The banner
- * is not decoration: the backend context requires prototypes to be visibly isolated rather
- * than presented as live, and forbids guessing production mutation names.
- *
- * Note what is deliberately absent: no price, no quantity, no add-to-cart. A commission is
- * not a cart, and its operational status is not payment status.
- */
+/** Request-only booking. The atelier confirms availability; this never reserves a slot. */
 export default async function AtelierPage({
   params,
   searchParams,
@@ -42,29 +34,18 @@ export default async function AtelierPage({
   const requestedPiece = value('piece');
   const requestedColour = value('colour');
   const requestedSize = value('size');
-  const measurementInitial: MeasurementInitial = {};
-  const requestedMeasurements = {
-    bust: value('bust'),
-    waist: value('waist'),
-    hip: value('hips'),
-    height: value('height'),
-  } as const;
-  Object.entries(requestedMeasurements).forEach(([code, measurement]) => {
-    if (measurement) {
-      measurementInitial[code as keyof typeof requestedMeasurements] = {
-        value: measurement,
-        unit: 'inch',
-      };
-    }
-  });
+  const identity = await getActiveCustomer(market);
+  const requestedContext = value('context');
+  const selectedContext = requestedContext === 'bridal' || requestedContext === 'bespoke' ? requestedContext : requestedPiece ? 'readyToWear' : 'bespoke';
+  const returnQuery = new URLSearchParams({ context: selectedContext });
+  if (value('purpose') === 'fitting') returnQuery.set('purpose', 'fitting');
+  if (requestedPiece) returnQuery.set('piece', requestedPiece);
+  if (requestedColour) returnQuery.set('colour', requestedColour);
+  if (requestedSize) returnQuery.set('size', requestedSize);
+  const returnTo = `/${market}/atelier?${returnQuery}#commission-form`;
 
   return (
     <>
-      <div className="fixture">
-        <span className="lab">
-          Fixture data - no Atelier Shop API exists yet. Nothing on this screen is live.
-        </span>
-      </div>
       <SiteHeader
         market={market}
         announcement="Consultations at the Lagos atelier, at your address, or by video"
@@ -97,36 +78,39 @@ export default async function AtelierPage({
         <section className="life">
           <span className="lab">How a commission runs</span>
           <ol className="steps">
-            {PROJECT_STAGES.map((stage) => (
-              <li key={stage.key} className={stage.current ? 'now' : undefined}>
-                <span className="n">{stage.index}</span>
-                <div className="t">{stage.label}</div>
+            {PROJECT_STAGE_ORDER.map((stage, index) => (
+              <li key={stage}>
+                <span className="n">{String(index + 1).padStart(2, '0')}</span>
+                <div className="t">{PROJECT_STAGE_LABELS[stage]}</div>
               </li>
             ))}
           </ol>
         </section>
 
-        <form id="commission-form" className="aform" action="#" aria-describedby="not-live">
+        <section id="commission-form" aria-label="Request an atelier appointment">
+        {!identity.reachable ? <AccountUnavailable market={market} /> : !identity.customer ? <SignInRequired market={market} returnTo={returnTo} reason="Sign in to request your consultation or fitting." /> : (
+        <AtelierForm className="aform" action={requestAppointment} replaceOnSuccess>
+          <input type="hidden" name="market" value={market} />
           <div>
             <fieldset>
               <legend>What are you commissioning</legend>
               <div className="opts">
                 <label className="opt">
-                  <input type="radio" name="context" value="bespoke" defaultChecked={!requestedPiece} />
+                  <input type="radio" name="context" value="bespoke" defaultChecked={selectedContext === 'bespoke'} />
                   <span>
                     <span className="t">Bespoke</span>
                     <span className="d">A garment designed with you and cut from nothing.</span>
                   </span>
                 </label>
                 <label className="opt">
-                  <input type="radio" name="context" value="bridal" />
+                  <input type="radio" name="context" value="bridal" defaultChecked={selectedContext === 'bridal'} />
                   <span>
                     <span className="t">Bridal</span>
                     <span className="d">Four to nine months, typically three fittings.</span>
                   </span>
                 </label>
                 <label className="opt">
-                  <input type="radio" name="context" value="readyToWear" defaultChecked={Boolean(requestedPiece)} />
+                  <input type="radio" name="context" value="readyToWear" defaultChecked={selectedContext === 'readyToWear'} />
                   <span>
                     <span className="t">Ready to wear, altered</span>
                     <span className="d">An existing style recut to your measurements.</span>
@@ -139,14 +123,14 @@ export default async function AtelierPage({
               <legend>Appointment</legend>
               <div className="opts" style={{ marginBottom: 'var(--s4)' }}>
                 <label className="opt">
-                  <input type="radio" name="purpose" value="consultation" defaultChecked />
+                  <input type="radio" name="purpose" value="consultation" defaultChecked={value('purpose') !== 'fitting'} />
                   <span>
                     <span className="t">Consultation</span>
                     <span className="d">First meeting. No measurements taken.</span>
                   </span>
                 </label>
                 <label className="opt">
-                  <input type="radio" name="purpose" value="fitting" />
+                  <input type="radio" name="purpose" value="fitting" defaultChecked={value('purpose') === 'fitting'} />
                   <span>
                     <span className="t">Fitting</span>
                     <span className="d">For a commission already under way.</span>
@@ -162,7 +146,12 @@ export default async function AtelierPage({
                   <option value="virtual">Video call</option>
                 </select>
               </label>
-              <CoutureDatePicker id="preferred" name="preferredAt" label="Preferred date" />
+              <label className="f" htmlFor="preferred-date"><span className="lab">Preferred date</span>
+                <input id="preferred-date" name="preferredDate" type="date" required />
+              </label>
+              <label className="f" htmlFor="preferred-time"><span className="lab">Preferred time (Lagos, UTC+1)</span>
+                <input id="preferred-time" name="preferredTime" type="time" required />
+              </label>
               <p className="mnote">
                 All times West Africa Standard Time (Africa/Lagos, UTC+1). Availability is
                 confirmed by the atelier - requesting does not reserve a slot.
@@ -181,7 +170,8 @@ export default async function AtelierPage({
                       .join(' · ') || 'Your selected shop configuration'}
                   </p>
                   <input type="hidden" name="piece" value={requestedPiece} />
-                  <input type="hidden" name="variant" value={value('variant')} />
+                  <input type="hidden" name="colour" value={requestedColour} />
+                  <input type="hidden" name="size" value={requestedSize} />
                 </div>
               ) : null}
               <label className="f" htmlFor="occasion">
@@ -190,6 +180,7 @@ export default async function AtelierPage({
                   id="occasion"
                   name="occasion"
                   type="text"
+                  maxLength={120}
                   placeholder="Reception, gala, wedding…"
                 />
               </label>
@@ -200,6 +191,7 @@ export default async function AtelierPage({
                   id="notes"
                   name="notes"
                   rows={5}
+                  maxLength={1500}
                   placeholder="References, fabrics, colours, silhouettes you have in mind."
                 />
               </label>
@@ -207,27 +199,29 @@ export default async function AtelierPage({
           </div>
 
           <div>
-            <fieldset>
-              <legend>Measurements - optional at this stage</legend>
-              <MeasurementFields initial={measurementInitial} />
-            </fieldset>
+            <div className="aside">
+              <span className="lab">Your fit</span>
+              <h2>Keep your measurements together</h2>
+              <p>Measurements are optional before your first consultation. Save them privately in your account when you are ready.</p>
+              <Link className="btn-q" href={`/${market}/account/measurements`}>Manage measurements</Link>
+            </div>
 
             <div className="aside">
               <span className="lab">Next</span>
-              <h2>We reply within two working days</h2>
+              <h2>A conversation comes first</h2>
               <p>
                 You will receive a written proposal with a schedule and a price. Nothing is
                 charged, and no date is held, until you accept it.
               </p>
-              <button className="btn submit" type="button" disabled>
+              <AtelierSubmit pendingLabel="Sending request…">
                 Request a consultation
-              </button>
-              <p className="mnote" id="not-live" style={{ textAlign: 'center' }}>
-                Disabled until the Atelier API exists - this form does not submit
-              </p>
+              </AtelierSubmit>
+              <p className="mnote">A request is not a confirmed appointment. The atelier will contact you to agree the time.</p>
+              <Link href={`/${market}/account/atelier`}>View appointments and commissions</Link>
             </div>
           </div>
-        </form>
+        </AtelierForm>)}
+        </section>
 
       </main>
 

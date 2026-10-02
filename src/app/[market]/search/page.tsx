@@ -3,8 +3,11 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { SiteFooter } from '@/components/SiteFooter';
 import { SiteHeader } from '@/components/SiteHeader';
-import { NeloProductGrid } from '@/features/catalogue/NeloProductGrid';
-import { searchNeloProducts } from '@/features/catalogue/nelo';
+import { ShopProductGrid } from '@/features/catalogue/ShopProductGrid';
+import { commissionFacetIds } from '@/features/catalogue/purchase-mode';
+import { buildHref, PAGE_SIZE, parseParams, toSearchInput } from '@/features/catalogue/search-params';
+import { SearchCatalogueDocument, type SearchCatalogueQuery } from '@/lib/vendure/generated/graphql';
+import { catalogueQuery } from '@/lib/vendure/transport';
 import { isMarket, type Market } from '@/lib/vendure/channels';
 
 export const metadata: Metadata = {
@@ -24,7 +27,13 @@ export default async function SearchPage({
   const raw = await searchParams;
   const value = raw.q;
   const term = (Array.isArray(value) ? value[0] : value)?.trim().slice(0, 100) ?? '';
-  const products = term ? searchNeloProducts(term) : [];
+  const query = parseParams(raw);
+  let result: SearchCatalogueQuery['search'] | null = null;
+  if (term) {
+    try { result = (await catalogueQuery(SearchCatalogueDocument, { input: toSearchInput(query) }, market)).data.search; }
+    catch { result = null; }
+  }
+  const lastPage = Math.max(1, Math.ceil((result?.totalItems ?? 0) / PAGE_SIZE));
 
   return (
     <>
@@ -35,8 +44,8 @@ export default async function SearchPage({
             <span className="lab">Full catalogue search</span>
             <h1>{term ? `Results for “${term}”` : 'Find your piece'}</h1>
             <p>
-              Search the full NELO archive by garment, colour, size or occasion.
-              {term ? ` ${products.length} ${products.length === 1 ? 'piece matches' : 'pieces match'}.` : ''}
+              Search the current NELO collection by garment or style. Use shop filters for colours and sizes.
+              {result ? ` ${result.totalItems} ${result.totalItems === 1 ? 'piece matches' : 'pieces match'}.` : ''}
             </p>
           </div>
         </header>
@@ -54,9 +63,11 @@ export default async function SearchPage({
               ))}
             </div>
           </section>
-        ) : products.length > 0 ? (
+        ) : !result ? (
+          <div className="empty search-empty"><h2>We cannot search the collection right now</h2><p>Please try again shortly.</p><Link className="btn-q" href={buildHref(`/${market}/search`, query)}>Try again</Link></div>
+        ) : result.items.length > 0 ? (
           <section className="search-results" aria-label={`Search results for ${term}`}>
-            <NeloProductGrid products={products} market={market} />
+            <ShopProductGrid items={result.items} market={market} commissionIds={commissionFacetIds(result.facetValues)} />
           </section>
         ) : (
           <div className="empty search-empty">
@@ -69,6 +80,11 @@ export default async function SearchPage({
             </div>
           </div>
         )}
+        {result && (lastPage > 1 || query.page > 1) ? <nav className="pager" aria-label="Search pages">
+          {query.page > 1 ? <Link href={buildHref(`/${market}/search`, { ...query, page: Math.min(query.page - 1, lastPage) })}>Previous</Link> : <span>Previous</span>}
+          <span>{query.page <= lastPage ? `Page ${query.page} of ${lastPage}` : 'Page unavailable'}</span>
+          {query.page < lastPage ? <Link href={buildHref(`/${market}/search`, { ...query, page: query.page + 1 })}>Next</Link> : <span>Next</span>}
+        </nav> : null}
       </main>
       <SiteFooter market={market} />
     </>

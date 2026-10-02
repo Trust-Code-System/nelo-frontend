@@ -7,8 +7,7 @@ import { SiteFooter } from '@/components/SiteFooter';
 import { SiteHeader } from '@/components/SiteHeader';
 import { ProductGallery, type GalleryImage } from '@/features/catalogue/ProductGallery';
 import { garmentTransitionName, ProductGrid } from '@/features/catalogue/ProductGrid';
-import { NeloProductProfile } from '@/features/catalogue/NeloProductProfile';
-import { findNeloProduct } from '@/features/catalogue/nelo';
+import { commissionFacetIds } from '@/features/catalogue/purchase-mode';
 import { VariantSelector } from '@/features/catalogue/VariantSelector';
 import { marketAlternates } from '@/lib/seo/site';
 import { breadcrumbJsonLd, jsonLdScript, productJsonLd } from '@/lib/seo/structured-data';
@@ -32,16 +31,16 @@ const loadProduct = cache(async (slug: string, market: Market): Promise<Product 
 async function loadRecommendations(
   currentSlug: string,
   market: Market,
-): Promise<SearchCatalogueQuery['search']['items']> {
+): Promise<{ items: SearchCatalogueQuery['search']['items']; commissionIds: string[] }> {
   try {
     const { data } = await catalogueQuery(
       SearchCatalogueDocument,
       { input: { groupByProduct: true, take: 8, skip: 0 } },
       market,
     );
-    return data.search.items.filter((item) => item.slug !== currentSlug).slice(0, 4);
+    return { items: data.search.items.filter((item) => item.slug !== currentSlug).slice(0, 4), commissionIds: commissionFacetIds(data.search.facetValues) };
   } catch {
-    return [];
+    return { items: [], commissionIds: [] };
   }
 }
 
@@ -53,23 +52,6 @@ export async function generateMetadata({
   const { market, slug } = await params;
   if (!isMarket(market)) return {};
   const product = await loadProduct(slug, market);
-  const neloProduct = !product ? findNeloProduct(slug) : null;
-  if (neloProduct) {
-    return {
-      title: neloProduct.title,
-      description:
-        neloProduct.description ||
-        `${neloProduct.title}, designed and cut in Lagos by NELO Woman.`,
-      alternates: marketAlternates(market, `/products/${slug}`),
-      openGraph: {
-        title: neloProduct.title,
-        description:
-          neloProduct.description || `${neloProduct.title}, designed and cut in Lagos.`,
-        type: 'website',
-        images: neloProduct.images[0] ? [{ url: neloProduct.images[0].src }] : [],
-      },
-    };
-  }
   if (!product) return {};
 
   const description = product.description
@@ -99,7 +81,7 @@ export async function generateMetadata({
  * Composition follows the commerce grammar: media, then identity and price, then variants,
  * then one primary action, then the detail. There is exactly one CTA on this page.
  *
- * Vendure products use the bag; legacy editorial products retain their Atelier flow.
+ * Vendure owns availability. Commission-only products use the purchase-mode facet.
  */
 export default async function ProductPage({
   params,
@@ -113,11 +95,11 @@ export default async function ProductPage({
     loadProduct(slug, market),
     loadRecommendations(slug, market),
   ]);
-  if (!product) {
-    const neloProduct = findNeloProduct(slug);
-    if (neloProduct) return <NeloProductProfile product={neloProduct} market={market} />;
-    notFound();
-  }
+  if (!product) notFound();
+  const commissioned = product.facetValues?.some(value => value.facet.code === 'purchase-mode' && value.code === 'commission');
+  const bridal = product.facetValues?.some(value => value.facet.code === 'category' && value.code === 'bridal');
+  const structuredProduct = productJsonLd(product, market);
+  if (commissioned) delete structuredProduct.offers;
 
   // Formatted on the server: the client island receives strings, not currency logic.
   const prices = Object.fromEntries(
@@ -142,7 +124,7 @@ export default async function ProductPage({
           cannot disagree about a price or about availability. */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: jsonLdScript(productJsonLd(product, market)) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdScript(structuredProduct) }}
       />
       <script
         type="application/ld+json"
@@ -177,18 +159,18 @@ export default async function ProductPage({
           </div>
 
           <div className="panel">
-            <span className="lab">Ready to Wear</span>
+            <span className="lab">{commissioned ? bridal ? 'Bridal' : 'Bespoke' : 'Ready to Wear'}</span>
             <h1>{product.name}</h1>
-            <div className="pricerow">
+            {!commissioned ? <div className="pricerow">
               <span className="p">
                 {product.variants[0] ? prices[product.variants[0].id] : ''}
               </span>
               <span className="t">
                 {product.variants[0]?.currencyCode}
               </span>
-            </div>
+            </div> : <p className="mnote">Made by commission. The atelier will discuss your design, fittings and quote.</p>}
 
-            <VariantSelector product={product} market={market} prices={prices} />
+            {commissioned ? <Link className="btn submit" href={`/${market}/atelier?context=${bridal ? 'bridal' : 'bespoke'}&piece=${encodeURIComponent(product.name)}#commission-form`}>Request a consultation</Link> : <VariantSelector product={product} market={market} prices={prices} />}
 
             {product.description ? (
               <details open>
@@ -219,7 +201,7 @@ export default async function ProductPage({
           </div>
         </div>
 
-        {recommendations.length > 0 ? (
+        {recommendations.items.length > 0 ? (
           <section className="recommendations" aria-labelledby="recommendations-title">
             <div className="recommendations__head">
               <div>
@@ -228,7 +210,7 @@ export default async function ProductPage({
               </div>
               <Link href={`/${market}/shop`}>View the full shop <DirectLinkMark /></Link>
             </div>
-            <ProductGrid items={recommendations} market={market} />
+            <ProductGrid items={recommendations.items} market={market} commissionIds={recommendations.commissionIds} />
           </section>
         ) : null}
 
