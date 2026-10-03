@@ -111,3 +111,15 @@ test('changed pages stay within the viewport at supported widths', async ({ page
     }
   }
 });
+
+test('an uncertain booking blocks resubmission and links to the saved request', async ({ page }) => {
+  await page.goto('/ng/atelier');
+  await page.getByLabel('Preferred date', { exact: true }).fill(new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10));
+  await page.getByLabel('Preferred time (Lagos, UTC+1)', { exact: true }).fill('14:30');
+  await page.getByLabel('Anything else', { exact: true }).fill('UI lost response');
+  await page.getByRole('button', { name: 'Request a consultation', exact: true }).click();
+  await expect(page.getByRole('region', { name: 'Request an atelier appointment' }).getByRole('alert')).toContainText('could not confirm');
+  await expect(page.getByRole('button', { name: 'Request a consultation', exact: true })).toBeDisabled();
+  await page.getByRole('link', { name: 'Check your appointments and commissions', exact: true }).click();
+  await expect(page.getByText('Awaiting confirmation', { exact: true })).toHaveCount(1);
+});

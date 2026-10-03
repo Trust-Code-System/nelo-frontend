@@ -9,6 +9,8 @@ export type FormState = {
   status: 'idle' | 'error' | 'success';
   /** A business message the customer can act on. Never a stack or an upstream trace. */
   message?: string;
+  /** An uncertain mutation must be checked before another submission. */
+  retryBlocked?: boolean;
   /** Keyed by input name, so an error lands next to the field that caused it. */
   fieldErrors?: Record<string, string>;
 };

@@ -221,6 +221,7 @@ export default async function AtelierPage({
             </div>
           </div>
         </AtelierForm>)}
+        {identity.customer ? <p className="mnote"><Link href={`/${market}/account/atelier`}>Check your appointments and commissions</Link></p> : null}
         </section>
 
       </main>

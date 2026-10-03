@@ -19,21 +19,29 @@ async function customerMarket(form: FormData) {
 const signedOut: FormState = { status: 'error', message: 'Your session has ended. Sign in before submitting again.' };
 
 export async function requestAppointment(_previous: FormState, form: FormData): Promise<FormState> {
+  let market;
   try {
-    const { market, signedIn } = await customerMarket(form);
-    if (!signedIn) return signedOut;
-    const parsed = appointmentInput(form);
-    if (parsed.errors) return { status: 'error', message: 'Check the appointment details.', fieldErrors: parsed.errors };
+    const identity = await customerMarket(form);
+    if (!identity.signedIn) return signedOut;
+    market = identity.market;
+  } catch {
+    return { status: 'error', message: 'We cannot check your account right now. Please try again shortly.' };
+  }
+  const parsed = appointmentInput(form);
+  if (parsed.errors) return { status: 'error', message: 'Check the appointment details.', fieldErrors: parsed.errors };
+  try {
     const { data, authToken } = await vendureQuery(RequestAppointmentDocument, { input: parsed.input }, { market });
-    if (authToken) await writeSessionToken(authToken);
     const result = data.requestAppointment;
     if (result.__typename === 'AppointmentRequestLimitError') return { status: 'error', message: result.message };
-    revalidatePath(`/${market}/account/atelier`);
-    return { status: 'success', message: 'Your request has reached the atelier. Your preferred time is awaiting confirmation. View it in Account → Atelier.' };
+    if (result.__typename !== 'AtelierAppointment') throw new Error('Unexpected appointment response');
+    // A cookie refresh cannot undo an appointment already saved by Vendure.
+    if (authToken) { try { await writeSessionToken(authToken); } catch { /* retain the existing session */ } }
   } catch {
-    // A lost mutation response is ambiguous. Do not invite an automatic duplicate booking.
-    return { status: 'error', message: 'We could not confirm your request. Check Account → Atelier before trying again, or contact client care.' };
+    return { status: 'error', retryBlocked: true, message: 'We could not confirm your request. Check Account → Atelier before trying again, or contact client care.' };
   }
+  // Revalidation failure must not turn a saved booking into an invitation to retry.
+  try { revalidatePath(`/${market}/account/atelier`); } catch { /* account reads fresh data on the next visit */ }
+  return { status: 'success', message: 'Your request has reached the atelier. Your preferred time is awaiting confirmation. View it in Account → Atelier.' };
 }
 
 export async function saveMeasurementProfile(_previous: FormState, form: FormData): Promise<FormState> {

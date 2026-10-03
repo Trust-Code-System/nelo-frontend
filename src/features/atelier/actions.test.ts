@@ -8,7 +8,7 @@ import { cancelAppointment, requestAppointment, saveMeasurementProfile } from '.
 import { IDLE } from '@/features/account/state';
 function form(values: Record<string, string>) { const result = new FormData(); for (const [key, value] of Object.entries(values)) result.set(key, value); return result; }
 const request = () => ({ market: 'ng', purpose: 'consultation', context: 'bridal', locationMode: 'virtual', preferredDate: new Date(Date.now() + 5 * 86400000).toISOString().slice(0, 10), preferredTime: '14:30' });
-beforeEach(() => { vi.clearAllMocks(); identity.mockResolvedValue({ reachable: true, customer: { id: 'customer' } }); });
+beforeEach(() => { vi.resetAllMocks(); identity.mockResolvedValue({ reachable: true, customer: { id: 'customer' } }); });
 describe('Atelier server boundary', () => {
   it('checks authentication even when the form is bypassed', async () => {
     identity.mockResolvedValue({ reachable: true, customer: null });
@@ -37,6 +37,7 @@ describe('Atelier server boundary', () => {
     query.mockRejectedValue(new Error('internal sensitive error'));
     const result = await requestAppointment(IDLE, form(request()));
     expect(query).toHaveBeenCalledTimes(1); expect(result.message).toContain('Check Account');
+    expect(result.retryBlocked).toBe(true);
     expect(result.message).not.toContain('internal');
   });
   it('associates backend measurement validation with its field', async () => {
@@ -49,4 +50,19 @@ describe('Atelier server boundary', () => {
     expect((await cancelAppointment(IDLE, form({ market: 'ng', id: 'a' }))).status).toBe('error');
     expect(revalidate).not.toHaveBeenCalled();
   });
+});
+
+it('keeps a saved appointment successful when page revalidation fails', async () => {
+  query.mockResolvedValue({ data: { requestAppointment: { __typename: 'AtelierAppointment', id: 'a', status: 'requested' } } });
+  revalidate.mockImplementation(() => { throw new Error('cache unavailable'); });
+  expect((await requestAppointment(IDLE, form(request()))).status).toBe('success');
+  expect(query).toHaveBeenCalledTimes(1);
+});
+
+it('keeps account outages retryable without sending a booking', async () => {
+  identity.mockResolvedValue({ reachable: false, customer: null });
+  const result = await requestAppointment(IDLE, form(request()));
+  expect(result.retryBlocked).not.toBe(true);
+  expect(result.message).toContain('check your account');
+  expect(query).not.toHaveBeenCalled();
 });

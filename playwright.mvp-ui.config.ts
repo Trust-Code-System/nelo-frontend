@@ -4,7 +4,7 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './e2e', testMatch: 'mvp-ui.spec.ts', workers: 1, timeout: 60000,
   reporter: [['list']],
-  use: { baseURL: 'http://localhost:4311', screenshot: 'only-on-failure', trace: 'retain-on-failure' },
+  use: { launchOptions: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE } : {}, baseURL: 'http://localhost:4311', screenshot: 'only-on-failure', trace: 'retain-on-failure' },
   projects: [
     { name: 'desktop', use: { ...devices['Desktop Chrome'] } },
     { name: 'mobile', use: { ...devices['Pixel 7'] } },

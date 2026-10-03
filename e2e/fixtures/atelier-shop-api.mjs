@@ -38,7 +38,9 @@ createServer(async (request, response) => {
     bespokeProject: ({ reference }) => reference === project.reference ? { ...project, appointments: state.appointments } : null,
     requestAppointment: ({ input: value }) => {
       const created = { ...appointment, id: `a${state.appointments.length + 1}`, ...value, startsAt: value.preferredAt, status: 'requested', endsAt: new Date(Date.parse(value.preferredAt) + 3600000).toISOString() };
-      state.appointments.push(created); return created;
+      state.appointments.push(created);
+      if (value.notes === 'UI lost response') throw new Error('Simulated response lost after saving');
+      return created;
     },
     cancelAppointment: ({ id }) => { const item = state.appointments.find(a => a.id === id); item.status = 'cancelled'; item.isCancellable = false; return item; },
     upsertMeasurementProfile: ({ input: value }) => {

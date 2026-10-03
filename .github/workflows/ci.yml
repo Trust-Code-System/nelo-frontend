@@ -66,6 +66,9 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
+      - name: Atelier and catalogue UI contract journeys
+        run: npm run e2e:mvp:ui
+
       - name: Run journeys
         run: npm run e2e
 
