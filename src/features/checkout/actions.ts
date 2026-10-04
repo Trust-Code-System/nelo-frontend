@@ -20,6 +20,7 @@ import { writeSessionToken } from '@/lib/vendure/session';
 import { vendureQuery } from '@/lib/vendure/transport';
 import type { FormState } from '@/features/account/state';
 import { internationalCheckoutEnabled } from './config';
+import { ensureEditableOrder } from '@/features/cart/editable-order';
 import { writePaymentReturnHint } from './payment-return';
 import {
   isPaystackReference,
@@ -110,6 +111,7 @@ export async function setCheckoutCustomer(
     if (firstName.length === 0) return fieldError('firstName', 'Enter your first name.');
     if (lastName.length === 0) return fieldError('lastName', 'Enter your last name.');
 
+    await ensureEditableOrder(market);
     const { data, authToken } = await vendureQuery(
       SetCustomerForOrderDocument,
       {
@@ -175,6 +177,7 @@ export async function setCheckoutShippingAddress(
       if (value.length > 0) optional[field] = value;
     }
 
+    await ensureEditableOrder(market);
     const { data } = await vendureQuery(
       SetOrderShippingAddressDocument,
       { input: { streetLine1, city, countryCode, ...optional } },
@@ -208,6 +211,7 @@ export async function setCheckoutShippingMethod(
       return fieldError('shippingMethodId', 'Choose a delivery method.');
     }
 
+    await ensureEditableOrder(market);
     const { data } = await vendureQuery(
       SetOrderShippingMethodDocument,
       { ids: [id] },
@@ -233,6 +237,7 @@ export async function applyCoupon(_previous: FormState, form: FormData): Promise
     const code = read(form, 'couponCode');
     if (code.length === 0) return fieldError('couponCode', 'Enter a code.');
 
+    await ensureEditableOrder(market);
     const { data } = await vendureQuery(ApplyCouponCodeDocument, { code }, { market });
     const result = data.applyCouponCode;
 
@@ -256,6 +261,7 @@ export async function removeCoupon(_previous: FormState, form: FormData): Promis
     const code = read(form, 'couponCode');
     if (code.length === 0) return { status: 'error', message: 'No code to remove.' };
 
+    await ensureEditableOrder(market);
     await vendureQuery(RemoveCouponCodeDocument, { code }, { market });
     revalidatePath(`/${market}/checkout`);
     return { status: 'success', message: 'Code removed.' };
@@ -269,13 +275,12 @@ export async function removeCoupon(_previous: FormState, form: FormData): Promis
  *
  * The sequence is deliberate:
  *
- *   transition to ArrangingPayment → confirm the order really is in that state →
+ *   read the current state → transition only from AddingItems → verify the same order →
  *   initialize through the typed backend mutation → validate the provider origin →
  *   retain only the Order code/reference needed by the fixed callback → leave for Paystack.
  *
- * `transitionOrderToState` is NULLABLE. A null result means the order was already in the
- * requested state, which is not the same as this call having moved it there - so the order
- * is re-read instead of the null being treated as either success or failure.
+ * Transition results are nullable. Regardless of the response, re-read the same order
+ * and require ArrangingPayment before initialization; do not infer success from null.
  */
 export async function startPaystackPayment(
   _previous: FormState,
@@ -294,29 +299,23 @@ export async function startPaystackPayment(
       };
     }
 
-    const transition = await vendureQuery(
-      TransitionOrderToStateDocument,
-      { state: 'ArrangingPayment' },
-      { market },
-    );
-    const transitioned = transition.data.transitionOrderToState;
-
-    if (transitioned && transitioned.__typename !== 'Order') {
-      return { status: 'error', message: transitioned.message };
+    const before = await readOrder(market);
+    if (!before) return { status: 'error', message: 'Your bag is empty, so there is nothing to pay for.' };
+    if (before.state === 'AddingItems') {
+      const transition = await vendureQuery(TransitionOrderToStateDocument, { state: 'ArrangingPayment' }, { market });
+      if (transition.authToken) await writeSessionToken(transition.authToken);
+      const result = transition.data.transitionOrderToState;
+      if (result && result.__typename !== 'Order') {
+        // Another tab may already have moved this order into payment. Check before refusing.
+        const fresh = await readOrder(market);
+        if (fresh?.id !== before.id || fresh.state !== 'ArrangingPayment') return { status: 'error', message: result.message };
+      }
+    } else if (before.state !== 'ArrangingPayment') {
+      return { status: 'error', message: 'This order cannot take a payment now. Refresh the checkout to see its current status.' };
     }
-
-    // Either the transition returned null (already there) or it returned an Order. Both are
-    // re-verified against a fresh read: the state is what decides whether payment may be
-    // attempted, and a stale belief about it is exactly what must not be acted on.
     const current = await readOrder(market);
-    if (!current) {
-      return { status: 'error', message: 'Your bag is empty, so there is nothing to pay for.' };
-    }
-    if (current.state !== 'ArrangingPayment') {
-      return {
-        status: 'error',
-        message: `This order is in the ${current.state} state and cannot take a payment right now. Reload the page to see where it stands.`,
-      };
+    if (!current || current.id !== before.id || current.state !== 'ArrangingPayment') {
+      return { status: 'error', message: 'The order changed while preparing payment. Refresh the checkout before trying again.' };
     }
 
     const initialized = await vendureQuery(InitializePaystackPaymentDocument, {}, { market });
