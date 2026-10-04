@@ -11,6 +11,7 @@ import { assertMarket, type Market } from '@/lib/vendure/channels';
 import { presentableMessage, VendureResultError } from '@/lib/vendure/errors';
 import { readSessionToken, withSerialisedFirstSession, writeSessionToken } from '@/lib/vendure/session';
 import { vendureQuery } from '@/lib/vendure/transport';
+import { ensureEditableOrder } from './editable-order';
 
 /**
  * Cart mutations.
@@ -89,6 +90,8 @@ export async function addToCart(
 
     const hasSession = Boolean(await readSessionToken());
 
+    if (hasSession) await ensureEditableOrder(market);
+
     // Two concurrent first clicks would otherwise establish two sessions and orphan a cart.
     const response = await withSerialisedFirstSession(hasSession, () =>
       vendureQuery(AddItemToOrderDocument, { variantId, quantity }, { market }),
@@ -114,6 +117,7 @@ export async function adjustCartLine(
     const lineId = parseId(lineIdInput, 'Order line');
     const quantity = parseQuantity(quantityInput);
 
+    await ensureEditableOrder(market);
     const response = await vendureQuery(
       AdjustOrderLineDocument,
       { lineId, quantity },
@@ -137,6 +141,7 @@ export async function removeCartLine(
     const market = assertMarket(marketInput);
     const lineId = parseId(lineIdInput, 'Order line');
 
+    await ensureEditableOrder(market);
     const response = await vendureQuery(RemoveOrderLineDocument, { lineId }, { market });
     if (response.authToken) await writeSessionToken(response.authToken);
     const cart = unwrapCart(response.data.removeOrderLine);
